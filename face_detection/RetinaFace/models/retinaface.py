@@ -315,6 +315,7 @@ class RetinaFaceWithLossCell(nn.Cell):
         return loss_loc * self.loc_weight + loss_conf * self.class_weight + loss_landm * self.landm_weight
 
 
+# form dsj
 GRADIENT_CLIP_TYPE = 1
 GRADIENT_CLIP_VALUE = 1.0
 
@@ -357,6 +358,7 @@ class TrainingWrapper(nn.Cell):
             else:
                 degree = get_group_size()
             self.grad_reducer = nn.DistributedGradReducer(optimizer.parameters, mean, degree)
+        # from dsj
         self.hyper_map = mindspore.ops.HyperMap()
 
     def construct(self, *args):
@@ -364,6 +366,7 @@ class TrainingWrapper(nn.Cell):
         loss = self.network(*args)
         sens = P.Fill()(P.DType()(loss), P.Shape()(loss), self.sens)
         grads = self.grad(self.network, weights)(*args, sens)
+        # from dsj
         grads = self.hyper_map(F.partial(clip_grad, GRADIENT_CLIP_TYPE, GRADIENT_CLIP_VALUE), grads)
         if self.reducer_flag:
             # apply grad reducer on grads

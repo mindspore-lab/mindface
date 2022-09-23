@@ -10,16 +10,11 @@ import sys
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-base_path = os.getcwd()
-sys.path.append(base_path)
-
 from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
-from utils.utils import decode_bbox, prior_box
+from utils import decode_bbox, prior_box
 
-from model.retinaface import RetinaFace
-from backbone.resnet import resnet50
-from backbone.mobilenet import mobilenet025
+from models import RetinaFace,resnet50,mobilenet025
 
 class Timer():
     def __init__(self):
