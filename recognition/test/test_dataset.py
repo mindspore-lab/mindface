@@ -1,8 +1,8 @@
-
 import argparse
-import pytest
-from src.dataset import create_dataset
-
+# import pytest
+from datasets import create_dataset
+import sys
+sys.append('../')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='test_module')

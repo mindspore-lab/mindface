@@ -16,26 +16,21 @@
 
 echo "=============================================================================================================="
 echo "Please run the script as: "
-echo "bash run.sh DATA_PATH RANK_SIZE"
-echo "For example: bash run.sh /path/dataset 8"
+echo "bash run.sh EVAL_PATH CKPT_PATH"
+echo "For example: bash run.sh path/evalset path/ckpt"
 echo "It is better to use the absolute path."
 echo "=============================================================================================================="
-set -e
 
-export DEVICE_NUM=$2
-export RANK_SIZE=$2
-export DATASET_NAME=$1
-export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+EVAL_PATH=$1
+CKPT_PATH=$2
+MODEL_NAME=$3
+CUDA_VISIBLE_DEVICES=0
 
-rm -rf ./train_parallel
-mkdir ./train_parallel
-# cp -r ./src/ ./train_parallel
-# shellcheck disable=SC2035
-cp *.py ./train_parallel
-cd ./train_parallel
-env > env.log
-echo "start training"
- 
-mpirun -n $2 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
-python train.py --device_num $2 --device_target GPU --data_url $1 >train.log 2>&1 &
+python val.py \
+--ckpt_url "$CKPT_PATH" \
+--device_id 0 \
+--eval_url "$EVAL_PATH" \
+--device_target "GPU" \
+--model "$MODEL_NAME" \
+--target lfw ,cfp_fp,agedb_30,calfw,cplfw \
+> eval.log 2>&1 &
