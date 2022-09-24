@@ -13,18 +13,16 @@ from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMoni
 from mindspore.communication.management import init, get_rank, get_group_size
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-base_path = os.getcwd()
-sys.path.append(base_path)
+# base_path = os.getcwd()
+# sys.path.append(base_path)
 # os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
-from utils.loss import MultiBoxLoss
+from loss import MultiBoxLoss
 from datasets.dataset import create_dataset
 from utils.lr_schedule import adjust_learning_rate, warmup_cosine_annealing_lr
 
-from model.retinaface import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper 
-from backbone.resnet import resnet50
-from backbone.mobilenet import mobilenet025
+from models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
 
 
 def train(cfg):

@@ -15,14 +15,12 @@ from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
 from utils.utils import decode_bbox, prior_box
 
-from model.retinaface import RetinaFace
-from backbone.resnet import resnet50
-from backbone.mobilenet import mobilenet025
+from models import RetinaFace, resnet50, mobilenet025
+from eval import DetectionEngine
 
 def test(cfg):
     # context.set_context(mode=context.GRAPH_MODE, device_target='GPU', save_graphs=False)
     context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU', save_graphs=False)
-    
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
     elif cfg['name'] == 'MobileNet025':
@@ -66,15 +64,9 @@ def test(cfg):
                             min_sizes=[[16, 32], [64, 128], [256, 512]],
                             steps=[8, 16, 32],
                             clip=False)
-
-    # init detection engine
-    from eval import DetectionEngine
     detection = DetectionEngine(cfg)
-    
-    
     # testing begin
     print('Predict box starting')
-
     # image_path = 'imgs/0_Parade_marchingband_1_1004.jpg'
     image_path = cfg['image_path']
     img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
@@ -82,12 +74,12 @@ def test(cfg):
     
     #testing scale
     if test_origin_size:
-            resize = 1
-            assert img.shape[0] <= h_max and img.shape[1] <= w_max
-            image_t = np.empty((h_max, w_max, 3), dtype=img.dtype)
-            image_t[:, :] = (104.0, 117.0, 123.0)
-            image_t[0:img.shape[0], 0:img.shape[1]] = img
-            img = image_t
+        resize = 1
+        assert img.shape[0] <= h_max and img.shape[1] <= w_max
+        image_t = np.empty((h_max, w_max, 3), dtype=img.dtype)
+        image_t[:, :] = (104.0, 117.0, 123.0)
+        image_t[0:img.shape[0], 0:img.shape[1]] = img
+        img = image_t
     else:
         im_size_min = np.min(img.shape[0:2])
         im_size_max = np.max(img.shape[0:2])
@@ -112,13 +104,15 @@ def test(cfg):
     img = Tensor(img)
 
     boxes, confs, _ = network(img)
-    
     boxes = detection.detect(boxes, confs, resize, scale, image_path, priors,phase='test')
     _img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+
     for box in boxes:
         if box[4] > conf_test:
-            cv2.rectangle(_img,(int(box[0]),int(box[1])),(int(box[0])+int(box[2]),int(box[1])+int(box[3])),color=(0,0,255))
-            cv2.putText(_img,str(round(box[4],5)),(int(box[0]),int(box[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
+            cv2.rectangle(_img,(int(box[0]),int(box[1])),
+                (int(box[0])+int(box[2]),int(box[1])+int(box[3])),color=(0,0,255))
+            cv2.putText(_img,str(round(box[4],5)),(int(box[0]),int(box[1])),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
     save_path = image_path.split('.')[0]+'_pred.jpg'
     cv2.imwrite(save_path,_img)
     print(f'Result saving: {save_path}')
