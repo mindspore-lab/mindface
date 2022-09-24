@@ -1,41 +1,10 @@
-'''
-.. py:class:: MobileNetV1(nn.Cell)
-
-    MobileNetV1为retinaface人脸识别套件中的backbone部分，MobileNetV1
-
-    参数：
-        - **参数1** (Tensor) – 参数1说明。
-        - **参数2** (int) – 参数2说明。
-
-          - **二级参数1** (int) – 二级参数1说明。（注意：二级参数需要和上面一级参数的“*”对齐。）
-          - **二级参数2** (int) – 二级参数2说明。
-
-    返回：
-        返回说明。
-
-    输入：
-        - **输入1** (Tensor) - 输入1描述。
-        - **输入2** (Tensor) - 输入2描述。
-
-    输出：
-        - **输出1** (Tensor) - 输出1描述。
-        - **输出2** (Tensor) - 输出2描述。
-
-    异常：
-        - **Error1** – 异常描述1。
-        - **Error1** – 异常描述2。
-
-'''    
-
 """Network."""
-import numpy as np
-
 import mindspore.nn as nn
 from mindspore.ops import operations as P
-from mindspore import Tensor
 
 # MobileNet0.25
 def conv_bn(inp, oup, stride=1, leaky=0):
+    """conv_bn"""
     return nn.SequentialCell([
         nn.Conv2d(in_channels=inp, out_channels=oup, kernel_size=3, stride=stride,
                   pad_mode='pad', padding=1, has_bias=False),
@@ -44,6 +13,7 @@ def conv_bn(inp, oup, stride=1, leaky=0):
     ])
 
 def conv_dw(inp, oup, stride, leaky=0.1):
+    """conv_dw"""
     return nn.SequentialCell([
         nn.Conv2d(in_channels=inp, out_channels=inp, kernel_size=3, stride=stride,
                   pad_mode='pad', padding=1, group=inp, has_bias=False),
@@ -85,6 +55,7 @@ class MobileNetV1(nn.Cell):
         self.fc = nn.Dense(in_channels=256, out_channels=num_classes)
 
     def construct(self, x):
+        """construct"""
         x1 = self.stage1(x)
         x2 = self.stage2(x1)
         x3 = self.stage3(x2)
@@ -94,4 +65,5 @@ class MobileNetV1(nn.Cell):
 
 
 def mobilenet025(class_num=1000):
+    """mobilenet025"""
     return MobileNetV1(class_num)

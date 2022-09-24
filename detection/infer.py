@@ -13,12 +13,13 @@ sys.path.append(base_path)
 
 from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
-from utils.utils import decode_bbox, prior_box
+from utils.box_utils import prior_box
 
 from models import RetinaFace, resnet50, mobilenet025
 from eval import DetectionEngine
 
 def test(cfg):
+    """test one image"""
     # context.set_context(mode=context.GRAPH_MODE, device_target='GPU', save_graphs=False)
     context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU', save_graphs=False)
     if cfg['name'] == 'ResNet50':
@@ -40,6 +41,8 @@ def test(cfg):
 
     conf_test = cfg['conf']
     test_origin_size = False
+    # image_path = 'imgs/0_Parade_marchingband_1_1004.jpg'
+    image_path = cfg['image_path']
 
     if test_origin_size:
         h_max, w_max = 0, 0
@@ -67,8 +70,7 @@ def test(cfg):
     detection = DetectionEngine(cfg)
     # testing begin
     print('Predict box starting')
-    # image_path = 'imgs/0_Parade_marchingband_1_1004.jpg'
-    image_path = cfg['image_path']
+    
     img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
     img = np.float32(img_raw)
     

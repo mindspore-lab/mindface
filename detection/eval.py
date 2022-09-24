@@ -5,7 +5,6 @@ import time
 import datetime
 import numpy as np
 import cv2
-import sys
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
@@ -17,6 +16,7 @@ from utils import decode_bbox, prior_box
 from models import RetinaFace,resnet50,mobilenet025
 
 class Timer():
+    """Timer"""
     def __init__(self):
         self.start_time = 0.
         self.diff = 0.
@@ -37,6 +37,7 @@ class DetectionEngine:
         self.var = cfg['variance']
         self.save_prefix = cfg['val_predict_save_folder']
         self.gt_dir = cfg['val_gt_dir']
+        self.file_path = None
 
     def _iou(self, a, b):
         """_iou"""

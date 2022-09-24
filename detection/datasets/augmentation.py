@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 
 def _rand(a=0., b=1.):
+    """rand"""
     return np.random.rand() * (b - a) + a
 
 def bbox_iof(bbox_a, bbox_b, offset=0):
@@ -20,6 +21,7 @@ def bbox_iof(bbox_a, bbox_b, offset=0):
     return area_i / np.maximum(area_a[:, None], 1)
 
 def _is_iof_satisfied_constraint(box, crop_box):
+    """_is_iof_satisfied_constraint"""
     iof = bbox_iof(box, crop_box)
     satisfied = np.any((iof >= 1.0))
     return satisfied
@@ -201,6 +203,7 @@ def cv_image_reshape(interp):
     return reshape_type[interp]
 
 def color_convert(image, a=1, b=0):
+    """color_convert"""
     c_image = image.astype(float) * a + b
     c_image[c_image < 0] = 0
     c_image[c_image > 255] = 255

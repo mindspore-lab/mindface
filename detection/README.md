@@ -1,5 +1,9 @@
 # RetinaFace in MindSpore
+<div align="center">
 
+English | [简体中文](README_zh-CN.md)
+
+</div>
 
 ## Introduction
 MindSpore is a new generation of full-scenario AI computing framework launched by Huawei in August 2019 and released On March 28, 2020.
@@ -13,17 +17,6 @@ This repository is the mindspore implementation of RetinaFace and has achieved g
 ## Updates
 Comming soon!
 
-
-<!--   
-## WiderFace Val Performance
-
-WiderFace Val Performance When using Resnet50 or MobileNet0.25 as backbone, comparing with MXNet implement.
-| Model | Easy-set | Mesium-set | Hard-set |
-| :-- | :-: | :-: | :-: |
-| RetinaFace_mobile025(MindSpore) | 88.62% | 86.96% | 79.93% |
-| RetinaFace_mobile025(MXNet) | 88.72% | 86.97% | 79.19% |
-| RetinaFace_resnet50(MindSpore) | 94.42% | 93.37% | 89.25% |
-| RetinaFace_resnet50(MXNet) | 94.86% | 93.87% | 88.33% | -->
 
 ## WiderFace Val Performance in single scale When using Resnet50 as backbone.
 | Style | easy | medium | hard |
@@ -58,7 +51,7 @@ WiderFace Val Performance When using Resnet50 or MobileNet0.25 as backbone, comp
     1.2 Install dependencies
 
     ```
-    cd MindFace/face detection/RetinaFace
+    cd MindFace/detection/RetinaFace
     pip install -r requirements.txt
     ```
 
@@ -109,7 +102,7 @@ WiderFace Val Performance When using Resnet50 or MobileNet0.25 as backbone, comp
 
 
 ## RetinaFace Pretrained Models
-You can download the pretrained model from RetinaFace-ResNet50 ([baidu cloud](link) or [googledrive](link)) and  RetinaFace-MobileNet025 ([baidu cloud](link) or [googledrive](link)). 
+You can download the pretrained model from RetinaFace-ResNet50 ([baidu cloud](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) or [googledrive](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing)) and  RetinaFace-MobileNet025 ([baidu cloud](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) or [googledrive](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing)). 
 
 You can verify the results in the [table](#widerface-val-performance-in-single-scale-when-using-resnet50-as-backbone-net) with the downloaded pretrained model.
 
