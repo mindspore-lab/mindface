@@ -1,0 +1,19 @@
+# Train parameters setting
+epochs: 25
+num_classes: 10572
+batch_size: 256
+learning_rate: 0.02
+schedule: [10, 16, 21]
+gamma: 0.02
+momentum: 0.9
+weight-decay: 5e-4
+backbone: 'iresnet50' # 'mobilefacenet', 'iresnet50', 'iresnet100'
+train_url: '.'
+
+# Dataset
+data_url: "Path to dataset"
+
+# Device options
+device_target: 'GPU'
+device_num: 8
+device_id: 0
