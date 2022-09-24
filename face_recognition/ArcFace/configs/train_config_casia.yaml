@@ -6,14 +6,9 @@ learning_rate: 0.02
 schedule: [10, 16, 21]
 gamma: 0.02
 momentum: 0.9
-weight-decay: 5e-4
+weight_decay: 0.0001
 backbone: 'iresnet50' # 'mobilefacenet', 'iresnet50', 'iresnet100'
 train_url: '.'
 
 # Dataset
-data_url: "Path to dataset"
-
-# Device options
-device_target: 'GPU'
-device_num: 8
-device_id: 0
+data_url: "/home/data/dushens/dataset/mindspore/faces_webface_112x112_train"

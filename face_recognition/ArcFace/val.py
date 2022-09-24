@@ -32,8 +32,8 @@ import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
 
-from src.iresnet import iresnet100
-from src.mobilefacenet import get_mbf, get_mbf_large
+from src.iresnet import iresnet50, iresnet100
+from src.mobilefacenet import get_mbf
 
 
 class LFold:
@@ -302,6 +302,7 @@ def main():
     parser.add_argument(
         '--ckpt_url', default="/cache/ArcFace--25_11372.ckpt", type=str, help='ckpt path')
     parser.add_argument('--device_target', default="GPU", type=str, help='device target')
+    parser.add_argument('--model', default="R50", type=str, help='model name')
     parser.add_argument('--batch-size', default=64, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
@@ -310,8 +311,16 @@ def main():
                         device_target=args.device_target)
     image_size = [112, 112]
     time0 = datetime.datetime.now()
-    # model = iresnet100()
-    model = get_mbf(False, 512)
+    
+    if args.model == "R50":
+        model = iresnet50()
+    elif args.model == "R100":
+        model = iresnet100()
+    elif args.model == "MobileFaceNet":
+        model = get_mbf(False, 512)
+    else:
+        raise NotImplementedError
+        
     param_dict = load_checkpoint(args.ckpt_url)
     load_param_into_net(model, param_dict)
     time_now = datetime.datetime.now()

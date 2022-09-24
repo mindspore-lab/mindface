@@ -5,6 +5,7 @@ import mindspore.dataset.vision as C
 import mindspore.dataset.transforms as C2
 from mindspore.communication.management import init, get_rank, get_group_size
 
+__all__=["create_dataset"]
 
 def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="Ascend"):
     """

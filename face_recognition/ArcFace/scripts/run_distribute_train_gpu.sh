@@ -26,15 +26,25 @@ export DEVICE_NUM=$2
 export RANK_SIZE=$2
 export CONFIG=$1
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+# export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=4,5,6,7
 
 rm -rf ./train_parallel
 mkdir ./train_parallel
-cp -r ./src/ ./train_parallel
+
+cp -r ./configs/ ./train_parallel
+cp -r ./datasets/ ./train_parallel
+cp -r ./loss/ ./train_parallel
+cp -r ./models/ ./train_parallel
+cp -r ./scripts/ ./train_parallel
+cp -r ./test/ ./train_parallel
+cp -r ./utils/ ./train_parallel
 # shellcheck disable=SC2035
 cp *.py ./train_parallel
+
 cd ./train_parallel
 env > env.log
 echo "start training"
 mpirun -n $2 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
-python train.py --device_num $2 --device_target 'GPU' --config $1 >train.log 2>&1 &
+python train.py --device_num $2 --device_target 'GPU' --config $1 
+# >train.log 2>&1 &

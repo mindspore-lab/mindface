@@ -8,6 +8,7 @@ from mindspore.common.initializer import initializer
 from loss.arcface_loss import ArcFace
 from loss.ce_loss import SoftMaxCE
 
+__all__=["PartialFC"]
 
 class PartialFC(nn.Cell):
     '''

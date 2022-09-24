@@ -30,7 +30,6 @@ from datasets.face_dataset import create_dataset
 
 mindspore.common.set_seed(2022)
 
-
 def read_yaml(path):
     file = open(path, 'r', encoding='utf-8')
     string = file.read()
@@ -136,23 +135,27 @@ class TrainingWrapper(nn.Cell):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Training')
 
-    # Datasets
+    # configs
     parser.add_argument('--config', default='configs\train_config_ms1m.yaml', type=str,
                         help='output path')
+    
     # Optimization options
+    parser.add_argument('--device_target', type=str,
+                    default='GPU', choices=['GPU', 'Ascend'])
+    parser.add_argument('--device_num', type=int, default=8)
+    parser.add_argument('--device_id', type=int, default=0)
     parser.add_argument('--modelarts', action="store_true", help="using modelarts")
-
     args = parser.parse_args()
 
     train_info = read_yaml(args.config)
 
-    device_id = train_info['device_id']
+    device_id = args.device_id
 
     context.set_context(mode=context.PYNATIVE_MODE,
-                        device_target=train_info['device_target'], save_graphs=False)
+                        device_target=args.device_target, save_graphs=False)
 
-    if train_info['device_num'] > 1:
-        if train_info['device_target'] == 'Ascend':
+    if args.device_num > 1:
+        if args.device_target == 'Ascend':
             device_id = int(os.getenv('DEVICE_ID'))
             context.set_context(device_id=device_id)
             context.set_auto_parallel_context(parallel_mode=ParallelMode.DATA_PARALLEL,
@@ -163,9 +166,9 @@ if __name__ == "__main__":
                                                       costmodel_beta=280.0)
             set_algo_parameters(elementwise_op_strategy_follow=True)
             init()
-        elif train_info['device_target'] == 'GPU':
+        elif args.device_target == 'GPU':
             init()
-            context.set_auto_parallel_context(device_num=train_info['device_num'],
+            context.set_auto_parallel_context(device_num=args.device_num,
                                               parallel_mode=ParallelMode.DATA_PARALLEL,
                                               gradients_mean=True,
                                               search_mode="recursive_programming")
@@ -173,18 +176,20 @@ if __name__ == "__main__":
         device_id = int(os.getenv('DEVICE_ID'))
 
     train_dataset = create_dataset(
-        dataset_path=args.train_info['data_url'], do_train=True, repeat_num=1, batch_size=train_info['batch_size'], target=train_info['device_target'])
+        dataset_path=train_info['data_url'], do_train=True, repeat_num=1, batch_size=train_info['batch_size'], target=args.device_target)
     step = train_dataset.get_dataset_size()
     lr = lr_generator(train_info['learning_rate'], train_info['schedule'], train_info['gamma'], train_info['epochs'], steps_per_epoch=step)
 
     if train_info['backbone'] == 'mobilefacenet':
-        net = get_mbf(False, 512)  # mobilenet-small
+        net = get_mbf(False, 512)
     elif train_info['backbone'] == 'iresnet50':
         net = iresnet50()
     elif train_info['backbone'] == 'iresnet100':
         net = iresnet100()
+    else:
+        raise NotImplementedError
 
-    train_net = MyNetWithLoss(net, train_info['num_classes'], train_info['device_num'])
+    train_net = MyNetWithLoss(net, train_info['num_classes'], args.device_num)
     optimizer = nn.SGD(params=train_net.trainable_params(), learning_rate=lr,
                        momentum=train_info['momentum'], weight_decay=train_info['weight_decay'])
 
@@ -201,10 +206,10 @@ if __name__ == "__main__":
     loss_cb = LossMonitor()
     cb = [ckpt_cb, time_cb, loss_cb]
 
-    if train_info['device_num'] == 1:
+    if args.device_num == 1:
         model.train(train_info['epochs'], train_dataset,
                     callbacks=cb, dataset_sink_mode=False)
-    elif train_info['device_num'] > 1 and get_rank() % 8 == 0:
+    elif args.device_num > 1 and get_rank() % 8 == 0:
         model.train(train_info['epochs'], train_dataset,
                     callbacks=cb, dataset_sink_mode=False)
     else:

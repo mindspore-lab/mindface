@@ -3,6 +3,8 @@ from mindspore.nn import Dense, Conv2d, BatchNorm1d, BatchNorm2d, PReLU, Sequent
 from mindspore.common.initializer import initializer, HeNormal
 
 
+__all__=["get_mbf", "get_mbf_large"]
+
 class Flatten(Cell):
     def construct(self, x):
         return x.view(x.shape[0], -1)
