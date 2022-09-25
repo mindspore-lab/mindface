@@ -42,16 +42,16 @@ Comming soon!
 ## Quick Start
 1. Installation
 
-    1.1 Git clone this [repo](https://github.com/harryjun-ustc/MindFace)
+    1.1 Git clone this [repo](https://github.com/mindlab-ai/mindface.git)
 
     ```
-    git clone https://github.com/harryjun-ustc/MindFace.git
+    git clone https://github.com/mindlab-ai/mindface.git
     ```
 
     1.2 Install dependencies
 
     ```
-    cd MindFace/detection/RetinaFace
+    cd MindFace/detection/
     pip install -r requirements.txt
     ```
 
@@ -86,7 +86,7 @@ Comming soon!
 
 
 ```
-    python tools/train.py --backbone ResNet50 or MobileNet025
+    python train.py --backbone ResNet50 or MobileNet025
 ```
 
 5. Eval
@@ -96,7 +96,7 @@ Comming soon!
 
 6. Predict
 ```
-    python tools/infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
 
