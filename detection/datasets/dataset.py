@@ -8,10 +8,20 @@ import mindspore.dataset as de
 from mindspore.communication.management import init, get_rank, get_group_size
 
 from datasets.augmentation import preproc
-from utils.utils import bbox_encode
+from utils.box_utils import bbox_encode
 
 
 class WiderFace():
+    """
+    A source dataset that reads and parses WIDERFace dataset.
+
+    Args:
+        label_path (String): Path to the root directory that contains the dataset.
+        
+    Examples:
+        >>> wider_face_dir = "/path/to/wider_face_dataset"
+        >>> dataset = WiderFace(label_path = wider_face_dir)
+    """
     def __init__(self, label_path):
         self.images_list = []
         self.labels_list = []
@@ -62,6 +72,21 @@ class WiderFace():
         return self.images_list[item], self.labels_list[item]
 
 def read_dataset(img_path, annotation):
+    """
+    Read the data from a python function.
+
+    Args:
+        img_path (String): The path of dataset.
+        annotation (Dict): The annotation file related to image.
+
+    Returns:
+        img (Object), a batch of data.
+        target (Object), a batch of label.
+
+    Examples:
+        >>> img_path = "/path/to/wider_face_dataset"
+        >>> image, target = read_dataset(img_path, annotation)
+    """
     cv2.setNumThreads(2)
 
     if isinstance(img_path, str):
@@ -97,6 +122,30 @@ def read_dataset(img_path, annotation):
 
 def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, multiprocessing=True, num_worker=4,
                    is_distribute=False):
+    """
+    Create a callable dataloader from a python function.
+
+    This allows us to get all kinds of face-related data sets.
+
+    Args:
+        data_dir (String): The path of dataset.
+        cfg (Dict): The configuration file that contains parameters related to data.
+        batch_size (Int): The batch size of dataset. Default: 32
+        repeat_num (Int): The repeat times of dataset. Default: 1
+        shuffle (Bool): whether to blend the dataset. Default: True
+        multiprocessing (Bool): Parallelize Python function per_batch_map with multi-processing. Default: True
+        num_worker (Int): The number of child processes that process data in parallel. Default: 4
+        is_distribute (Bool): Distributed training parameters. Default: False
+
+    Returns:
+        de_dataset (Object), data loader.
+
+    Examples:
+        >>> training_dataset = "/path/to/wider_face_dataset"
+        >>> config = cfg_res50
+        >>> batch_size = 32
+        >>> ds_train = create_dataset(training_dataset, config, batch_size, multiprocessing=True)
+    """
     dataset = WiderFace(data_dir)
 
     if is_distribute:

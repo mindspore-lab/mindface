@@ -28,6 +28,7 @@ def prior_box(image_sizes, min_sizes, steps, clip=False):
     return output
 
 def center_point_2_box(boxes):
+    """center_point_2_box"""
     return np.concatenate((boxes[:, 0:2] - boxes[:, 2:4] / 2,
                            boxes[:, 0:2] + boxes[:, 2:4] / 2), axis=1)
 
@@ -134,6 +135,7 @@ class bbox_encode():
         return image, loc_t, conf_t, landm_t
 
 def decode_bbox(bbox, priors, var):
+    """decode_bbox"""
     boxes = np.concatenate((
         priors[:, 0:2] + bbox[:, 0:2] * var[0] * priors[:, 2:4],
         priors[:, 2:4] * np.exp(bbox[:, 2:4] * var[1])), axis=1)  # (xc, yc, w, h)
@@ -142,6 +144,7 @@ def decode_bbox(bbox, priors, var):
     return boxes
 
 def decode_landm(landm, priors, var):
+    """decode_landm"""
 
     return np.concatenate((priors[:, 0:2] + landm[:, 0:2] * var[0] * priors[:, 2:4],
                            priors[:, 0:2] + landm[:, 2:4] * var[0] * priors[:, 2:4],

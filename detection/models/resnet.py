@@ -10,10 +10,12 @@ conv_weight_init = 'HeUniform'
 
 # ResNet
 def _weight_variable(shape, factor=0.01):
+    """_weight_variable"""
     init_value = np.random.randn(*shape).astype(np.float32) * factor
     return Tensor(init_value)
 
 def _conv3x3(in_channel, out_channel, stride=1):
+    """conv3x3"""
     weight_shape = (out_channel, in_channel, 3, 3)
     weight = _weight_variable(weight_shape)
 
@@ -21,6 +23,7 @@ def _conv3x3(in_channel, out_channel, stride=1):
                      kernel_size=3, stride=stride, padding=1, pad_mode='pad', weight_init=weight)
 
 def _conv1x1(in_channel, out_channel, stride=1):
+    """conv1x1"""
     weight_shape = (out_channel, in_channel, 1, 1)
     weight = _weight_variable(weight_shape)
 
@@ -28,6 +31,7 @@ def _conv1x1(in_channel, out_channel, stride=1):
                      kernel_size=1, stride=stride, padding=0, pad_mode='pad', weight_init=weight)
 
 def _conv7x7(in_channel, out_channel, stride=1):
+    """conv7x7"""
     weight_shape = (out_channel, in_channel, 7, 7)
     weight = _weight_variable(weight_shape)
 
@@ -35,14 +39,17 @@ def _conv7x7(in_channel, out_channel, stride=1):
                      kernel_size=7, stride=stride, padding=3, pad_mode='pad', weight_init=weight)
 
 def _bn(channel):
+    """bn"""
     return nn.BatchNorm2d(channel)
 
 
 def _bn_last(channel):
+    """bn_last"""
     return nn.BatchNorm2d(channel)
 
 
 def _fc(in_channel, out_channel):
+    """fc layer"""
     weight_shape = (out_channel, in_channel)
     weight = _weight_variable(weight_shape)
     return nn.Dense(in_channel, out_channel, has_bias=True, weight_init=weight, bias_init=0)
@@ -190,6 +197,7 @@ class ResNet(nn.Cell):
         return c3, c4, c5
 
 def resnet50(class_num=10):
+    """resnet50 model"""
     return ResNet(ResidualBlock,
                   [3, 4, 6, 3],
                   [64, 256, 512, 1024],
