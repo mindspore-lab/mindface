@@ -45,16 +45,16 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 ## 快速入门
 1. 安装
 
-    1.1 从[此处](https://github.com/harryjun-ustc/MindFace)进行Git clone
+    1.1 从[此处](https://github.com/mindlab-ai/mindface.git)进行Git clone
 
     ```
-    git clone https://github.com/harryjun-ustc/MindFace.git
+    git clone https://github.com/mindlab-ai/mindface.git
     ```
 
     1.2 安装依赖包
 
     ```
-    cd MindFace/detection/RetinaFace
+    cd mindface/detection/
     pip install -r requirements.txt
     ```
 
@@ -64,7 +64,7 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
     
 
 
-    2.2. 在 MindFace/RetinaFace/ 目录下存放数据集，结构树如下所示:
+    2.2. 在 mindface/detection/ 目录下存放数据集，结构树如下所示:
     ```
     data/WiderFace/
         train/
@@ -89,17 +89,17 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 
 
 ```
-    python tools/train.py --backbone ResNet50 or MobileNet025
+    python train.py --backbone ResNet50 or MobileNet025
 ```
 
 5. 评估
 ```
-    python tools/eval.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt
+    python eval.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt
 ```
 
 6. 预测
 ```
-    python tools/infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
 
