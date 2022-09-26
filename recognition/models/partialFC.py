@@ -5,6 +5,9 @@ from mindspore import dtype as mstype
 from mindspore.ops import functional as F
 from mindspore.common.initializer import initializer
 
+import sys
+sys.path.append("recognition")
+
 from loss.arcface_loss import ArcFace
 from loss.ce_loss import SoftMaxCE
 

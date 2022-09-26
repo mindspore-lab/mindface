@@ -5,7 +5,6 @@ import argparse
 
 import mindspore
 import mindspore.nn as nn
-from mindspore import context, Tensor
 
 import mindspore.ops as ops
 from mindspore.ops import composite as C
@@ -22,6 +21,7 @@ from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMoni
 from mindspore.communication.management import init, get_rank
 from mindspore.parallel import _cost_model_context as cost_model_context
 from mindspore.parallel import set_algo_parameters
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from models.iresnet import iresnet100, iresnet50
 from models.mobilefacenet import get_mbf
@@ -176,7 +176,14 @@ if __name__ == "__main__":
         device_id = int(os.getenv('DEVICE_ID'))
 
     train_dataset = create_dataset(
-        dataset_path=train_info['data_url'], do_train=True, repeat_num=1, batch_size=train_info['batch_size'], target=args.device_target)
+                dataset_path=train_info['data_url'], 
+                do_train=True, 
+                repeat_num=1, 
+                batch_size=train_info['batch_size'], 
+                target=args.device_target, 
+                is_parallel=(args.device_num > 1)
+            )
+    
     step = train_dataset.get_dataset_size()
     lr = lr_generator(train_info['learning_rate'], train_info['schedule'], train_info['gamma'], train_info['epochs'], steps_per_epoch=step)
 
@@ -192,6 +199,10 @@ if __name__ == "__main__":
     train_net = MyNetWithLoss(net, train_info['num_classes'], args.device_num)
     optimizer = nn.SGD(params=train_net.trainable_params(), learning_rate=lr,
                        momentum=train_info['momentum'], weight_decay=train_info['weight_decay'])
+
+    if train_info["resume"]:
+        param_dict = load_checkpoint(train_info["resume"])
+        load_param_into_net(train_net, param_dict)
 
     train_net = TrainingWrapper(train_net, optimizer)
 

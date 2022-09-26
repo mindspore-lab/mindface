@@ -7,7 +7,7 @@ from mindspore.communication.management import init, get_rank, get_group_size
 
 __all__=["create_dataset"]
 
-def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="Ascend"):
+def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="Ascend", is_parallel=True):
     """
         create a train dataset
 
@@ -17,6 +17,7 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="
             repeat_num(int): the repeat times of dataset. Default: 1
             batch_size(int): the batch size of dataset. Default: 32
             target(str): the device target. Default: Ascend
+            is_parallel(bool): training in parallel or not, Defualt: True
 
         Returns:
             dataset
@@ -24,9 +25,13 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="
     if target == "Ascend":
         device_num, rank_id = _get_rank_info()
     else:
-        init("nccl")
-        rank_id = get_rank()
-        device_num = get_group_size()
+        if is_parallel:
+            init("nccl")
+            rank_id = get_rank()
+            device_num = get_group_size()
+        else:
+            rank_id = 0
+            device_num = 1
 
     if device_num == 1:
         ds = de.ImageFolderDataset(

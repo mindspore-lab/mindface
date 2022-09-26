@@ -28,6 +28,14 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 from scipy import interpolate
+import mindspore as ms
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from mindspore import context
+
+import sys
+sys.path.append("models")
+
+from models import iresnet50, iresnet100, get_mbf
 
 
 class LFold:
@@ -53,8 +61,6 @@ def calculate_roc(thresholds,
                   pca=0):
     '''
     calculate_roc
-
-    # noqa: DAR201
     '''
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
@@ -130,8 +136,6 @@ def calculate_val(thresholds,
                   nrof_folds=10):
     '''
     calculate_val
-
-    # noqa: DAR201
     '''
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
@@ -232,7 +236,7 @@ def load_bin(path, image_size):
     return data_list, issame_list
 
 
-def test(data_set, batch_size, args):
+def test(data_set, backbone, batch_size, nfolds=10):
     '''test
     '''
     print('testing verification..')
@@ -240,18 +244,18 @@ def test(data_set, batch_size, args):
     issame_list = data_set[1]
     embeddings_list = []
     time_consumed = 0.0
-    i = 0
     for data in data_list:
         embeddings = None
         ba = 0
         while ba < data.shape[0]:
             bb = min(ba + batch_size, data.shape[0])
             count = bb - ba
+            _data = data[bb - batch_size: bb]
 
             time0 = datetime.datetime.now()
-            file_name = os.path.join(args.result_dir, 'lfw_' + str(i) + '_0.bin')
-            net_out = np.fromfile(file_name, np.float32).reshape(batch_size, 512)
-            _embeddings = net_out
+            img = ((_data / 255) - 0.5) / 0.5
+            net_out = backbone(ms.Tensor(img, ms.float32))
+            _embeddings = net_out.asnumpy()
             time_now = datetime.datetime.now()
             diff = time_now - time0
             time_consumed += diff.total_seconds()
@@ -259,7 +263,6 @@ def test(data_set, batch_size, args):
                 embeddings = np.zeros((data.shape[0], _embeddings.shape[1]))
             embeddings[ba:bb, :] = _embeddings[(batch_size - count):, :]
             ba = bb
-            i = i + 1
         embeddings_list.append(embeddings)
     _xnorm = 0.0
     _xnorm_cnt = 0
@@ -273,7 +276,7 @@ def test(data_set, batch_size, args):
 
     embeddings = embeddings_list[0].copy()
     embeddings = sklearn.preprocessing.normalize(embeddings)
-    _, _, acc, _, _, _ = evaluate(embeddings, issame_list, nrof_folds=args.nfolds)
+    _, _, acc, _, _, _ = evaluate(embeddings, issame_list, nrof_folds=nfolds)
     acc1 = np.mean(acc)
     std1 = np.std(acc)
     embeddings = embeddings_list[0] + embeddings_list[1]
@@ -281,33 +284,39 @@ def test(data_set, batch_size, args):
     print(embeddings.shape)
     print('infer time', time_consumed)
     _, _, accuracy, _, _, _ = evaluate(
-        embeddings, issame_list, nrof_folds=args.nfolds)
+        embeddings, issame_list, nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
     return acc1, std1, acc2, std2, _xnorm, embeddings_list
 
 
-def main():
+def eval(model_name, ckpt_url, eval_url, target='lfw,cfp_fp,agedb_30,calfw,cplfw', device_id=0, device_target="GPU", batch_size=64, nfolds=10):
     '''r
     main function
     '''
-    parser = argparse.ArgumentParser(description='do verification')
-    # general
-    parser.add_argument('--target',
-                        default='lfw',
-                        help='test targets.')
-    parser.add_argument('--batch_size', default=64, type=int, help='')
-    parser.add_argument('--nfolds', default=10, type=int, help='')
-    parser.add_argument('--result_dir', type=str, help='')
-    parser.add_argument('--label_dir', type=str, help='')
-    parser.add_argument('--data_set', type=str, help='')
-    args = parser.parse_args()
-
+    context.set_context(device_id=device_id, mode=context.GRAPH_MODE,
+                        device_target=device_target)
     image_size = [112, 112]
+    time0 = datetime.datetime.now()
+    
+    if model_name == "R50":
+        model = iresnet50()
+    elif model_name == "R100":
+        model = iresnet100()
+    elif model_name == "MobileFaceNet":
+        model = get_mbf(False, 512)
+    else:
+        raise NotImplementedError
+        
+    param_dict = load_checkpoint(ckpt_url)
+    load_param_into_net(model, param_dict)
+    time_now = datetime.datetime.now()
+    diff = time_now - time0
+    print('model loading time', diff.total_seconds())
+
     ver_list = []
     ver_name_list = []
-    for name in args.target.split(','):
-        path = os.path.join(args.data_set)
-        print("loading...")
+    for name in target.split(','):
+        path = os.path.join(eval_url, name + ".bin")
         if os.path.exists(path):
             print('loading.. ', name)
             data_set = load_bin(path, image_size)
@@ -317,12 +326,10 @@ def main():
     length = len(ver_list)
     for i in range(length):
         acc1, std1, acc2, std2, xnorm, _ = test(
-            ver_list[i], args.batch_size, args)
+            ver_list[i], model, batch_size, nfolds)
         print('[%s]XNorm: %f' % (ver_name_list[i], xnorm))
         print('[%s]Accuracy: %1.5f+-%1.5f' % (ver_name_list[i], acc1, std1))
         print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
               (ver_name_list[i], acc2, std2))
 
 
-if __name__ == '__main__':
-    main()

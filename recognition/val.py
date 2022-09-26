@@ -32,8 +32,7 @@ import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
 
-from src.iresnet import iresnet50, iresnet100
-from src.mobilefacenet import get_mbf
+from models import iresnet100, iresnet50, get_mbf
 
 
 class LFold:
@@ -293,6 +292,7 @@ def main():
     '''
     parser = argparse.ArgumentParser(description='do verification')
     # general
+    parser.add_argument('--model', default='R50', help='model names')
     parser.add_argument(
         '--eval_url', default='/data/arcface/', help='')
     parser.add_argument('--device_id', default=0, type=int, help='device id')
@@ -301,8 +301,7 @@ def main():
                         help='test targets.')
     parser.add_argument(
         '--ckpt_url', default="/cache/ArcFace--25_11372.ckpt", type=str, help='ckpt path')
-    parser.add_argument('--device_target', default="GPU", type=str, help='device target')
-    parser.add_argument('--model', default="R50", type=str, help='model name')
+    parser.add_argument('--device_target', default="Ascend", type=str, help='device target')
     parser.add_argument('--batch-size', default=64, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
@@ -312,15 +311,18 @@ def main():
     image_size = [112, 112]
     time0 = datetime.datetime.now()
     
-    if args.model == "R50":
+    if args.model == 'R50':
         model = iresnet50()
-    elif args.model == "R100":
+        print("Finish loading R50")
+    elif args.model == 'R100':
         model = iresnet100()
-    elif args.model == "MobileFaceNet":
+        print("Finish loading R100")
+    elif args.model == 'mobilefacenet':
         model = get_mbf(False, 512)
+        print("Finish loading mobilefacenet")
     else:
         raise NotImplementedError
-        
+
     param_dict = load_checkpoint(args.ckpt_url)
     load_param_into_net(model, param_dict)
     time_now = datetime.datetime.now()

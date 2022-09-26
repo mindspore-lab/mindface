@@ -16,21 +16,32 @@
 
 echo "=============================================================================================================="
 echo "Please run the script as: "
-echo "bash run.sh EVAL_PATH CKPT_PATH"
-echo "For example: bash run.sh path/evalset path/ckpt"
+echo "bash run.sh DATA_PATH"
+echo "For example: bash run.sh /path/dataset"
 echo "It is better to use the absolute path."
 echo "=============================================================================================================="
 
-EVAL_PATH=$1
-CKPT_PATH=$2
-MODEL_NAME=$3
-CUDA_VISIBLE_DEVICES=0
+export CONFIG=$1
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+export CUDA_VISIBLE_DEVICES=0
+export DEVICE_ID=0
 
-python val.py \
---ckpt_url "$CKPT_PATH" \
---device_id 0 \
---eval_url "$EVAL_PATH" \
---device_target "GPU" \
---model "$MODEL_NAME" \
---target lfw,cfp_fp,agedb_30,calfw,cplfw \
-> eval.log 2>&1 &
+rm -rf ./train_single
+mkdir ./train_single
+
+cp -r ./configs/ ./train_single
+cp -r ./datasets/ ./train_single
+cp -r ./loss/ ./train_single
+cp -r ./models/ ./train_single
+cp -r ./scripts/ ./train_single
+cp -r ./test/ ./train_single
+cp -r ./utils/ ./train_single
+# shellcheck disable=SC2035
+cp *.py ./train_single
+
+cd ./train_single
+env > env.log
+echo "start training"
+
+python train.py --device_target 'GPU' --device_num 1 --config $1 
+# > train.log 2>&1 &

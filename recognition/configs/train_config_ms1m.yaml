@@ -9,6 +9,7 @@ momentum: 0.9
 weight_decay: 0.0001
 backbone: 'iresnet50' # 'mobilefacenet', 'iresnet50', 'iresnet100'
 train_url: '.'
+resume: False
 
 # Dataset
 data_url: "/home/data/dushens/dataset/mindspore/faces_emore_train"
