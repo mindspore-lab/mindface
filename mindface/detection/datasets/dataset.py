@@ -20,8 +20,9 @@ import sys
 import mindspore.dataset as de
 from mindspore.communication.management import init, get_rank, get_group_size
 
-from datasets import preproc
-from utils.box_utils import bbox_encode
+from mindface.detection.datasets.augmentation import preproc
+
+from mindface.detection.utils.box_utils import bbox_encode
 
 
 class WiderFace():
@@ -219,3 +220,4 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, mul
 
 
     return de_dataset
+

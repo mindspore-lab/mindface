@@ -22,11 +22,11 @@ import cv2
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from configs.RetinaFace_mobilenet import cfg_mobile025
-from configs.RetinaFace_resnet50 import cfg_res50
-from utils import decode_bbox, prior_box
+from .configs.RetinaFace_mobilenet import cfg_mobile025
+from .configs.RetinaFace_resnet50 import cfg_res50
+from .utils import decode_bbox, prior_box
 
-from models import RetinaFace,resnet50,mobilenet025
+from .models import RetinaFace,resnet50,mobilenet025
 
 class Timer():
     """Timer"""

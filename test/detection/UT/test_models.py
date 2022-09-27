@@ -1,9 +1,4 @@
 # import packages
-import os
-import sys
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(),'mindface/detection'))
-
 import mindspore
 from mindspore import Tensor
 import numpy as np
