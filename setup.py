@@ -75,16 +75,15 @@ setup(
         'Sources': 'https://github.com/mindlab-ai/mindface',
         'Issue Tracker': 'https://github.com/mindlab-ai/mindface/issues',
     },
-    description="An open source computer vision research tool box.",
+    description="An open source face research tool box.",
     license='Apache 2.0',
     include_package_data=True,
-    packages=find_packages(exclude=("mindface")),
+    packages=find_packages(include=["mindface", "mindface.*"]),
     cmdclass={
         'egg_info': EggInfo,
         'build_py': BuildPy,
     },
     install_requires=[
-        # 'mindspore_gpu==1.8.0',
         'numpy==1.21.6',
         'opencv_python==4.6.0.66',
         'scipy==1.7.3',

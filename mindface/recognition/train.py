@@ -1,16 +1,3 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ============================================================================
-
 import os
 import numpy as np
 import yaml
@@ -40,6 +27,8 @@ from models.iresnet import iresnet100, iresnet50
 from models.mobilefacenet import get_mbf
 from models.partialFC import PartialFC
 from datasets.face_dataset import create_dataset
+from loss.arcface_loss import ArcFace
+from loss.ce_loss import SoftMaxCE
 
 mindspore.common.set_seed(2022)
 
@@ -77,13 +66,18 @@ class MyNetWithLoss(nn.Cell):
     def __init__(self, backbone, num_classes, device_num):
         super(MyNetWithLoss, self).__init__(auto_prefix=False)
         self._backbone = backbone.to_float(mstype.float16)
-        self._loss_fn = PartialFC(num_classes=num_classes,
+        self.fc = PartialFC(num_classes=num_classes,
                                   world_size=device_num).to_float(mstype.float32)
-        self.L2Norm = ops.L2Normalize(axis=1)
+        self.margin_softmax = ArcFace(world_size=device_num)
+        self.loss = SoftMaxCE(world_size=device_num)
+        # self.L2Norm = ops.L2Normalize(axis=1)
 
     def construct(self, data, label):
         out = self._backbone(data)
-        loss = self._loss_fn(out, label)
+        out_fc = self.fc(out)
+        out_fc = self.margin_softmax(out_fc, label)
+        loss = self.loss(out_fc, label)
+
         return loss
 
 
