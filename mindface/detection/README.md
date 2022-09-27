@@ -18,8 +18,8 @@ This repository is the mindspore implementation of RetinaFace and has achieved g
 Comming soon!
 
 
-## WiderFace Val Performance in single scale When using Resnet50 as backbone.
-| Style | easy | medium | hard |
+## WiderFace Val Performance in single scale When using ResNet50 as backbone.
+| Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
 | MindSpore (same parameter with MXNet) | 94.42% | 93.37% | 89.25% |
 | MindSpore (original image scale) | 95.34% | 93.91% | 84.01% |
@@ -28,8 +28,8 @@ Comming soon!
 | MXNet | 94.86% | 93.87% | 88.33% |
 | MXNet(original image scale) | 94.97% | 93.89% | 82.27% |
 
-## WiderFace Val Performance in single scale When using Mobilenet0.25 as backbone.
-| Style | easy | medium | hard |
+## WiderFace Val Performance in single scale When using mobileNet0.25 as backbone.
+| Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
 | MindSpore (same parameter with MXNet) | 88.62% | 86.96% | 79.93% |
 | MindSpore (original image scale) | 90.73% | 88.24% | 73.87% |

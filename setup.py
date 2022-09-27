@@ -84,7 +84,7 @@ setup(
         'build_py': BuildPy,
     },
     install_requires=[
-        'mindspore_gpu==1.8.0',
+        # 'mindspore_gpu==1.8.0',
         'numpy==1.21.6',
         'opencv_python==4.6.0.66',
         'scipy==1.7.3',

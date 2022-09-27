@@ -8,36 +8,73 @@ For all main contributors, please check [contributing](#contributing).
 ---
 **`2022-06-18`**: We have created our official repo about face research based on MindSpore. 
 
-## License
----
-The code of MindFace is released under the MIT License. There is no limitation for academic usage.
-
-The training data containing the annotation (and the models trained with these data) are available for non-commercial research purposes only.
-
 
 ## Introduction
 ---
 MindFace mainly has the following features.
-- Unified algorithm interface
+- Unified Application Programming Interface
 
+    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the mindface APIs, which greatly improves the ease of building algorithms for users
 
-    MindFace provides a unified algorithm application interface for face recognition and detection by decoupling the models, so that the model can be called directly using the algorithm interface, which greatly improves the reusability and ease of use of the model and reduces the cost of using the algorithm.
 - Strong extensibility
 
-    For face algorithm scalability, MindFace currently supports face classification and detection models, based on a unified algorithm interface, the model is highly scalable, the model can support multiple backbone, support multiple datasets, support multiple platforms, including CPU/GPU/Ascend, support multiple Loss, etc., and can also support other models in the field of face.
-- Easy to use
+    MindFace currently supports face recognition and detection, based on the unified APIs. MindFace is highly scalable, it can support lots of backbones, datasets, and loss functions. What's More, MindFace also supports many platforms, including CPU/GPU/Ascend.
 
-    For the fragmentation between different task algorithms, MindFace puts the overall model into the code for packaging, which can be installed directly by command, and can be applied directly to different tasks by calling the interface after installation, making it simple to use the algorithm between different tasks.
 
 ## Installation
----
 
+### Dependency
+
+- mindspore_gpu==1.8.0
+- numpy==1.21.6
+- opencv_python==4.6.0.66
+- scipy==1.7.3
+- pyyaml>=5.3
+- scikit-learn==1.1.2
+- Pillow==9.2.0
+- matplotlib==3.6.0
+
+To install the dependency, please run
+```shell
+pip install -r requirements.txt
+```
+
+MindSpore can be easily installed by following the official [instruction](https://www.mindspore.cn/install) where you can select your hardware platform for the best fit. To run in distributed mode, [openmpi](https://www.open-mpi.org/software/ompi/v4.0/) is required to install.   
+
+
+
+### Install with pip
+MindFace can be installed with pip. 
+```shell
+pip install mindface
+```
+
+### Install from source
+To install MindFace from source, please run,
+```shell
+# Clone the mindface repository.
+git clone https://github.com/mindlab-ai/mindface.git
+cd mindface
+
+# Install
+python setup.py install
+```
+
+## Tutorials
+---
+<!-- We provide [jupyter notebook tutorials](tutorials) for  
+
+- [Learn about configs](tutorials/learn_about_config.ipynb)  
+- [Inference with a pretrained model](tutorials/inference.ipynb) 
+- [Finetune a pretrained model on custom datasets](tutorials/finetune.ipynb) 
+- [Customize models](tutorials/customize_model.ipynb) 
+- [Optimizing performance for vision transformer](tutorials/transformer.ipynb)  -->
 
 ### Projects
 ---
 #### Recognition
 ---
-This repository is the mindspore implementation of ArcFace and has achieved great performance. We implemented two versions based on ResNet and MobileNet to meet different needs.
+The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
 
 | Datasets       | Backbone            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
@@ -50,10 +87,28 @@ This repository is the mindspore implementation of ArcFace and has achieved grea
 
 #### Detection
 ---
+For Face detection, We choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
+
+##### WiderFace Val Performance in single scale When using ResNet50 or mobileNet025 as backbone.
+| Model | Easy | Medium | Hard |
+|:-|:-:|:-:|:-:|
+| RetinaFace_ResNet50 | 94.42% | 93.37% | 89.25% |
+| RetinaFace_ResNet50 (original image scale) | 95.34% | 93.91% | 84.01% |
+| RetinaFace_MobileNet025 (same parameter with MXNet) | 88.62% | 86.96% | 79.93% |
+| RetinaFace_MobileNet025 (original image scale) | 90.73% | 88.24% | 73.87% |
 
 
+## License
 
+This project is released under the [Apache License 2.0](LICENSE.md).
 
+## Feedbacks and Contact
+
+The dynamic version is still under development, if you find any issue or have an idea on new features, please don't hesitate to contact us via [issue](https://github.com/mindlab-ai/mindface/issues).
+
+## Acknowledgement
+
+MindSpore is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
 
 If you find *MindFace* useful in your research, please consider to cite the following related papers:
 
@@ -67,6 +122,7 @@ If you find *MindFace* useful in your research, please consider to cite the foll
 
 ```
 ---
+
 ## Contributing
 ---
 *MindFace* is mainly maintained by the Cross-Media Intelligent Computing (**CMIC**) Laboratory, University of Science and Technology of China (**USTC**), and cooperated with Huawei Technologies Co., Ltd. 
