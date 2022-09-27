@@ -13,15 +13,18 @@ sys.path.append(base_path)
 
 from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
-from utils.box_utils import prior_box
+from utils import prior_box
 
 from models import RetinaFace, resnet50, mobilenet025
 from eval import DetectionEngine
 
-def test(cfg):
+def infer(cfg):
     """test one image"""
-    # context.set_context(mode=context.GRAPH_MODE, device_target='GPU', save_graphs=False)
-    context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU', save_graphs=False)
+    if cfg['mode'] == 'Graph':
+        context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
+    else :
+        context.set_context(mode=context.PYNATIVE_MODE, device_target = cfg['device_target'])
+
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
     elif cfg['name'] == 'MobileNet025':
@@ -134,7 +137,10 @@ if __name__ == '__main__':
         config = cfg_res50
     elif args.backbone_name == 'MobileNet025':
         config = cfg_mobile025
-    config['image_path'] = args.image_path
-    config['conf'] = args.conf
-    config['val_model'] = args.checkpoint
-    test(cfg=config)
+    if args.image_path:
+        config['image_path'] = args.image_path
+    if args.conf:
+        config['conf'] = args.conf
+    if args.checkpoint:
+        config['val_model'] = args.checkpoint
+    infer(cfg=config)

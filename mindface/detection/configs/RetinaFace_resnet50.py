@@ -3,6 +3,7 @@
 cfg_res50 = {
     'name': 'ResNet50',
     'device_target': "GPU",
+    'mode': 'Pynative',
     'variance': [0.1, 0.2],
     'clip': False,
     'loc_weight': 2.0,

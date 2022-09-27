@@ -6,6 +6,7 @@ from mindspore.ops import functional as F
 from mindspore.common.initializer import initializer
 
 import sys
+sys.path.append("mindface/recognition")
 sys.path.append("recognition")
 
 from loss.arcface_loss import ArcFace

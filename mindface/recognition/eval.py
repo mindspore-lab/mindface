@@ -33,7 +33,8 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
 
 import sys
-sys.path.append("models")
+sys.path.append("mindface/recognition")
+sys.path.append("recognition")
 
 from models import iresnet50, iresnet100, get_mbf
 

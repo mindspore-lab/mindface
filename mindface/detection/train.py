@@ -19,8 +19,8 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from configs.RetinaFace_mobilenet import cfg_mobile025
 from configs.RetinaFace_resnet50 import cfg_res50
 from loss import MultiBoxLoss
-from datasets.dataset import create_dataset
-from utils.lr_schedule import adjust_learning_rate, warmup_cosine_annealing_lr
+from datasets import create_dataset
+from utils import adjust_learning_rate, warmup_cosine_annealing_lr
 
 from models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
 
@@ -29,8 +29,10 @@ def train(cfg):
     
     mindspore.common.seed.set_seed(cfg['seed'])
    
-    context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
-    # context.set_context(mode=context.PYNATIVE_MODE, device_target=cfg['device_target'])
+    if cfg['mode'] == 'Graph':
+        context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
+    else :
+        context.set_context(mode=context.PYNATIVE_MODE, device_target = cfg['device_target'])
 
     # rank=0
     if cfg['device_target'] == "Ascend":

@@ -294,9 +294,11 @@ class DetectionEngine:
 
 def val(cfg):
 
-    context.set_context(mode=context.GRAPH_MODE, device_target='GPU', save_graphs=False)
-    # context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU', save_graphs=False)
-    
+    if cfg['mode'] == 'Graph':
+        context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
+    else :
+        context.set_context(mode=context.PYNATIVE_MODE, device_target = cfg['device_target'])
+
 
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
@@ -436,5 +438,6 @@ if __name__ == '__main__':
         config = cfg_res50
     elif args.backbone_name == 'MobileNet025':
         config = cfg_mobile025
-    config['val_model'] = args.checkpoint
+    if args.checkpoint:
+        config['val_model'] = args.checkpoint
     val(cfg=config)

@@ -3,11 +3,11 @@ import os
 import copy
 import cv2
 import numpy as np
-
+import sys
 import mindspore.dataset as de
 from mindspore.communication.management import init, get_rank, get_group_size
 
-from datasets.augmentation import preproc
+from datasets import preproc
 from utils.box_utils import bbox_encode
 
 

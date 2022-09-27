@@ -3,6 +3,7 @@
 cfg_mobile025 = {
     'name': 'MobileNet025',
     'device_target': "GPU",
+    'mode': 'Graph',
     'variance': [0.1, 0.2],
     'clip': False,
     'loc_weight': 2.0,

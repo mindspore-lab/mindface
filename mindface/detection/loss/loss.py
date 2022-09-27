@@ -26,7 +26,7 @@ class SoftmaxCrossEntropyWithLogits(nn.Cell):
 
 class MultiBoxLoss(nn.Cell):
     """MultiBoxLoss"""
-    def __init__(self, num_classes, num_boxes, neg_pre_positive, batch_size):
+    def __init__(self, num_classes, num_boxes, neg_pre_positive):
         super(MultiBoxLoss, self).__init__()
         self.num_classes = num_classes
         self.num_boxes = num_boxes
