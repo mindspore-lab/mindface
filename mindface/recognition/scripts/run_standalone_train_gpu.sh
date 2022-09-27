@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -33,7 +33,6 @@ cp -r ./datasets/ ./train_single
 cp -r ./loss/ ./train_single
 cp -r ./models/ ./train_single
 cp -r ./scripts/ ./train_single
-cp -r ./test/ ./train_single
 cp -r ./utils/ ./train_single
 # shellcheck disable=SC2035
 cp *.py ./train_single

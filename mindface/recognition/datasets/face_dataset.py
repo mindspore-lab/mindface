@@ -1,16 +1,3 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ============================================================================
-
 import os
 import mindspore.common.dtype as mstype
 import mindspore.dataset.engine as de
@@ -20,7 +7,7 @@ from mindspore.communication.management import init, get_rank, get_group_size
 
 __all__=["create_dataset"]
 
-def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="Ascend", is_parallel=True):
+def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmentation=None, target="Ascend", is_parallel=True):
     """
         create a train dataset
 
@@ -29,6 +16,7 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="
             do_train(bool): whether dataset is used for train or eval.
             repeat_num(int): the repeat times of dataset. Default: 1
             batch_size(int): the batch size of dataset. Default: 32
+            augmentation(list): external augmentation, Default: None
             target(str): the device target. Default: Ascend
             is_parallel(bool): training in parallel or not, Defualt: True
 
@@ -59,13 +47,15 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, target="
 
     # define map operations
     if do_train:
-        trans = [
-            # C.RandomCropDecodeResize(image_size, scale=(0.08, 1.0), ratio=(0.75, 1.333)),
-            C.Decode(),
-            C.RandomHorizontalFlip(prob=0.5),
-            C.Normalize(mean=mean, std=std),
-            C.HWC2CHW()
-        ]
+        if augmentation:
+            trans = augmentation
+        else:
+            trans = [
+                C.Decode(),
+                C.RandomHorizontalFlip(prob=0.5),
+                C.Normalize(mean=mean, std=std),
+                C.HWC2CHW()
+            ]
     else:
         trans = [
             C.Decode(),
