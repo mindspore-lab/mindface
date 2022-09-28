@@ -9,13 +9,19 @@ from mindspore import context, Tensor
 from mindface.recognition.models.iresnet import iresnet50
 import pytest
 
-context.set_context(mode=context.PYNATIVE_MODE,
-                    device_target='GPU', save_graphs=False)
 
-def test_model():
-    net = iresnet50()
+def test_model(mode, target):
+    if mode == 'PYNATIVE_MODE':
+        context.set_context(mode=context.PYNATIVE_MODE,device_target='GPU', save_graphs=False)
+    else:
+        context.set_context(mode=context.GRAPH,device_target='GPU', save_graphs=False)
+    if target == 'GPU':
+        context.set_context(mode=context.PYNATIVE_MODE,device_target='GPU', save_graphs=False)
+    else:
+        context.set_context(mode=context.GRAPH,device_target='Ascend', save_graphs=False)
     bs = 256
+    net = iresnet50()
     x = ms.Tensor(np.ones([bs, 3, 112, 112]), ms.float32)
     output = net(x)
     assert output.shape[0] == bs, 'output shape not match'
-test_model()
+test_model(mode='PYNATIVE_MODE', target='GPU')
