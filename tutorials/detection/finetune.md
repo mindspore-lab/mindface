@@ -1,5 +1,8 @@
 # 本文档将介绍如何finetune
-在本教程中，您将学会如何使用MIndFace套件搭建RetinaFace模型并进行微调。在此之前，请先保证您安装了mindface.
+在本教程中，您将学会如何使用MIndFace套件搭建RetinaFace模型并进行微调。
+在此之前，请先保证您
+1. 安装了mindface.
+2. 参考`mindface/detection/README.md`下载数据集和预训练模型
 
 ## 加载功能包，调用所需函数
 在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数
@@ -10,8 +13,6 @@ import math
 import mindspore
 import os
 import sys
-sys.path.append('../../../mindface/detection/')
-sys.path.append('../../..')
 
 from mindspore import context
 from mindspore.context import ParallelMode
@@ -28,17 +29,15 @@ from mindface.detection.datasets import create_dataset
 from mindface.detection.utils.lr_schedule import adjust_learning_rate, warmup_cosine_annealing_lr
 
 from mindface.detection.models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
-
-
 ```
 
 ## 基本设置
-1）使用set_seed函数设置随机种子，在set_context函数中，指定模式为`mode=context.PYNATIVE_MODE`动态图模式，选定GPU平台`device_target='GPU'`进行训练
+1）使用set_seed函数设置随机种子，在set_context函数中，指定模式为`mode=context.PYNATIVE_MODE`动态图模式，选定GPU平台`device_target='GPU'`进行训练。
 选择配置文件为cfg_res50，该文件集中包含一些重要参数的配置,具体配置信息其查阅[config](config.md).
 
 2）使用mindface.detection.datasets中的create_dataset函数，可以轻易加载自定义数据集：
     ·选择配置文件为cfg_res50，该文件中包含一些重要参数的配置
-    ·为data_dir变量指定自己的标签路径
+    ·为data_dir变量指定自己的WiderFace训练集路径
     ·指定batch_size = 2
 
 ```
@@ -77,9 +76,10 @@ backbone_resnet50 = resnet50(1001)
 retinaface_resnet50  = RetinaFace(phase='train', backbone = backbone_resnet50, cfg=cfg)
 retinaface_resnet50.set_train(True)
 ```
+这一部分代码如果模型构建没有出问题的话，会直接显示RetinaFace的模型结构。
 
 ## 加载预训练模型
-当接口中的pretrain_model_path参数设置为预训练权重路径时，可以通过load_checkpoint函数从本地加载.ckpt的预训练模型文件，并通过load_param_into_net函数将backbone和预训练模型加载进训练网络。
+当接口中的pretrain_model_path参数设置为预训练权重路径时，可以通过load_checkpoint函数从本地加载.ckpt的预训练模型文件，并通过load_param_into_net函数将backbone和预训练模型加载进训练网络。此处的权重路径读者既可以修改pretrain_model_path为自己权重的具体位置，注意使用`res_50`的配置文件一定要加载名为`RetinaFace_ResNet50.ckpt`的权重，mobilenet亦然。
 
 ```
 
@@ -89,6 +89,9 @@ param_dict_retinaface = load_checkpoint(pretrain_model_path)
 load_param_into_net(retinaface_resnet50, param_dict_retinaface)
 print(f'Resume Model from [{pretrain_model_path}] Done.')
 ```
+正确运行的结果为
+
+`Resume Model from [/home/d1/czp21/czp/mindspore/retinaface/retinaface_mindinsight/pretrained/RetinaFace_ResNet50.ckpt] Done.`
 
 ## 设置loss函数参数
 在MultiBoxLoss函数中指定类别数num_classes，此处为2，根据配置文件给定的参数设定矩形框num_boxes数量
@@ -128,4 +131,10 @@ callback_list = [LossMonitor(), time_cb, ckpoint_cb]
 
 print("============== Starting Training ==============")
 model.train(finetune_epochs, ds_train, callbacks=callback_list, dataset_sink_mode=False)
+```
+
+整套流程走下来，模型可以开始微调训练啦，权重保存在`cfg['ckpt_path']`中，输出应当类似于：
+```
+============== Starting Training ==============
+
 ```

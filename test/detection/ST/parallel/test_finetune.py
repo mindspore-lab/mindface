@@ -17,7 +17,7 @@ from mindface.detection.utils.lr_schedule import adjust_learning_rate
 
 from mindface.detection.models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
 
-def test_funetine(cfg, finetune_epochs):
+def test_funetine_parallel(cfg, finetune_epochs):
     #set seed
     mindspore.common.seed.set_seed(42)
 
@@ -86,22 +86,25 @@ def test_funetine(cfg, finetune_epochs):
 if __name__ == '__main__':
 
     finetune_epochs = 10
+    cfg_res50['ngpu'] = 2
+    cfg_mobile025['ngpu'] = 2
 
     #test retinaface_resnet50_finetune
+
     #pynative mode
     cfg_res50['mode'] = 'Pynative'
-    test_funetine(cfg_res50, finetune_epochs)
+    test_funetine_parallel(cfg_res50, finetune_epochs)
     
     #graph mode
     cfg_res50['mode'] = 'Graph'
-    test_funetine(cfg_res50, finetune_epochs)
+    test_funetine_parallel(cfg_res50, finetune_epochs)
     
     #test retinaface_mobilenet025_finetune
     #pynative mode
     cfg_mobile025['mode'] = 'Pynative'
-    test_funetine(cfg_mobile025, finetune_epochs)
+    test_funetine_parallel(cfg_mobile025, finetune_epochs)
     
     #graph mode
     cfg_mobile025['mode'] = 'Graph'
-    test_funetine(cfg_mobile025, finetune_epochs)
+    test_funetine_parallel(cfg_mobile025, finetune_epochs)
 

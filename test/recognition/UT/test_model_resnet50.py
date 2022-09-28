@@ -24,4 +24,5 @@ def test_model(mode, target):
     x = ms.Tensor(np.ones([bs, 3, 112, 112]), ms.float32)
     output = net(x)
     assert output.shape[0] == bs, 'output shape not match'
+    print('unit test OK')
 test_model(mode='PYNATIVE_MODE', target='GPU')

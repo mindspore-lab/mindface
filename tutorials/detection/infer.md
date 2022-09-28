@@ -1,4 +1,5 @@
 # Inference one image
+本文档将介绍如何使用训练好的RetinaFace模型在单张图片做推理，检测出其中所有的人脸。在此之前，请先保证您安装好了mindface,如果没有，请移步至主页README.md。
 
 ## 加载功能包，调用所需函数
 在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数
@@ -13,9 +14,6 @@ import sys
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-sys.path.append('../../mindface/detection/')
-sys.path.append('../..')
-
 from mindface.detection.configs.RetinaFace_mobilenet import cfg_mobile025
 from mindface.detection.configs.RetinaFace_resnet50 import cfg_res50
 from mindface.detection.utils import prior_box
@@ -25,7 +23,7 @@ from mindface.detection.eval import DetectionEngine
 ```
 
 ## 基本设置
-选择配置文件为cfg_res50，选择mode设置为“Graph”即静态图模式，或者设置mode为“Pynative”即动态图模式。
+选择配置文件为cfg_res50，选择mode设置为“Graph”即静态图模式，或者设置mode为“Pynative”即动态图模式。此处我选择从cfg文件中读取，读者也可自行设置
 
 ```
 #set cfg
@@ -39,7 +37,7 @@ else :
 ```
 
 ## 搭建模型
-根据配置文件选择backbone为ResNet50或MobileNet025，并根据cfg配置文件中给出的路径对应加载验证模型
+根据配置文件选择backbone为ResNet50或MobileNet025，并根据cfg配置文件中给出的路径对应加载验证模型，如果读者自己的checkpoint，可直接添加一行代码修改`cfg['val_model'] = 读者权重路路径`。
 
 ```
 #build model
@@ -58,6 +56,7 @@ print('Load trained model done. {}'.format(cfg['val_model']))
 network.init_parameters_data()
 load_param_into_net(network, param_dict)
 ```
+`Load trained model done. /home/d1/czp21/czp/mindspore/retinaface/retinaface_mindinsight/pretrained/RetinaFace_ResNet50.ckpt`
 
 ## 图片处理
 依据不同需求对图片尺寸进行处理，可选择在原尺寸上进行推理或者裁剪后的尺寸
@@ -161,3 +160,9 @@ save_path = image_path.split('.')[0]+'_pred.jpg'
 cv2.imwrite(save_path,_img)
 print(f'Result saving: {save_path}')
 ```
+这部分输出结果为
+```
+Result saving: 图片保存路径。
+```
+就可以看到如图所示的效果了。
+![推理结果](/mindface/detection/imgs/0000_pred.jpg)
