@@ -1,16 +1,16 @@
 import argparse
 # import pytest
-from datasets import create_dataset
+from mindface.recognition.datasets import create_dataset
 import sys
-sys.append('../')
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='test_module')
-    parser.add_argument('--batch_size', default=64, type=int, metavar='N', help='train batchsize (default: 256)')
-    parser.add_argument('--target', type=str, default='GPU', choices=['GPU', 'Ascend'])
-    parser.add_argument('--data_url', default='data path', type=str)
-    args = parser.parse_args()
+import pytest
+
+MAX = 256 # 160146
+@pytest.mark.parametrize('batch_size', [1, MAX])
+@pytest.mark.parametrize('target', ['GPU', 'Ascend'])
+def test_create_dataset(batch_size, target):
+    data_url = '/home/d1/xieguochen/dataset/AgeDatasets/faces_webface_112x112_train'
+    train_dataset = create_dataset(data_url, do_train=True,
+                                       repeat_num=1, batch_size=batch_size, target=target, is_parallel=False)
     
-    train_dataset = create_dataset(dataset_path=args.data_url, do_train=True,
-                                       repeat_num=1, batch_size=args.batch_size, target=args.target)
-    assert train_dataset.get_batch_size() == args.batch_size
+    assert train_dataset.get_batch_size() == batch_size, 'create_dataset test failed'

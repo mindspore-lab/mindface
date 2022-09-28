@@ -25,7 +25,7 @@ MindFace mainly has the following features.
 
 ### Dependency
 
-- mindspore_gpu==1.8.0
+- mindspore_gpu==1.8.1
 - numpy==1.21.6
 - opencv_python==4.6.0.66
 - scipy==1.7.3
