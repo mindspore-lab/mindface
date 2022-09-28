@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -31,5 +29,4 @@ python val.py \
 --eval_url "$EVAL_PATH" \
 --device_target "GPU" \
 --model "$MODEL_NAME" \
---target lfw,cfp_fp,agedb_30,calfw,cplfw \
-> eval.log 2>&1 &
+--target lfw,cfp_fp,agedb_30,calfw,cplfw

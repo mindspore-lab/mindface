@@ -290,7 +290,7 @@ def main():
     '''
     parser = argparse.ArgumentParser(description='do verification')
     # general
-    parser.add_argument('--model', default='R50', help='model names')
+    parser.add_argument('--model', default='iresnet50', help='model names')
     parser.add_argument(
         '--eval_url', default='/data/arcface/', help='')
     parser.add_argument('--device_id', default=0, type=int, help='device id')
@@ -309,12 +309,12 @@ def main():
     image_size = [112, 112]
     time0 = datetime.datetime.now()
     
-    if args.model == 'R50':
+    if args.model == 'iresnet50':
         model = iresnet50()
-        print("Finish loading R50")
-    elif args.model == 'R100':
+        print("Finish loading iresnet50")
+    elif args.model == 'iresnet100':
         model = iresnet100()
-        print("Finish loading R100")
+        print("Finish loading iresnet100")
     elif args.model == 'mobilefacenet':
         model = get_mbf(False, 512)
         print("Finish loading mobilefacenet")

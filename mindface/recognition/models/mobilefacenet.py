@@ -83,6 +83,19 @@ class GDC(Cell):
 
 
 class MobileFaceNet(Cell):
+    """
+    Build the mobileface model.
+
+    Args:
+        fp16 (Bool): Half-precision floating-point format. Default: False.
+        num_features (Int): The num of features. Default: 512.
+        blocks (Tuple): The architecture of backbone. Default: (1, 4, 6, 2).
+        scale (Int): The scale of network blocks. Default: 2.
+
+        
+    Examples:
+        >>> net = MobileFaceNet(fp16, num_features, blocks, scale=scale)
+    """
     def __init__(self, fp16=False, num_features=512, blocks=(1, 4, 6, 2), scale=2):
         super(MobileFaceNet, self).__init__()
         self.scale = scale
@@ -140,7 +153,19 @@ class MobileFaceNet(Cell):
         return x
 
 def get_mbf(fp16, num_features, blocks=(1, 4, 6, 2), scale=2):
+    """
+    Get the mobilefacenet-0.45G.
+
+    Examples:
+        >>> net = get_mbf(False, 512)
+    """
     return MobileFaceNet(fp16, num_features, blocks, scale=scale)
 
 def get_mbf_large(fp16, num_features, blocks=(2, 8, 12, 4), scale=4):
+    """
+    Get the large mobilefacenet.
+
+    Examples:
+        >>> net = get_mbf_large(False, 512)
+    """
     return MobileFaceNet(fp16, num_features, blocks, scale=scale)

@@ -1,0 +1,7 @@
+partialFC module
+================
+
+.. automodule:: partialFC
+   :members:
+   :undoc-members:
+   :show-inheritance:

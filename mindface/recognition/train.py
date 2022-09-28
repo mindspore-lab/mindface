@@ -215,14 +215,14 @@ if __name__ == "__main__":
         net = iresnet100()
     else:
         raise NotImplementedError
+    
+    if train_info["resume"]:
+        param_dict = load_checkpoint(train_info["resume"])
+        load_param_into_net(net, param_dict)
 
     train_net = MyNetWithLoss(net, train_info['num_classes'], args.device_num)
     optimizer = nn.SGD(params=train_net.trainable_params(), learning_rate=lr,
                        momentum=train_info['momentum'], weight_decay=train_info['weight_decay'])
-
-    if train_info["resume"]:
-        param_dict = load_checkpoint(train_info["resume"])
-        load_param_into_net(train_net, param_dict)
 
     train_net = TrainingWrapper(train_net, optimizer)
 

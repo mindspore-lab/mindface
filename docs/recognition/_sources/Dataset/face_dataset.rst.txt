@@ -1,0 +1,7 @@
+face\_dataset module
+====================
+
+.. automodule:: face_dataset
+   :members:
+   :undoc-members:
+   :show-inheritance:

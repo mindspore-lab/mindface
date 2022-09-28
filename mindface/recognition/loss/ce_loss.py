@@ -6,9 +6,15 @@ from mindspore.ops import functional as F
 
 
 class SoftMaxCE(nn.Cell):
-    '''
-    softmax cross entrophy
-    '''
+    """
+    Softmax cross entrophy of arcface.
+
+    Args:
+        world_size (Int): Number of processes involved in this work.
+
+    Examples:
+        >>> loss = SoftMaxCE(world_size=world_size)
+    """
     def __init__(self, world_size):
         super(SoftMaxCE, self).__init__()
         self.max = ops.ReduceMax(keep_dims=True)

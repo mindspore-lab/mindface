@@ -285,19 +285,35 @@ def test(data_set, backbone, batch_size, nfolds=10):
 
 
 def eval(model_name, ckpt_url, eval_url, target='lfw,cfp_fp,agedb_30,calfw,cplfw', device_id=0, device_target="GPU", batch_size=64, nfolds=10):
-    '''r
-    main function
-    '''
+    """
+    The eval of arcface.
+
+    Args:
+        model_name (String): The name of backbone.
+        ckpt_url (String): The The path of .ckpt
+        eval_url (String): The The path of saved results.
+        target (String): The eval datasets. Default: 'lfw,cfp_fp,agedb_30,calfw,cplfw'.
+        device_id (Int): The id of eval device. Default: 0.
+        device_target (String): The device target. Default: "GPU".
+        batch_size (Int): The batch size of dataset. Default: 64.
+        nfolds (Int): The eval folds. Default: 10.
+        
+    Examples:
+        >>> model_name = "R50"
+        >>> ckpt_url = "/path/to/eval/ArcFace.ckpt"
+        >>> eval_url = "/path/to/eval"
+        >>> eval(model_name, ckpt_url, eval_url)
+    """
     context.set_context(device_id=device_id, mode=context.GRAPH_MODE,
                         device_target=device_target)
     image_size = [112, 112]
     time0 = datetime.datetime.now()
     
-    if model_name == "R50":
+    if model_name == "iresnet50":
         model = iresnet50()
-    elif model_name == "R100":
+    elif model_name == "iresnet100":
         model = iresnet100()
-    elif model_name == "MobileFaceNet":
+    elif model_name == "mobilefacenet":
         model = get_mbf(False, 512)
     else:
         raise NotImplementedError

@@ -5,9 +5,17 @@ from mindspore import dtype as mstype
 
 
 class ArcFace(nn.Cell):
-    '''
-    Arcface loss
-    '''
+    """
+    Implement of large margin arc distance.
+
+    Args:
+        world_size (Int): Size of each input sample.
+        s (Float): Norm of input feature. Default: 64.0.
+        m (Float): Margin. Default: 0.5.
+    
+    Examples:
+        >>> margin_softmax = ArcFace(world_size=world_size)
+    """
     def __init__(self, world_size, s=64.0, m=0.5):
         super(ArcFace, self).__init__()
         self.s = s

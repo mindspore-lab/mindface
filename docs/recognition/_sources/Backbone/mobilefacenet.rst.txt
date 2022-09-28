@@ -1,0 +1,7 @@
+mobilefacenet module
+====================
+
+.. automodule:: mobilefacenet
+   :members:
+   :undoc-members:
+   :show-inheritance:
