@@ -1,15 +1,10 @@
 """Eval Retinaface_resnet50_or_mobilenet0.25."""
 import argparse
-import os
 import numpy as np
 import cv2
-import sys
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(),'mindface/detection'))
 
 from mindface.detection.configs.RetinaFace_mobilenet import cfg_mobile025
 from mindface.detection.configs.RetinaFace_resnet50 import cfg_res50
@@ -123,24 +118,7 @@ def test_infer(cfg):
     print(f'Result saving: {save_path}')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='val')
-    parser.add_argument('--backbone_name', type=str, default='ResNet50',
-                        help='backbone name')
-    parser.add_argument('--checkpoint', type=str, default='pretrained/RetinaFace_ResNet50.ckpt',
-                        help='checpoint path')                      
-    parser.add_argument('--image_path', type=str, default='imgs/0000.jpg',
-                        help='image path')
-    parser.add_argument('--conf', type=float, default=0.5,
-                        help='image path')
-    args = parser.parse_args()
-    if args.backbone_name == 'ResNet50':
-        config = cfg_res50
-    elif args.backbone_name == 'MobileNet025':
-        config = cfg_mobile025
-    if args.image_path:
-        config['image_path'] = args.image_path
-    if args.conf:
-        config['conf'] = args.conf
-    if args.checkpoint:
-        config['val_model'] = args.checkpoint
-    test_infer(cfg=config)
+    
+    test_infer(cfg=cfg_res50)
+    
+    test_infer(cfg=cfg_mobile025)

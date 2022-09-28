@@ -1,9 +1,4 @@
 # import packages
-import os
-import sys
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(),'mindface/detection'))
-
 from mindface.detection.datasets import create_dataset
 
 def test_dataset(cfg):

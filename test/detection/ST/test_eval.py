@@ -1,14 +1,10 @@
 """Eval Retinaface_resnet50_or_mobilenet0.25."""
 import argparse
-import os
 import time
 import datetime
 import numpy as np
 import cv2
 
-import sys
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(),'mindface/detection'))
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
@@ -168,16 +164,6 @@ def test_val(cfg):
     print('Eval done.')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='val')
-    parser.add_argument('--backbone_name', type=str, default='ResNet50',
-                        help='backbone name')
-    parser.add_argument('--checkpoint', type=str, default='pretrained/RetinaFace_ResNet50.ckpt',
-                        help='checpoint path')    
-    args = parser.parse_args()
-    if args.backbone_name == 'ResNet50':
-        config = cfg_res50
-    elif args.backbone_name == 'MobileNet025':
-        config = cfg_mobile025
-    if args.checkpoint:
-        config['val_model'] = args.checkpoint
-    test_val(cfg=config)
+
+    test_val(cfg=cfg_res50)
+    test_val(cfg=cfg_mobile025)

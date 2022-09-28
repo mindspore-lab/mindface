@@ -1,10 +1,5 @@
 import math
 import mindspore
-import os
-import sys
-
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(),'mindface/detection'))
 
 from mindspore import context
 from mindspore.context import ParallelMode
