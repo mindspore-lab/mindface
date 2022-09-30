@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -26,22 +24,8 @@ export RANK_SIZE=$2
 export CONFIG=$1
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 export CUDA_VISIBLE_DEVICES=0,1
-# export CUDA_VISIBLE_DEVICES=4,5,6,7
 
-rm -rf ./train_parallel
-mkdir ./train_parallel
-
-cp -r ./configs/ ./train_parallel
-cp -r ./datasets/ ./train_parallel
-cp -r ./loss/ ./train_parallel
-cp -r ./models/ ./train_parallel
-cp -r ./scripts/ ./train_parallel
-cp -r ./utils/ ./train_parallel
-# shellcheck disable=SC2035
-cp *.py ./train_parallel
-
-cd ./train_parallel
-env > env.log
+env > env_distribute_gpu.log
 echo "start training"
 mpirun -n $2 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
 python train.py --device_num $2 --device_target 'GPU' --config $1 

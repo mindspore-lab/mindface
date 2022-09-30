@@ -5,12 +5,21 @@ from mindspore import dtype as mstype
 from mindspore.ops import functional as F
 from mindspore.common.initializer import initializer
 
+
 __all__=["PartialFC"]
 
+
 class PartialFC(nn.Cell):
-    '''
-    partialFC
-    '''
+    """
+    Build the arcface model without loss function.
+
+    Args:
+        num_classes (Int): The num of classes.
+        world_size (Int): Number of processes involved in this work.
+        
+    Examples:
+        >>> net=PartialFC(num_classes=num_classes, world_size=device_num)
+    """
     def __init__(self, num_classes, world_size):
         super(PartialFC, self).__init__()
         self.L2Norm = ops.L2Normalize(axis=1)

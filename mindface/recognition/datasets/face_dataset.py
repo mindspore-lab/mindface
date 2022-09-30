@@ -9,19 +9,23 @@ __all__=["create_dataset"]
 
 def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmentation=None, target="Ascend", is_parallel=True):
     """
-        create a train dataset
+    Create a train dataset.
+    
+    Args:
+        dataset_path (String): The path of dataset.
+        do_train (Bool): Whether dataset is used for train or eval.
+        repeat_num (Int): The repeat times of dataset. Default: 1.
+        batch_size (Int): The batch size of dataset. Default: 32.
+        augmentation (List): Data augmentation. Default: None.
+        target (String): The device target. Default: "Ascend".
+        is_parallel (Bool): Parallel training parameters. Default: True.
 
-        Args:
-            dataset_path(string): the path of dataset.
-            do_train(bool): whether dataset is used for train or eval.
-            repeat_num(int): the repeat times of dataset. Default: 1
-            batch_size(int): the batch size of dataset. Default: 32
-            augmentation(list): external augmentation, Default: None
-            target(str): the device target. Default: Ascend
-            is_parallel(bool): training in parallel or not, Defualt: True
-
-        Returns:
-            dataset
+    Returns:
+        ds (Object), data loader.
+    
+    Examples:
+        >>> training_dataset = "/path/to/face_dataset"
+        >>> train_dataset = create_dataset(dataset_path=training_dataset, do_train=True)
     """
     if target == "Ascend":
         device_num, rank_id = _get_rank_info()

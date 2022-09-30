@@ -83,10 +83,20 @@ class GDC(Cell):
 
 
 class MobileFaceNet(Cell):
-    def __init__(self, fp16=False, num_features=512, blocks=(1, 4, 6, 2), scale=2):
+    """
+    Build the mobileface model.
+
+    Args:
+        num_features (Int): The num of features. Default: 512.
+        blocks (Tuple): The architecture of backbone. Default: (1, 4, 6, 2).
+        scale (Int): The scale of network blocks. Default: 2.
+        
+    Examples:
+        >>> net = MobileFaceNet(num_features, blocks, scale=scale)
+    """
+    def __init__(self, num_features=512, blocks=(1, 4, 6, 2), scale=2):
         super(MobileFaceNet, self).__init__()
         self.scale = scale
-        self.fp16 = fp16
         self.layers = nn.CellList()
         self.layers.append(
             ConvBlock(3, 64 * self.scale, kernel=(3, 3), stride=(2, 2), padding=(1, 1, 1, 1))
@@ -139,8 +149,20 @@ class MobileFaceNet(Cell):
         x = self.features(x)
         return x
 
-def get_mbf(fp16, num_features, blocks=(1, 4, 6, 2), scale=2):
-    return MobileFaceNet(fp16, num_features, blocks, scale=scale)
+def get_mbf(num_features=512, blocks=(1, 4, 6, 2), scale=2):
+    """
+    Get the mobilefacenet-0.45G.
 
-def get_mbf_large(fp16, num_features, blocks=(2, 8, 12, 4), scale=4):
-    return MobileFaceNet(fp16, num_features, blocks, scale=scale)
+    Examples:
+        >>> net = get_mbf(512)
+    """
+    return MobileFaceNet(num_features, blocks, scale=scale)
+
+def get_mbf_large(num_features=512, blocks=(2, 8, 12, 4), scale=4):
+    """
+    Get the large mobilefacenet.
+
+    Examples:
+        >>> net = get_mbf_large(512)
+    """
+    return MobileFaceNet(num_features, blocks, scale=scale)

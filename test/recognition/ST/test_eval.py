@@ -304,7 +304,7 @@ def main():
     parser.add_argument(
         '--ckpt_url', default="/cache/ArcFace--25_11372.ckpt", type=str, help='ckpt path')
     parser.add_argument('--device_target', default="GPU", type=str, help='device target')
-    parser.add_argument('--model', default="R50", type=str, help='model name')
+    parser.add_argument('--model', default="iresnet50", type=str, help='model name')
     parser.add_argument('--batch-size', default=64, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
@@ -314,12 +314,12 @@ def main():
     image_size = [112, 112]
     time0 = datetime.datetime.now()
     
-    if args.model == "R50":
+    if args.model == "iresnet50":
         model = iresnet50()
-    elif args.model == "R100":
+    elif args.model == "iresnet100":
         model = iresnet100()
-    elif args.model == "MobileFaceNet":
-        model = get_mbf(False, 512)
+    elif args.model == "mobilefacenet":
+        model = get_mbf()
     else:
         raise NotImplementedError
         

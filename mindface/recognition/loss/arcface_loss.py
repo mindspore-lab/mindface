@@ -3,11 +3,21 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import dtype as mstype
 
+from .ce_loss import SoftMaxCE
+
 
 class ArcFace(nn.Cell):
-    '''
-    Arcface loss
-    '''
+    """
+    Implement of large margin arc distance.
+
+    Args:
+        world_size (Int): Size of each input sample.
+        s (Float): Norm of input feature. Default: 64.0.
+        m (Float): Margin. Default: 0.5.
+    
+    Examples:
+        >>> margin_softmax = ArcFace(world_size=world_size)
+    """
     def __init__(self, world_size, s=64.0, m=0.5):
         super(ArcFace, self).__init__()
         self.s = s
@@ -19,6 +29,7 @@ class ArcFace(nn.Cell):
         # self.tile = ops.Tile().shard(((8, 1),))
         self.on_value = Tensor(m, mstype.float32)
         self.off_value = Tensor(0.0, mstype.float32)
+        self.ce_loss = SoftMaxCE(world_size=world_size)
 
     def construct(self, cosine, label):
         m_hot = self.onehot(label, self.shape(
@@ -28,4 +39,7 @@ class ArcFace(nn.Cell):
         cosine += m_hot
         cosine = self.cos(cosine)
         cosine = self.mul(cosine, self.s)
-        return cosine
+
+        loss = self.ce_loss(cosine, label)
+
+        return loss

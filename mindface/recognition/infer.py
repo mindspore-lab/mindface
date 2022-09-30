@@ -1,3 +1,6 @@
+"""
+inference of face recognition models
+"""
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,20 +14,25 @@
 # limitations under the License.
 # ============================================================================
 
-import numpy as np
 import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-from mindspore import context
 
 from .models import iresnet100, iresnet50, get_mbf
 
+def infer(img, backbone="iresnet50", num_features=512, pretrained=False):
+    """
+    The inference of arcface.
 
-def infer(img, backbone="iresnet50", pretrained=False):
-    '''
-    img: numpy, ms.Tensor
-    backbone: iresnet50, iresnet100, mobilefacenet
-    '''
+    Args:
+        img (NumPy): The input image.
+        backbone (Object): Arcface model without loss function. Default: "iresnet50".
+        pretrained (Bool): Pretrain. Default: False.
 
+    Examples:
+        >>> img = input_img
+        >>> out1 = infer(input_img, backbone="iresnet50",
+                        pretrained="/path/to/eval/ArcFace.ckpt")
+    """
     assert (img.shape[-1] == 112 and img.shape[-2] == 112)
     img = ((img / 255) - 0.5) / 0.5
     img = ms.Tensor(img, ms.float32)
@@ -34,11 +42,11 @@ def infer(img, backbone="iresnet50", pretrained=False):
         img = img.expand_dims(axis=0)
 
     if backbone == "iresnet50":
-        model = iresnet50()
+        model = iresnet50(num_features=num_features)
     elif backbone == "iresnet100":
-        model = iresnet100()
+        model = iresnet100(num_features=num_features)
     elif backbone == "mobilefacenet":
-        model = get_mbf(False, 512)
+        model = get_mbf(num_features=num_features)
     else:
         raise NotImplementedError
 
@@ -50,33 +58,3 @@ def infer(img, backbone="iresnet50", pretrained=False):
     embeddings = net_out.asnumpy()
 
     return embeddings
-
-
-if __name__ == '__main__':
-
-    context.set_context(
-        device_id=0, mode=context.GRAPH_MODE, device_target="GPU")
-
-    data = np.random.randn(3, 112, 112)
-    print(data.shape)
-    # assert 1==0
-    # out1 = infer(data, backbone="iresnet50",
-    #              pretrained="train_parallel_iresnet50_gradclip/ArcFace--1_1200.ckpt")
-    # print(out1.shape)
-    # out2 = infer(data, backbone="iresnet100",
-    #              pretrained="train_parallel_iresnet100_gradclip/ArcFace--1_840.ckpt")
-    # print(out2.shape)
-    # out3 = infer(data, backbone="mobilefacenet",
-    #              pretrained="train_parallel_small_gradclip_casia/ArcFace--25_958.ckpt")
-    # print(out3.shape)
-
-    # data = np.random.randn(4, 3, 112, 112)
-    # out1 = infer(data, backbone="iresnet50",
-    #              pretrained="train_parallel_iresnet50_gradclip/ArcFace--1_1200.ckpt")
-    # print(out1.shape)
-    # out2 = infer(data, backbone="iresnet100",
-    #              pretrained="train_parallel_iresnet100_gradclip/ArcFace--1_840.ckpt")
-    # print(out2.shape)
-    # out3 = infer(data, backbone="mobilefacenet",
-    #              pretrained="train_parallel_small_gradclip_casia/ArcFace--25_958.ckpt")
-    # print(out3.shape)

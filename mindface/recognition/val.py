@@ -289,8 +289,8 @@ def main():
     main function
     '''
     parser = argparse.ArgumentParser(description='do verification')
-    # general
-    parser.add_argument('--model', default='R50', help='model names')
+
+    parser.add_argument('--model', default='iresnet50', help='model names')
     parser.add_argument(
         '--eval_url', default='/data/arcface/', help='')
     parser.add_argument('--device_id', default=0, type=int, help='device id')
@@ -301,22 +301,27 @@ def main():
         '--ckpt_url', default="/cache/ArcFace--25_11372.ckpt", type=str, help='ckpt path')
     parser.add_argument('--device_target', default="Ascend", type=str, help='device target')
     parser.add_argument('--batch-size', default=64, type=int, help='')
+    parser.add_argument('--num_features', default=512, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
+
     args = parser.parse_args()
+
+    print(args)
+
     context.set_context(device_id=args.device_id, mode=context.GRAPH_MODE,
                         device_target=args.device_target)
     image_size = [112, 112]
     time0 = datetime.datetime.now()
     
-    if args.model == 'R50':
-        model = iresnet50()
-        print("Finish loading R50")
-    elif args.model == 'R100':
-        model = iresnet100()
-        print("Finish loading R100")
+    if args.model == 'iresnet50':
+        model = iresnet50(num_features=args.num_features)
+        print("Finish loading iresnet50")
+    elif args.model == 'iresnet100':
+        model = iresnet100(num_features=args.num_features)
+        print("Finish loading iresnet100")
     elif args.model == 'mobilefacenet':
-        model = get_mbf(False, 512)
+        model = get_mbf(num_features=args.num_features)
         print("Finish loading mobilefacenet")
     else:
         raise NotImplementedError
@@ -327,6 +332,8 @@ def main():
     diff = time_now - time0
     print('model loading time', diff.total_seconds())
 
+    print(args.target.split(','))
+    
     ver_list = []
     ver_name_list = []
     for name in args.target.split(','):

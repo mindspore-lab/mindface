@@ -13,20 +13,44 @@
 
 echo "=============================================================================================================="
 echo "Please run the script as: "
-echo "bash run.sh EVAL_PATH CKPT_PATH"
-echo "For example: bash run.sh path/evalset path/ckpt"
+echo "bash run.sh RANK_SIZE DATA_PATH"
+echo "For example: bash run.sh 8 path/dataset"
 echo "It is better to use the absolute path."
 echo "=============================================================================================================="
 
-EVAL_PATH=$1
-CKPT_PATH=$2
-MODEL_NAME=$3
-CUDA_VISIBLE_DEVICES=0
+RANK_SIZE=$1
+DATA_PATH=$2
 
-python val.py \
---ckpt_url "$CKPT_PATH" \
---device_id 0 \
---eval_url "$EVAL_PATH" \
---device_target "GPU" \
---model "$MODEL_NAME" \
---target lfw,cfp_fp,agedb_30,calfw,cplfw
+EXEC_PATH=$(pwd)
+echo "$EXEC_PATH"
+
+test_dist_8pcs()
+{
+    export RANK_TABLE_FILE=${EXEC_PATH}/rank_table_8pcs.json
+    export RANK_SIZE=8
+}
+
+test_dist_2pcs()
+{
+    export RANK_TABLE_FILE=${EXEC_PATH}/rank_table_2pcs.json
+    echo "$RANK_TABLE_FILE"
+    export RANK_SIZE=2
+}
+
+test_dist_${RANK_SIZE}pcs
+
+for((i=0;i<RANK_SIZE;i++))
+do
+    export DEVICE_ID=$i
+    export RANK_ID=$i
+    echo "start training for device $i"
+    env > env$i.log
+    python train.py  \
+    --data_url $DATA_PATH \
+    --train_url ckpt$i  \
+    --device_num $RANK_SIZE \
+    > train.log$i 2>&1 &
+    cd ../
+done
+echo "finish"
+cd ../

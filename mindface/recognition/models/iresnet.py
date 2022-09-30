@@ -87,9 +87,21 @@ class IBasicBlock(nn.Cell):
 
 
 class IResNet(nn.Cell):
-    '''
-    IResNet
-    '''
+    """
+    Build the iresnet model.
+
+    Args:
+        block (Object): The basic block of backbone.
+        layers (List): The layer list of resnet.
+        dropout (Float): Dropout setting. Default: 0.
+        num_features (Int): The num of features. Default: 512.
+        groups (Int): The num of groups. Default: 1.
+        width_per_group (Int): The width of per group. Default: 64.
+        replace_stride_with_dilation (Bool): Replacing stride with dilation. Default: None.
+        
+    Examples:
+        >>> model = IResNet(block, layers, **kwargs)
+    """
     fc_scale = 7 * 7
 
     def __init__(self,
@@ -211,20 +223,44 @@ def _iresnet(arch, block, layers, pretrained, progress, **kwargs):
 
 
 def iresnet18(pretrained=False, progress=True, **kwargs):
+    """
+    Iresnet18.
+
+    Examples:
+        >>> net = iresnet18()
+    """
     return _iresnet('iresnet18', IBasicBlock, [2, 2, 2, 2], pretrained,
                     progress, **kwargs)
 
 
 def iresnet34(pretrained=False, progress=True, **kwargs):
+    """
+    Iresnet34.
+
+    Examples:
+        >>> net = iresnet34()
+    """
     return _iresnet('iresnet34', IBasicBlock, [3, 4, 6, 3], pretrained,
                     progress, **kwargs)
 
 
 def iresnet50(pretrained=False, progress=True, **kwargs):
+    """
+    Iresnet50.
+
+    Examples:
+        >>> net = iresnet50()
+    """
     return _iresnet('iresnet50', IBasicBlock, [3, 4, 14, 3], pretrained,
                     progress, **kwargs)
 
 
 def iresnet100(pretrained=False, progress=True, **kwargs):
+    """
+    Iresnet100.
+
+    Examples:
+        >>> net = iresnet100()
+    """
     return _iresnet('iresnet100', IBasicBlock, [3, 13, 30, 3], pretrained,
                     progress, **kwargs)
