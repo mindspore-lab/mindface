@@ -1,3 +1,6 @@
+'''
+evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw
+'''
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,14 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-'''
-evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw
-'''
 
 import datetime
 import os
 import pickle
-import argparse
 from io import BytesIO
 
 import numpy as np
@@ -283,25 +282,43 @@ def test(data_set, backbone, batch_size, nfolds=10):
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
     return acc1, std1, acc2, std2, _xnorm, embeddings_list
 
+def face_eval(model_name, ckpt_url, eval_url, num_features=512,
+        target='lfw,cfp_fp,agedb_30,calfw,cplfw',
+        device_id=0, device_target="GPU", batch_size=64, nfolds=10
+    ):
+    """
+    The eval of arcface.
 
-def eval(model_name, ckpt_url, eval_url, target='lfw,cfp_fp,agedb_30,calfw,cplfw', device_id=0, device_target="GPU", batch_size=64, nfolds=10):
-    '''r
-    main function
-    '''
+    Args:
+        model_name (String): The name of backbone.
+        ckpt_url (String): The The path of .ckpt
+        eval_url (String): The The path of saved results.
+        target (String): The eval datasets. Default: 'lfw,cfp_fp,agedb_30,calfw,cplfw'.
+        device_id (Int): The id of eval device. Default: 0.
+        device_target (String): The device target. Default: "GPU".
+        batch_size (Int): The batch size of dataset. Default: 64.
+        nfolds (Int): The eval folds. Default: 10.
+
+    Examples:
+        >>> model_name = "iresnet50"
+        >>> ckpt_url = "/path/to/eval/ArcFace.ckpt"
+        >>> eval_url = "/path/to/eval"
+        >>> face_eval(model_name, ckpt_url, eval_url)
+    """
     context.set_context(device_id=device_id, mode=context.GRAPH_MODE,
                         device_target=device_target)
     image_size = [112, 112]
     time0 = datetime.datetime.now()
-    
-    if model_name == "R50":
-        model = iresnet50()
-    elif model_name == "R100":
-        model = iresnet100()
-    elif model_name == "MobileFaceNet":
-        model = get_mbf(False, 512)
+
+    if model_name == "iresnet50":
+        model = iresnet50(num_features=num_features)
+    elif model_name == "iresnet100":
+        model = iresnet100(num_features=num_features)
+    elif model_name == "mobilefacenet":
+        model = get_mbf(num_features=num_features)
     else:
         raise NotImplementedError
-        
+
     param_dict = load_checkpoint(ckpt_url)
     load_param_into_net(model, param_dict)
     time_now = datetime.datetime.now()
@@ -326,5 +343,3 @@ def eval(model_name, ckpt_url, eval_url, target='lfw,cfp_fp,agedb_30,calfw,cplfw
         print('[%s]Accuracy: %1.5f+-%1.5f' % (ver_name_list[i], acc1, std1))
         print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
               (ver_name_list[i], acc2, std2))
-
-

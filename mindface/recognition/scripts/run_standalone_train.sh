@@ -13,20 +13,17 @@
 
 echo "=============================================================================================================="
 echo "Please run the script as: "
-echo "bash run.sh EVAL_PATH CKPT_PATH"
-echo "For example: bash run.sh path/evalset path/ckpt"
+echo "bash run.sh DATA_PATH"
+echo "For example: bash run.sh path/MS1M DEVICE_ID"
 echo "It is better to use the absolute path."
 echo "=============================================================================================================="
 
-EVAL_PATH=$1
-CKPT_PATH=$2
-MODEL_NAME=$3
-CUDA_VISIBLE_DEVICES=0
+export CONFIG=$1
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+export DEVICE_ID=0
 
-python val.py \
---ckpt_url "$CKPT_PATH" \
---device_id 0 \
---eval_url "$EVAL_PATH" \
---device_target "GPU" \
---model "$MODEL_NAME" \
---target lfw,cfp_fp,agedb_30,calfw,cplfw
+env > env_standalone_train.log
+echo "start training"
+
+python train.py --device_target 'Ascend' --device_num 1 --config $1 
+
