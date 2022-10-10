@@ -1,0 +1,11 @@
+mindspore-dev
+pylint
+pytest
+numpy==1.21.6
+opencv_python==4.6.0.66
+scipy==1.7.3
+pyyaml>=5.3
+scikit-learn==1.1.2
+Pillow==9.2.0
+matplotlib==3.6.0
+
