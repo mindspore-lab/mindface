@@ -1,39 +1,22 @@
 """Eval Retinaface_resnet50_or_mobilenet0.25."""
-import argparse
-import time
-import datetime
+import os
 import numpy as np
 import cv2
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindface.detection.configs.RetinaFace_mobilenet import cfg_mobile025
-from mindface.detection.configs.RetinaFace_resnet50 import cfg_res50
-from mindface.detection.utils import decode_bbox, prior_box
+from mindface.detection.utils import prior_box
 
 from mindface.detection.models import RetinaFace,resnet50,mobilenet025
-from mindface.detection.eval import DetectionEngine
-
-class Timer():
-    """Timer"""
-    def __init__(self):
-        self.start_time = 0.
-        self.diff = 0.
-
-    def start(self):
-        self.start_time = time.time()
-
-    def end(self):
-        self.diff = time.time() - self.start_time
+from mindface.detection.runner import DetectionEngine, Timer, read_yaml
 
 def test_val(cfg):
-
+    """test eval"""
     if cfg['mode'] == 'Graph':
         context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
     else :
         context.set_context(mode=context.PYNATIVE_MODE, device_target = cfg['device_target'])
-
 
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
@@ -54,7 +37,7 @@ def test_val(cfg):
     # testing dataset
     testset_folder = cfg['val_dataset_folder']
     testset_label_path = cfg['val_dataset_folder'] + "label.txt"
-    with open(testset_label_path, 'r') as f:
+    with open(testset_label_path, 'r', encoding='utf-8') as f:
         _test_dataset = f.readlines()
         test_dataset = []
         for im_path in _test_dataset:
@@ -92,8 +75,7 @@ def test_val(cfg):
 
     # init detection engine
     detection = DetectionEngine(cfg)
-    
-    
+
     # testing begin
     print('Predict box starting')
     ave_time = 0
@@ -165,5 +147,8 @@ def test_val(cfg):
 
 if __name__ == '__main__':
 
+    # read the configs
+    cfg_res50 = read_yaml('mindface/detection/configs/RetinaFace_resnet50.yaml')
+    cfg_mobile025 = read_yaml('mindface/detection/configs/RetinaFace_mobilenet025.yaml')
     test_val(cfg=cfg_res50)
     test_val(cfg=cfg_mobile025)

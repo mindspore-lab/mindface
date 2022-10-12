@@ -1,17 +1,14 @@
 """Eval Retinaface_resnet50_or_mobilenet0.25."""
-import argparse
 import numpy as np
 import cv2
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindface.detection.configs.RetinaFace_mobilenet import cfg_mobile025
-from mindface.detection.configs.RetinaFace_resnet50 import cfg_res50
 from mindface.detection.utils import prior_box
 
 from mindface.detection.models import RetinaFace, resnet50, mobilenet025
-from mindface.detection.eval import DetectionEngine
+from mindface.detection.runner import DetectionEngine, read_yaml
 
 def test_infer(cfg):
     """test one image"""
@@ -39,7 +36,6 @@ def test_infer(cfg):
 
     conf_test = cfg['conf']
     test_origin_size = False
-    # image_path = 'imgs/0_Parade_marchingband_1_1004.jpg'
     image_path = cfg['image_path']
 
     if test_origin_size:
@@ -68,10 +64,10 @@ def test_infer(cfg):
     detection = DetectionEngine(cfg)
     # testing begin
     print('Predict box starting')
-    
+
     img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
     img = np.float32(img_raw)
-    
+
     #testing scale
     if test_origin_size:
         resize = 1
@@ -104,7 +100,7 @@ def test_infer(cfg):
     img = Tensor(img)
 
     boxes, confs, _ = network(img)
-    boxes = detection.detect(boxes, confs, resize, scale, image_path, priors,phase='test')
+    boxes = detection.infer(boxes, confs, resize, scale, image_path, priors)
     _img = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
     for box in boxes:
@@ -118,7 +114,9 @@ def test_infer(cfg):
     print(f'Result saving: {save_path}')
 
 if __name__ == '__main__':
-    
+
+    # read the configs
+    cfg_res50 = read_yaml('mindface/detection/configs/RetinaFace_resnet50.yaml')
+    cfg_mobile025 = read_yaml('mindface/detection/configs/RetinaFace_mobilenet025.yaml')
     test_infer(cfg=cfg_res50)
-    
     test_infer(cfg=cfg_mobile025)

@@ -30,7 +30,7 @@ def infer(img, backbone="iresnet50", pretrained=False):
     elif backbone == "iresnet100":
         model = iresnet100()
     elif backbone == "mobilefacenet":
-        model = get_mbf()
+        model = get_mbf(False, 512)
     else:
         raise NotImplementedError
 
