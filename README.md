@@ -62,13 +62,14 @@ python setup.py install
 
 ## Tutorials
 ---
-<!-- We provide [jupyter notebook tutorials](tutorials) for  
+We provide [tutorials](tutorials) for  
 
-- [Learn about configs](tutorials/learn_about_config.ipynb)  
-- [Inference with a pretrained model](tutorials/inference.ipynb) 
-- [Finetune a pretrained model on custom datasets](tutorials/finetune.ipynb) 
-- [Customize models](tutorials/customize_model.ipynb) 
-- [Optimizing performance for vision transformer](tutorials/transformer.ipynb)  -->
+- [Learn about detection configs](tutorials/detection/config.md)  
+- [Inference with a pretrained detection model](tutorials/detection/infer.md) 
+- [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.ipynb)
+- [Learn about recognition configs](tutorials/recognition/config.md)
+- [Inference with a pretrained recognition model](tutorials/recognition/infer.md)
+- [Finetune a pretrained recognition model on WiderFace](tutorials/recognition/finetune.ipynb)
 
 ### Projects
 ---
@@ -147,3 +148,4 @@ CMIC has won 24 Grand Challenge Champion Awards from premier conferences, includ
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
 - Keda Lu, ``wujiekd666[at]gmail.com``
+- Pengwei Li, ``3163398705[at]qq.com``
