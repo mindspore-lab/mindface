@@ -1,4 +1,6 @@
 import math
+import os
+import download
 import mindspore
 
 from mindspore import context
@@ -30,7 +32,12 @@ def test_finetune_parallel(cfg, finetune_epochs):
     # create dataset
     # set parameters
     batch_size = cfg['batch_size']
-    data_dir = cfg['training_dataset']
+    url='https://retinaface.obs.cn-central-231.xckpjs.com/data/WiderFace.zip'
+    path='./data'
+    if not os.path.exists(path): 
+        os.makedirs(path)
+    download.download(url, path, kind="zip", replace=True)
+    data_dir = './data/WiderFace/train/label.txt'
     ds_train = create_dataset(data_dir, cfg, batch_size, multiprocessing=True, num_worker=2)
     assert ds_train.get_batch_size() == batch_size
 
