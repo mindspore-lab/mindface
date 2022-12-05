@@ -142,4 +142,4 @@ CMIC has won 24 Grand Challenge Champion Awards from premier conferences, includ
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
 - Keda Lu, ``wujiekd666[at]gmail.com``
-- Pengwei Li ````
+- Pengwei Li ``lipw@mail.ustc.edu.cn``
