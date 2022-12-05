@@ -161,10 +161,10 @@ class DetectionEngine:
                                                        'bboxes': []}
             return
 
-        for i in range(len(resize)):
-            boxes_1 = boxes[i].asnumpy()          
+        for i, size in enumerate(resize):
+            boxes_1 = boxes[i].asnumpy()
             boxes_1 = decode_bbox(boxes_1, priors, self.var)
-            boxes_1 = boxes_1* scale / resize[i]
+            boxes_1 = boxes_1* scale / size
             if i==0:
                 boxes_all = boxes_1
             else:

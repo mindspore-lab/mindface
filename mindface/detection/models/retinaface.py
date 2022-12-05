@@ -108,7 +108,7 @@ class SSH(nn.Cell):
         leaky = 0
         if out_channel <= 64:
             leaky = 0.1
-        
+
         norm_layer = nn.BatchNorm2d
         self.conv3x3 = ConvBN(in_channel, out_channel // 2, kernel_size=3, stride=1, padding=1, groups=1,
                               norm_layer=norm_layer)

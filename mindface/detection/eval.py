@@ -19,7 +19,7 @@ import cv2
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-import mindspore.ops as ops
+import mindspore import ops
 
 from utils import prior_box
 from models import RetinaFace, resnet50, mobilenet025
@@ -98,10 +98,10 @@ def val(cfg):
     ave_misc = 0
     i = 0
     for i, img_name in enumerate(test_dataset):
-        TEST_SCALES = [500, 800, 1100, 1400, 1700]  
+        test_scales = [500, 800, 1100, 1400, 1700]
         timers['forward_time'].start()
-        for idx in range(len(TEST_SCALES)):
-            target_size = TEST_SCALES[idx]
+        for idx, test_scale in enumerate(test_scales):
+            target_size = test_scale
             image_path = os.path.join(testset_folder, 'images', img_name)
 
             img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
@@ -133,7 +133,6 @@ def val(cfg):
 
             scale = np.array([img.shape[1], img.shape[0], img.shape[1], img.shape[0]], dtype=img.dtype)
             img -= (104, 117, 123)
-              
             img = img.transpose(2, 0, 1)
             img = np.expand_dims(img, 0)
             img = Tensor(img)
