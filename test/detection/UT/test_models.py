@@ -1,4 +1,8 @@
 # import packages
+import os
+import sys
+sys.path.append('.')
+
 import mindspore
 from mindspore import Tensor
 import numpy as np

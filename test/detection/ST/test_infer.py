@@ -1,4 +1,8 @@
 """Eval Retinaface_resnet50_or_mobilenet0.25."""
+import os
+import sys
+sys.path.append('.')
+
 import numpy as np
 import cv2
 

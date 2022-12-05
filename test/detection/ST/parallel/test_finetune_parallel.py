@@ -2,6 +2,8 @@ import math
 import os
 import download
 import mindspore
+import sys
+sys.path.append('.')
 
 from mindspore import context
 from mindspore.context import ParallelMode

@@ -2,6 +2,8 @@
 import os
 import numpy as np
 import cv2
+import sys
+sys.path.append('.')
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net

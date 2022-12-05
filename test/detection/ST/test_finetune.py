@@ -1,4 +1,7 @@
 """"test_finetune"""
+import os
+import sys
+sys.path.append('.')
 import math
 import mindspore
 

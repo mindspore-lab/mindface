@@ -1,4 +1,7 @@
 # import packages
+import os
+import sys
+sys.path.append('.')
 from mindface.detection.datasets import create_dataset
 
 def test_dataset(cfg):
