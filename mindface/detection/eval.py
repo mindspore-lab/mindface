@@ -19,7 +19,7 @@ import cv2
 
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-import mindspore import ops
+from mindspore import ops
 
 from utils import prior_box
 from models import RetinaFace, resnet50, mobilenet025

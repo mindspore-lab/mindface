@@ -11,7 +11,7 @@
 # limitations under the License.
 # ============================================================================
 
-# """Network."""
+"""Network."""
 from mindspore import nn
 from mindspore.ops import operations as P
 
