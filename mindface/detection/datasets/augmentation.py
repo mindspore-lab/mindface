@@ -61,8 +61,7 @@ def _choose_candidate(max_trial, image_w, image_h, boxes):
             crop_box = np.array((dx, dy, dx + nw, dy + nh))
             if not _is_iof_satisfied_constraint(boxes, crop_box[np.newaxis]):
                 continue
-            else:
-                candidates.append((dx, dy, nw, nh))
+            candidates.append((dx, dy, nw, nh))
         else:
             raise Exception("!!! annotation box is less than 1")
 
@@ -71,7 +70,8 @@ def _choose_candidate(max_trial, image_w, image_h, boxes):
 
     return candidates
 
-def _correct_bbox_by_candidates(candidates, input_w, input_h, flip, boxes, labels, landms, allow_outside_center):
+def _correct_bbox_by_candidates(candidates, input_w, input_h, flip,\
+     boxes, labels, landms, allow_outside_center):
     """Calculate correct boxes."""
     while candidates:
         if len(candidates) > 1:
@@ -109,7 +109,8 @@ def _correct_bbox_by_candidates(candidates, input_w, input_h, flip, boxes, label
         if allow_outside_center:
             pass
         else:
-            mask1 = np.logical_and((boxes_t[:, 0] + boxes_t[:, 2])/2. >= 0., (boxes_t[:, 1] + boxes_t[:, 3])/2. >= 0.)
+            mask1 = np.logical_and((boxes_t[:, 0] + boxes_t[:, 2])/2. >= 0., \
+                (boxes_t[:, 1] + boxes_t[:, 3])/2. >= 0.)
             boxes_t = boxes_t[mask1]
             landms_t = landms_t[mask1]
             labels_t = labels_t[mask1]
@@ -120,7 +121,8 @@ def _correct_bbox_by_candidates(candidates, input_w, input_h, flip, boxes, label
             landms_t = landms_t[mask2]
             labels_t = labels_t[mask2]
 
-        # recorrect x, y for case x,y < 0 reset to zero, after dx and dy, some box can smaller than zero
+        # recorrect x, y for case x,y < 0 reset to zero,
+        # after dx and dy, some box can smaller than zero
         boxes_t[:, 0:2][boxes_t[:, 0:2] < 0] = 0
         # recorrect w,h not higher than input size
         boxes_t[:, 2][boxes_t[:, 2] > input_w] = input_w
@@ -201,7 +203,8 @@ def get_interp_method(interp, sizes=()):
     if interp == 10:
         return random.randint(0, 4)
     if interp not in (0, 1, 2, 3, 4):
-        raise ValueError('Unknown interp method %d' % interp)
+        # raise ValueError('Unknown interp method %d' % interp)
+        raise ValueError(f'Unknown interp method {interp}')
     return interp
 
 def cv_image_reshape(interp):
@@ -256,17 +259,17 @@ def color_distortion(image):
 
     return image
 
-class preproc():
-    """preproc"""
+class Preproc():
+    """Preproc"""
     def __init__(self, image_dim):
         self.image_input_size = image_dim
 
     def __call__(self, image, target):
         assert target.shape[0] > 0, "target without ground truth."
-        _target = copy.deepcopy(target)
-        boxes = _target[:, :4]
-        landms = _target[:, 4:-1]
-        labels = _target[:, -1]
+        copy_target = copy.deepcopy(target)
+        boxes = copy_target[:, :4]
+        landms = copy_target[:, 4:-1]
+        labels = copy_target[:, -1]
 
         aug_image, aug_target = self._data_aug(image, boxes, labels, landms, self.image_input_size)
 

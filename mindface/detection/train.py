@@ -16,8 +16,6 @@
 import argparse
 import math
 import mindspore
-import os
-import sys
 
 from mindspore import context
 from mindspore.context import ParallelMode
@@ -26,22 +24,17 @@ from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMoni
 from mindspore.communication.management import init, get_rank, get_group_size
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-# base_path = os.getcwd()
-# sys.path.append(base_path)
-# os.environ['CUDA_VISIBLE_DEVICES'] = "1"
-from configs.RetinaFace_mobilenet import cfg_mobile025
-from configs.RetinaFace_resnet50 import cfg_res50
 from loss import MultiBoxLoss
 from datasets import create_dataset
-from utils import adjust_learning_rate, warmup_cosine_annealing_lr
+from utils import adjust_learning_rate
 
-from models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
-
+from models import RetinaFace, RetinaFaceWithLossCell, resnet50, mobilenet025
+from runner import read_yaml, TrainingWrapper
 
 def train(cfg):
-    
+    """train"""
     mindspore.common.seed.set_seed(cfg['seed'])
-   
+
     if cfg['mode'] == 'Graph':
         context.set_context(mode=context.GRAPH_MODE, device_target=cfg['device_target'])
     else :
@@ -55,7 +48,8 @@ def train(cfg):
             context.set_auto_parallel_context(device_num=device_num, parallel_mode=ParallelMode.DATA_PARALLEL,
                                               gradients_mean=True)
             init()
-            # rank = get_rank()
+            rank = get_rank()
+            print(f"The rank ID of current device is {rank}.")
         else:
             context.set_context(device_id=cfg['device_id'])
     elif cfg['device_target'] == "GPU":
@@ -63,7 +57,8 @@ def train(cfg):
             init("nccl")
             context.set_auto_parallel_context(device_num=get_group_size(), parallel_mode=ParallelMode.DATA_PARALLEL,
                                               gradients_mean=True)
-            # rank = get_rank()
+            rank = get_rank()
+            print(f"The rank ID of current device is {rank}.")
 
     batch_size = cfg['batch_size']
     max_epoch = cfg['epoch']
@@ -83,23 +78,18 @@ def train(cfg):
 
     steps_per_epoch = math.ceil(ds_train.get_dataset_size())
 
-    multibox_loss = MultiBoxLoss(num_classes, cfg['num_anchor'], negative_ratio, cfg['batch_size'])
+    multibox_loss = MultiBoxLoss(num_classes, cfg['num_anchor'], negative_ratio)
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
     elif cfg['name'] == 'MobileNet025':
         backbone = mobilenet025(1000)
     backbone.set_train(True)
 
-    if cfg['name'] == 'ResNet50' and cfg['pretrain'] and cfg['resume_net'] is None:
-        pretrained_res50 = cfg['pretrain_path']
-        param_dict_res50 = load_checkpoint(pretrained_res50)
-        load_param_into_net(backbone, param_dict_res50)
-        print('Load resnet50 from [{}] done.'.format(pretrained_res50))
-    elif cfg['name'] == 'MobileNet025' and cfg['pretrain'] and cfg['resume_net'] is None:
-        pretrained_mobile025 = cfg['pretrain_path']
-        param_dict_mobile025 = load_checkpoint(pretrained_mobile025)
-        load_param_into_net(backbone, param_dict_mobile025)
-        print('Load mobilenet0.25 from [{}] done.'.format(pretrained_mobile025))
+    if  cfg['pretrain'] and cfg['resume_net'] is None:
+        pretrained= cfg['pretrain_path']
+        param_dict = load_checkpoint(pretrained)
+        load_param_into_net(backbone, param_dict)
+        print(f"Load RetinaFace_{cfg['name']} from [{cfg['pretrain_path']}] done.")
 
     net = RetinaFace(phase='train', backbone=backbone, cfg=cfg)
     net.set_train(True)
@@ -108,7 +98,7 @@ def train(cfg):
         pretrain_model_path = cfg['resume_net']
         param_dict_retinaface = load_checkpoint(pretrain_model_path)
         load_param_into_net(net, param_dict_retinaface)
-        print('Resume Model from [{}] Done.'.format(cfg['resume_net']))
+        print(f"Resume Model from [{cfg['resume_net']}] Done.")
 
     net = RetinaFaceWithLossCell(net, multibox_loss, cfg)
 
@@ -116,14 +106,14 @@ def train(cfg):
                               warmup_epoch=cfg['warmup_epoch'], lr_type1=lr_type)
 
     if cfg['optim'] == 'momentum':
-        opt = mindspore.nn.Momentum(net.trainable_params(), lr, momentum)
+        opt = mindspore.nn.Momentum(net.trainable_params(), lr, momentum,weight_decay, loss_scale=1)
     elif cfg['optim'] == 'sgd':
         opt = mindspore.nn.SGD(params=net.trainable_params(), learning_rate=lr, momentum=momentum,
                                weight_decay=weight_decay, loss_scale=1)
     else:
         raise ValueError('optim is not define.')
 
-    net = TrainingWrapper(net, opt)
+    net = TrainingWrapper(net, opt, clip=cfg['clip'])
 
     model = Model(net)
 
@@ -139,12 +129,10 @@ def train(cfg):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train')
-    parser.add_argument('--backbone_name', type=str, default='ResNet50',
-                        help='backbone name')
-    args_opt = parser.parse_args()
+    # configs
+    parser.add_argument('--config', default='mindface/detection/resnet_ep.yaml', type=str,
+                        help='configs path')
+    args = parser.parse_args()
 
-    if args_opt.backbone_name == 'ResNet50':
-        config = cfg_res50
-    elif args_opt.backbone_name == 'MobileNet025':
-        config = cfg_mobile025
+    config = read_yaml(args.config)
     train(cfg=config)

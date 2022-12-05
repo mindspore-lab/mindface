@@ -16,13 +16,12 @@ import os
 import copy
 import cv2
 import numpy as np
-import sys
 import mindspore.dataset as de
 from mindspore.communication.management import init, get_rank, get_group_size
 
-from mindface.detection.datasets.augmentation import preproc
+from mindface.detection.datasets.augmentation import Preproc
 
-from mindface.detection.utils.box_utils import bbox_encode
+from mindface.detection.utils.box_utils import Bboxencode
 
 
 class WiderFace():
@@ -31,7 +30,7 @@ class WiderFace():
 
     Args:
         label_path (String): Path to the root directory that contains the dataset.
-        
+
     Examples:
         >>> wider_face_dir = "/path/to/wider_face_dataset"
         >>> dataset = WiderFace(label_path = wider_face_dir)
@@ -39,15 +38,15 @@ class WiderFace():
     def __init__(self, label_path):
         self.images_list = []
         self.labels_list = []
-        f = open(label_path, 'r')
-        lines = f.readlines()
-        First = True
+        with open (label_path, mode = "r",encoding = "utf-8") as file:
+            lines = file.readlines()
+        first = True
         labels = []
         for line in lines:
             line = line.rstrip()
             if line.startswith('#'):
-                if First is True:
-                    First = False
+                if first is True:
+                    first = False
                 else:
                     c_labels = copy.deepcopy(labels)
                     self.labels_list.append(c_labels)
@@ -134,8 +133,8 @@ def read_dataset(img_path, annotation):
     return img, target
 
 
-def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, multiprocessing=True, num_worker=4,
-                   is_distribute=False):
+def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True,
+                   multiprocessing=True, num_worker=4, is_distribute=False):
     """
     Create a callable dataloader from a python function.
 
@@ -147,7 +146,8 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, mul
         batch_size (Int): The batch size of dataset. Default: 32
         repeat_num (Int): The repeat times of dataset. Default: 1
         shuffle (Bool): whether to blend the dataset. Default: True
-        multiprocessing (Bool): Parallelize Python function per_batch_map with multi-processing. Default: True
+        multiprocessing (Bool): Parallelize Python function per_batch_map with multi-processing.
+                                                                Default: True
         num_worker (Int): The number of child processes that process data in parallel. Default: 4
         is_distribute (Bool): Distributed training parameters. Default: False
 
@@ -181,8 +181,8 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, mul
                                          num_shards=device_num,
                                          shard_id=rank_id)
 
-    aug = preproc(cfg['image_size'])
-    encode = bbox_encode(cfg)
+    aug = Preproc(cfg['image_size'])
+    encode = Bboxencode(cfg)
 
     def read_data_from_dataset(image, annot):
         i, a = read_dataset(image, annot)
@@ -220,4 +220,3 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True, mul
 
 
     return de_dataset
-

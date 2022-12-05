@@ -19,12 +19,9 @@ import cv2
 from mindspore import Tensor, context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from configs.RetinaFace_mobilenet import cfg_mobile025
-from configs.RetinaFace_resnet50 import cfg_res50
 from utils import prior_box
-
 from models import RetinaFace, resnet50, mobilenet025
-from eval import DetectionEngine
+from runner import DetectionEngine, read_yaml
 
 def infer(cfg):
     """test one image"""
@@ -44,7 +41,7 @@ def infer(cfg):
     # load checkpoint
     assert cfg['val_model'] is not None, 'val_model is None.'
     param_dict = load_checkpoint(cfg['val_model'])
-    print('Load trained model done. {}'.format(cfg['val_model']))
+    print(f"Load trained model done. {cfg['val_model']}")
     network.init_parameters_data()
     load_param_into_net(network, param_dict)
 
@@ -52,17 +49,16 @@ def infer(cfg):
 
     conf_test = cfg['conf']
     test_origin_size = False
-    # image_path = 'imgs/0_Parade_marchingband_1_1004.jpg'
     image_path = cfg['image_path']
 
     if test_origin_size:
         h_max, w_max = 0, 0
 
-        _img = cv2.imread(image_path, cv2.IMREAD_COLOR)
-        if _img.shape[0] > h_max:
-            h_max = _img.shape[0]
-        if _img.shape[1] > w_max:
-            w_max = _img.shape[1]
+        img_each = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        if img_each.shape[0] > h_max:
+            h_max = img_each.shape[0]
+        if img_each.shape[1] > w_max:
+            w_max = img_each.shape[1]
 
         h_max = (int(h_max / 32) + 1) * 32
         w_max = (int(w_max / 32) + 1) * 32
@@ -81,10 +77,10 @@ def infer(cfg):
     detection = DetectionEngine(cfg)
     # testing begin
     print('Predict box starting')
-    
+
     img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
     img = np.float32(img_raw)
-    
+
     #testing scale
     if test_origin_size:
         resize = 1
@@ -117,34 +113,32 @@ def infer(cfg):
     img = Tensor(img)
 
     boxes, confs, _ = network(img)
-    boxes = detection.detect(boxes, confs, resize, scale, image_path, priors,phase='test')
-    _img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    boxes = detection.infer(boxes, confs, resize, scale, image_path, priors)
+    img_each = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
     for box in boxes:
         if box[4] > conf_test:
-            cv2.rectangle(_img,(int(box[0]),int(box[1])),
+            cv2.rectangle(img_each,(int(box[0]),int(box[1])),
                 (int(box[0])+int(box[2]),int(box[1])+int(box[3])),color=(0,0,255))
-            cv2.putText(_img,str(round(box[4],5)),(int(box[0]),int(box[1])),
+            cv2.putText(img_each,str(round(box[4],5)),(int(box[0]),int(box[1])),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
     save_path = image_path.split('.')[0]+'_pred.jpg'
-    cv2.imwrite(save_path,_img)
+    cv2.imwrite(save_path,img_each)
     print(f'Result saving: {save_path}')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='val')
-    parser.add_argument('--backbone_name', type=str, default='ResNet50',
-                        help='backbone name')
-    parser.add_argument('--checkpoint', type=str, default='pretrained/RetinaFace_ResNet50.ckpt',
-                        help='checpoint path')                      
-    parser.add_argument('--image_path', type=str, default='imgs/0000.jpg',
+    parser = argparse.ArgumentParser(description='infer')
+    parser.add_argument('--config', default='mindface/detection/configs/RetinaFace_mobilenet025.yaml', type=str,
+                        help='configs path')
+    parser.add_argument('--checkpoint', type=str, default='ckpt/RetinaFace_5-120_402.ckpt',
+                        help='checpoint path')
+    parser.add_argument('--image_path', type=str, default='mindface/detection/imgs/0000.jpg',
                         help='image path')
     parser.add_argument('--conf', type=float, default=0.5,
-                        help='image path')
+                        help='confidence of bbox')
     args = parser.parse_args()
-    if args.backbone_name == 'ResNet50':
-        config = cfg_res50
-    elif args.backbone_name == 'MobileNet025':
-        config = cfg_mobile025
+
+    config = read_yaml(args.config)
     if args.image_path:
         config['image_path'] = args.image_path
     if args.conf:
