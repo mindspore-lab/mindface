@@ -1,4 +1,6 @@
 import math
+import os
+import download
 import mindspore
 
 from mindspore import context
@@ -29,8 +31,13 @@ def test_finetune_parallel(cfg, finetune_epochs):
 
     # create dataset
     # set parameters
+    url='https://retinaface.obs.cn-central-231.xckpjs.com/data/WiderFace.zip'
+    path='./data'
+    if not os.path.exists(path): 
+        os.makedirs(path)
+    download.download(url, path, kind="zip", replace=True)
+    data_dir = './data/WiderFace/train/label.txt'
     batch_size = cfg['batch_size']
-    data_dir = cfg['training_dataset']
     ds_train = create_dataset(data_dir, cfg, batch_size, multiprocessing=True, num_worker=2)
     assert ds_train.get_batch_size() == batch_size
 
@@ -40,7 +47,7 @@ def test_finetune_parallel(cfg, finetune_epochs):
     lr = adjust_learning_rate(cfg['initial_lr'], cfg['gamma'], (cfg['decay1'], cfg['decay2']), steps_per_epoch, cfg['epoch'],
                                 warmup_epoch=cfg['warmup_epoch'], lr_type1='dynamic_lr')
 
-    
+   
     #build model
     if cfg['name'] == 'ResNet50':
         backbone = resnet50(1001)
