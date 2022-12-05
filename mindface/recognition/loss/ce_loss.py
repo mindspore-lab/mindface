@@ -1,6 +1,7 @@
-from mindspore import Tensor
-import mindspore.nn as nn
-import mindspore.ops as ops
+"""
+ce_loss.
+"""
+from mindspore import Tensor, nn, ops
 from mindspore import dtype as mstype
 from mindspore.ops import functional as F
 
@@ -16,7 +17,7 @@ class SoftMaxCE(nn.Cell):
         >>> loss = SoftMaxCE(world_size=world_size)
     """
     def __init__(self, world_size):
-        super(SoftMaxCE, self).__init__()
+        super().__init__()
         self.sum = ops.ReduceSum(keep_dims=True)
         self.onehot = ops.OneHot().shard(((1, world_size), (), ()))
         self.onvalue = Tensor(1.0, mstype.float32)
@@ -24,8 +25,6 @@ class SoftMaxCE(nn.Cell):
         self.eps = Tensor(1e-30, mstype.float32)
 
     def construct(self, logits, total_label):
-        '''construct
-        '''
         max_fc = F.amax(logits, 1, keep_dims=True)
 
         logits_exp = F.exp(logits - max_fc)

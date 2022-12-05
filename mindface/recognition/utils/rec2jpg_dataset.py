@@ -1,3 +1,6 @@
+"""
+rec format to jpg
+"""
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""
-rec format to jpg
-"""
+
 import os
 import argparse
 from skimage import io
@@ -22,6 +23,9 @@ from tqdm import tqdm
 
 
 def main(dataset_path, output_dir):
+    """
+    main
+    """
     path_imgrec = os.path.join(dataset_path, 'train.rec')
     path_imgidx = os.path.join(dataset_path, 'train.idx')
     if not os.path.exists(output_dir):
@@ -33,15 +37,15 @@ def main(dataset_path, output_dir):
     max_idx = int(header.label[0])
     print('max_idx:', max_idx)
     for i in tqdm(range(max_idx)):
-        header, s = recordio.unpack(imgrec.read_idx(i + 1))
-        img = mx.image.imdecode(s).asnumpy()
+        header, s_list = recordio.unpack(imgrec.read_idx(i + 1))
+        img = mx.image.imdecode(s_list).asnumpy()
         label = str(int(header.label))
         ids = str(i)
 
         label_dir = os.path.join(output_dir, label)
         if not os.path.exists(label_dir):
             os.mkdir(label_dir)
-        fname = 'Figure_{}.png'.format(ids)
+        fname = f'Figure_{format(ids)}.png'
         fpath = os.path.join(label_dir, fname)
         io.imsave(fpath, img)
 

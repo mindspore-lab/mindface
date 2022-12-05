@@ -1,3 +1,6 @@
+"""
+Wrapper.
+"""
 import numpy as np
 
 import mindspore as ms
@@ -15,7 +18,8 @@ __all__ = ["NetWithLoss", "TrainingWrapper", "lr_generator"]
 
 
 def lr_generator(lr_init, schedule, gamma, total_epochs, steps_per_epoch):
-    """lr_generator
+    """
+    Learning rate generator.
     """
     lr_each_step = []
     for i in range(total_epochs):
@@ -29,10 +33,21 @@ def lr_generator(lr_init, schedule, gamma, total_epochs, steps_per_epoch):
 
 class NetWithLoss(nn.Cell):
     """
-    WithLossCell
+    Build the arcface model with loss function.
+
+    Args:
+        backbone (Object): Arcface model without loss function.
+        head (Object): The classification head of arcface.
+        loss_func (Object): The loss function of arcface.
+
+    Examples:
+        >>> head = PartialFC(num_classes=num_classes, world_size=device_num)
+        >>> loss_func = ArcFace(world_size=device_num)
+        >>> train_net = NetWithLoss(net.to_float(mstype.float16),
+                                head.to_float(mstype.float32), loss_func)
     """
     def __init__(self, backbone, head, loss_func):
-        super(NetWithLoss, self).__init__(auto_prefix=False)
+        super().__init__(auto_prefix=False)
         self._backbone = backbone
         self.fc = head
         self.loss_func = loss_func
@@ -48,20 +63,41 @@ class NetWithLoss(nn.Cell):
 clip_grad = MultitypeFuncGraph("clip_grad")
 @clip_grad.register("Number", "Number", "Tensor")
 def _clip_grad(clip_type, clip_value, grad):
+    """
+    Clip grad.
+    """
     if clip_type not in (0, 1):
         return grad
-    dt = F.dtype(grad)
+    d_t = F.dtype(grad)
     if clip_type == 0:
-        new_grad = F.clip_by_value(grad, F.cast(F.tuple_to_array((-clip_value,)), dt),
-                                   F.cast(F.tuple_to_array((clip_value,)), dt))
+        new_grad = F.clip_by_value(grad, F.cast(F.tuple_to_array((-clip_value,)), d_t),
+                                   F.cast(F.tuple_to_array((clip_value,)), d_t))
     else:
-        new_grad = nn.ClipByNorm()(grad, F.cast(F.tuple_to_array((clip_value,)), dt))
+        new_grad = nn.ClipByNorm()(grad, F.cast(F.tuple_to_array((clip_value,)), d_t))
     return new_grad
 
 
 class TrainingWrapper(nn.Cell):
-    def __init__(self, network, optimizer, sens=1.0, GRADIENT_CLIP_TYPE = 1, GRADIENT_CLIP_VALUE = 1.0):
-        super(TrainingWrapper, self).__init__(auto_prefix=False)
+    """
+    Add the optimizer to the arcface.
+
+    Args:
+        network (Object): Arcface model with loss function.
+        optimizer (Object): The optimizer used.
+        sens (Float): A value to populate the output Tensor. Default: 1.0.
+        GRADIENT_CLIP_TYPE (Int): The type of gradient clip. Default: 1.
+        GRANDIENT_CLIP_VALUE (Float): The value of gradient clip. Default: 1.0.
+
+    Examples:
+        >>> net = iresnet50()
+        >>> train_net = MyNetWithLoss(net, num_classes, device_num)
+        >>> optimizer = nn.SGD(params=train_net.trainable_params(), learning_rate=lr,
+                       momentum=momentum, weight_decay=weight_decay)
+        >>> train_net = TrainingWrapper(train_net, optimizer)
+    """
+    def __init__(self, network, optimizer, sens=1.0,
+                GRADIENT_CLIP_TYPE = 1, GRADIENT_CLIP_VALUE = 1.0):
+        super().__init__(auto_prefix=False)
         self.network = network
         self.weights = ms.ParameterTuple(network.trainable_params())
         self.optimizer = optimizer
@@ -84,8 +120,8 @@ class TrainingWrapper(nn.Cell):
             self.grad_reducer = nn.DistributedGradReducer(
                 optimizer.parameters, mean, degree)
 
-        self.GRADIENT_CLIP_TYPE = GRADIENT_CLIP_TYPE
-        self.GRADIENT_CLIP_VALUE = GRADIENT_CLIP_VALUE
+        self.gradient_clip_type = GRADIENT_CLIP_TYPE
+        self.gradient_clip_value = GRADIENT_CLIP_VALUE
 
     def construct(self, *args):
         weights = self.weights
@@ -94,11 +130,7 @@ class TrainingWrapper(nn.Cell):
         grads = self.grad(self.network, weights)(*args, sens)
 
         grads = self.hyper_map(
-            F.partial(clip_grad, self.GRADIENT_CLIP_TYPE, self.GRADIENT_CLIP_VALUE), grads)
+            F.partial(clip_grad, self.gradient_clip_type, self.gradient_clip_value), grads)
         if self.reducer_flag:
             grads = self.grad_reducer(grads)
         return F.depend(loss, self.optimizer(grads))
-
-
-
-

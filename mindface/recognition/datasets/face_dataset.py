@@ -1,3 +1,6 @@
+"""
+Face dataset.
+"""
 import os
 import mindspore.common.dtype as mstype
 import mindspore.dataset.engine as de
@@ -7,10 +10,11 @@ from mindspore.communication.management import init, get_rank, get_group_size
 
 __all__=["create_dataset"]
 
-def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmentation=None, target="Ascend", is_parallel=True):
+def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32,
+                    augmentation=None, target="Ascend", is_parallel=True):
     """
     Create a train dataset.
-    
+
     Args:
         dataset_path (String): The path of dataset.
         do_train (Bool): Whether dataset is used for train or eval.
@@ -21,8 +25,8 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmenta
         is_parallel (Bool): Parallel training parameters. Default: True.
 
     Returns:
-        ds (Object), data loader.
-    
+        data_set (Object), data loader.
+
     Examples:
         >>> training_dataset = "/path/to/face_dataset"
         >>> train_dataset = create_dataset(dataset_path=training_dataset, do_train=True)
@@ -39,10 +43,10 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmenta
             device_num = 1
 
     if device_num == 1:
-        ds = de.ImageFolderDataset(
+        data_set= de.ImageFolderDataset(
             dataset_path, num_parallel_workers=8, shuffle=True)
     else:
-        ds = de.ImageFolderDataset(dataset_path, num_parallel_workers=8, shuffle=True,
+        data_set = de.ImageFolderDataset(dataset_path, num_parallel_workers=8, shuffle=True,
                                    num_shards=device_num, shard_id=rank_id)
 
     image_size = 112
@@ -71,23 +75,23 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmenta
 
     type_cast_op = C2.TypeCast(mstype.int32)
 
-    ds = ds.map(input_columns="image",
+    data_set = data_set.map(input_columns="image",
                 num_parallel_workers=8, operations=trans)
-    ds = ds.map(input_columns="label", num_parallel_workers=8,
+    data_set = data_set.map(input_columns="label", num_parallel_workers=8,
                 operations=type_cast_op)
 
     # apply batch operations
-    ds = ds.batch(batch_size, drop_remainder=True)
+    data_set = data_set.batch(batch_size, drop_remainder=True)
 
     # apply dataset repeat operation
-    ds = ds.repeat(repeat_num)
+    data_set = data_set.repeat(repeat_num)
 
-    return ds
+    return data_set
 
 
 def _get_rank_info():
     """
-    get rank size and rank id
+    Get rank size and rank id.
     """
     rank_size = int(os.environ.get("RANK_SIZE", 1))
 

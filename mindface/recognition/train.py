@@ -1,5 +1,5 @@
 """
-Training face recognition models
+Training face recognition models.
 """
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,6 @@ Training face recognition models
 import os
 import argparse
 
-from datasets import create_dataset
-from models import iresnet100, iresnet50, get_mbf, PartialFC
-from loss import ArcFace
-from runner import NetWithLoss, TrainingWrapper, lr_generator
-from utils import read_yaml
-
 import mindspore
 from mindspore import nn
 from mindspore import dtype as mstype
@@ -35,11 +29,18 @@ from mindspore.parallel import _cost_model_context as cost_model_context
 from mindspore.parallel import set_algo_parameters
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
+from datasets import create_dataset
+from models import iresnet100, iresnet50, get_mbf, PartialFC
+from loss import ArcFace
+from runner import NetWithLoss, TrainingWrapper, lr_generator
+from utils import read_yaml
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Training')
 
     # configs
-    parser.add_argument('--config', default='configs\train_config_ms1m.yaml', type=str, help='output path')
+    parser.add_argument('--config', default='configs\train_config_ms1m.yaml',
+                        type=str, help='output path')
 
     # Optimization options
     parser.add_argument('--device_target', type=str, default='GPU', choices=['GPU', 'Ascend'])
@@ -122,10 +123,10 @@ if __name__ == "__main__":
 
     model = Model(train_net)
 
-    config_ck = CheckpointConfig(save_checkpoint_steps=train_info["save_checkpoint_steps"], 
+    config_ck = CheckpointConfig(save_checkpoint_steps=train_info["save_checkpoint_steps"],
                                 keep_checkpoint_max=train_info["keep_checkpoint_max"])
 
-    ckpt_cb = ModelCheckpoint(prefix="_".join([train_info["method"], train_info['backbone']]), 
+    ckpt_cb = ModelCheckpoint(prefix="_".join([train_info["method"], train_info['backbone']]),
                                 config=config_ck, directory=train_info['train_url'])
     time_cb = TimeMonitor(data_size=train_dataset.get_dataset_size())
     loss_cb = LossMonitor()

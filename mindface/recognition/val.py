@@ -1,3 +1,6 @@
+"""
+Evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw.
+"""
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-'''
-evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw
-'''
 
 import datetime
 import os
@@ -26,6 +26,7 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 from scipy import interpolate
+
 import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
@@ -34,15 +35,18 @@ from models import iresnet100, iresnet50, get_mbf
 
 
 class LFold:
-    '''
-    LFold
-    '''
+    """
+    LFold.
+    """
     def __init__(self, n_splits=2, shuffle=False):
         self.n_splits = n_splits
         if self.n_splits > 1:
             self.k_fold = KFold(n_splits=n_splits, shuffle=shuffle)
 
     def split(self, indices):
+        """
+        Split.
+        """
         if self.n_splits > 1:
             return self.k_fold.split(indices)
         return [(indices, indices)]
@@ -54,9 +58,9 @@ def calculate_roc(thresholds,
                   actual_issame,
                   nrof_folds=10,
                   pca=0):
-    '''
-    calculate_roc
-    '''
+    """
+    Calculate roc.
+    """
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
@@ -77,9 +81,9 @@ def calculate_roc(thresholds,
             print('doing pca on', fold_idx)
             embed1_train = embeddings1[train_set]
             embed2_train = embeddings2[train_set]
-            _embed_train = np.concatenate((embed1_train, embed2_train), axis=0)
+            embed_train = np.concatenate((embed1_train, embed2_train), axis=0)
             pca_model = PCA(n_components=pca)
-            pca_model.fit(_embed_train)
+            pca_model.fit(embed_train)
             embed1 = pca_model.transform(embeddings1)
             embed2 = pca_model.transform(embeddings2)
             embed1 = sklearn.preprocessing.normalize(embed1)
@@ -107,8 +111,9 @@ def calculate_roc(thresholds,
 
 
 def calculate_accuracy(threshold, dist, actual_issame):
-    '''calculate_acc
-    '''
+    """
+    Calculate acc.
+    """
     predict_issame = np.less(dist, threshold)
     tp = np.sum(np.logical_and(predict_issame, actual_issame))
     fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
@@ -129,9 +134,9 @@ def calculate_val(thresholds,
                   actual_issame,
                   far_target,
                   nrof_folds=10):
-    '''
-    calculate_val
-    '''
+    """
+    Calculate val.
+    """
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
@@ -153,8 +158,8 @@ def calculate_val(thresholds,
             _, far_train[threshold_idx] = calculate_val_far(
                 threshold, dist[train_set], actual_issame[train_set])
         if np.max(far_train) >= far_target:
-            f = interpolate.interp1d(far_train, thresholds, kind='slinear')
-            threshold = f(far_target)
+            f_train = interpolate.interp1d(far_train, thresholds, kind='slinear')
+            threshold = f_train(far_target)
         else:
             threshold = 0.0
 
@@ -168,8 +173,9 @@ def calculate_val(thresholds,
 
 
 def calculate_val_far(threshold, dist, actual_issame):
-    '''calculate_val_far
-    '''
+    """
+    Calculate val, far.
+    """
     predict_issame = np.less(dist, threshold)
     true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
     false_accept = np.sum(
@@ -182,8 +188,9 @@ def calculate_val_far(threshold, dist, actual_issame):
 
 
 def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
-    '''evaluate
-    '''
+    """
+    Evaluate.
+    """
     # Calculate evaluation metrics
     thresholds = np.arange(0, 4, 0.01)
     embeddings1 = embeddings[0::2]
@@ -205,24 +212,23 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
 
 
 def load_bin(path, image_size):
-    '''load evalset of .bin
-    '''
+    """
+    Load evalset of .bin
+    """
     try:
-        with open(path, 'rb') as f:
-            bins, issame_list = pickle.load(f)  # py2
+        with open(path, 'rb') as file:
+            bins, issame_list = pickle.load(file)  # py2
     except UnicodeDecodeError as _:
-        with open(path, 'rb') as f:
-            bins, issame_list = pickle.load(f, encoding='bytes')  # py3
+        with open(path, 'rb') as file:
+            bins, issame_list = pickle.load(file, encoding='bytes')  # py3
     data_list = []
     for _ in [0, 1]:
         data = np.zeros(
             (len(issame_list) * 2, 3, image_size[0], image_size[1]))
         data_list.append(data)
     for idx in range(len(issame_list) * 2):
-        _bin = bins[idx]
-        img = plt.imread(BytesIO(_bin), "jpg")
-        if img.shape[1] != image_size[0]:
-            img = mx.image.resize_short(img, image_size[0])
+        bin_idx = bins[idx]
+        img = plt.imread(BytesIO(bin_idx), "jpg")
         img = np.transpose(img, axes=(2, 0, 1))
         for flip in [0, 1]:
             if flip == 1:
@@ -232,8 +238,9 @@ def load_bin(path, image_size):
 
 
 def test(data_set, backbone, batch_size, nfolds=10):
-    '''test
-    '''
+    """
+    Test.
+    """
     print('testing verification..')
     data_list = data_set[0]
     issame_list = data_set[1]
@@ -241,33 +248,33 @@ def test(data_set, backbone, batch_size, nfolds=10):
     time_consumed = 0.0
     for data in data_list:
         embeddings = None
-        ba = 0
-        while ba < data.shape[0]:
-            bb = min(ba + batch_size, data.shape[0])
-            count = bb - ba
-            _data = data[bb - batch_size: bb]
+        b_a = 0
+        while b_a < data.shape[0]:
+            b_b = min(b_a + batch_size, data.shape[0])
+            count = b_b - b_a
+            num_data = data[b_b - batch_size: b_b]
 
             time0 = datetime.datetime.now()
-            img = ((_data / 255) - 0.5) / 0.5
+            img = ((num_data / 255) - 0.5) / 0.5
             net_out = backbone(ms.Tensor(img, ms.float32))
-            _embeddings = net_out.asnumpy()
+            net_embeddings = net_out.asnumpy()
             time_now = datetime.datetime.now()
             diff = time_now - time0
             time_consumed += diff.total_seconds()
             if embeddings is None:
-                embeddings = np.zeros((data.shape[0], _embeddings.shape[1]))
-            embeddings[ba:bb, :] = _embeddings[(batch_size - count):, :]
-            ba = bb
+                embeddings = np.zeros((data.shape[0], net_embeddings.shape[1]))
+            embeddings[b_a:b_b, :] = net_embeddings[(batch_size - count):, :]
+            b_a = b_b
         embeddings_list.append(embeddings)
-    _xnorm = 0.0
-    _xnorm_cnt = 0
+    net_xnorm = 0.0
+    net_xnorm_cnt = 0
     for embed in embeddings_list:
         for i in range(embed.shape[0]):
-            _em = embed[i]
-            _norm = np.linalg.norm(_em)
-            _xnorm += _norm
-            _xnorm_cnt += 1
-    _xnorm /= _xnorm_cnt
+            net_em = embed[i]
+            net_norm = np.linalg.norm(net_em)
+            net_xnorm += net_norm
+            net_xnorm_cnt += 1
+    net_xnorm /= net_xnorm_cnt
 
     embeddings = embeddings_list[0].copy()
     embeddings = sklearn.preprocessing.normalize(embeddings)
@@ -281,13 +288,13 @@ def test(data_set, backbone, batch_size, nfolds=10):
     _, _, accuracy, _, _, _ = evaluate(
         embeddings, issame_list, nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
-    return acc1, std1, acc2, std2, _xnorm, embeddings_list
+    return acc1, std1, acc2, std2, net_xnorm, embeddings_list
 
 
 def main():
-    '''r
-    main function
-    '''
+    """
+    main.
+    """
     parser = argparse.ArgumentParser(description='do verification')
 
     parser.add_argument('--model', default='iresnet50', help='model names')
@@ -313,7 +320,7 @@ def main():
                         device_target=args.device_target)
     image_size = [112, 112]
     time0 = datetime.datetime.now()
-    
+
     if args.model == 'iresnet50':
         model = iresnet50(num_features=args.num_features)
         print("Finish loading iresnet50")
@@ -333,7 +340,7 @@ def main():
     print('model loading time', diff.total_seconds())
 
     print(args.target.split(','))
-    
+
     ver_list = []
     ver_name_list = []
     for name in args.target.split(','):
@@ -348,10 +355,9 @@ def main():
     for i in range(length):
         acc1, std1, acc2, std2, xnorm, _ = test(
             ver_list[i], model, args.batch_size, args.nfolds)
-        print('[%s]XNorm: %f' % (ver_name_list[i], xnorm))
-        print('[%s]Accuracy: %1.5f+-%1.5f' % (ver_name_list[i], acc1, std1))
-        print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
-              (ver_name_list[i], acc2, std2))
+        print(f"[{ver_name_list[i]}]XNorm: {xnorm}")
+        print(f"[{ver_name_list[i]}]Accuracy: {acc1}+-{std1}")
+        print(f"[{ver_name_list[i]}]Accuracy-Flip: {acc2}+-{std2}")
 
 
 if __name__ == '__main__':
