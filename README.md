@@ -53,7 +53,7 @@ pip install mindface
 To install MindFace from source, please run,
 ```shell
 # Clone the mindface repository.
-git clone https://github.com/mindspore-ecosystem/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
 # Install

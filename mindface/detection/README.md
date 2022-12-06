@@ -49,10 +49,10 @@ Comming soon!
 ## Quick Start
 1. Installation
 
-    1.1 Git clone this [repo](https://github.com/mindspore-ecosystem/mindface.git) and install mindface.
+    1.1 Git clone this [repo](https://github.com/mindspore-lab/mindface.git) and install mindface.
 
     ```shell
-    git clone https://github.com/mindspore-ecosystem/mindface.git
+    git clone https://github.com/mindspore-lab/mindface.git
     cd mindface
     python setup.py install
     ```

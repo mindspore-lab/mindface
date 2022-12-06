@@ -48,7 +48,7 @@ MindSpore是华为在2019年8月推出的新一代全场景AI计算框架，于2
 步骤1. 克隆这个仓库
 
 ```shell
-git clone https://github.com/mindspore-ecosystem/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 ```
 
 步骤2. 安装依赖

@@ -6,10 +6,10 @@
 
 1. 安装mindface
 
-    1.1 从[此处](https://github.com/mindspore-ecosystem/mindface.git)下载mindface仓库并安装mindface
+    1.1 从[此处](https://github.com/mindspore-lab/mindface.git)下载mindface仓库并安装mindface
 
     ```shell 
-    git clone https://github.com/mindspore-ecosystem/mindface.git
+    git clone https://github.com/mindspore-lab/mindface.git
     cd mindface
     python setup.py install
     ```

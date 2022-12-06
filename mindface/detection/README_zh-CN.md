@@ -20,35 +20,40 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 ## 更新日志
 敬请期待!
 
+## 使用不同backbone进行多尺度测试在WiderFace Val数据集上的表现.
 
-## 使用Resnet50作为backbone进行单尺度训练在WiderFace Val数据集上的表现.
-| 版本 | 简单样本 | 中等样本 | 困难样本 |
+| backbone | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (与MXNet相同参数) | 94.42% | 93.37% | 89.25% |
-| MindSpore (原始图像尺寸) | 95.34% | 93.91% | 84.01% |
-| PyTorch (与MXNet相同参数) | 94.82 % | 93.84% | 89.60% |
-| PyTorch (原始图像尺寸) | 95.48% | 94.04% | 84.43% |
+| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| ResNet50 | 95.81% | 94.89% | 90.10% |
+
+## 使用Resnet50作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+| Style | Easy | Medium | Hard |
+|:-|:-:|:-:|:-:|
+| MindSpore (same parameter with MXNet) | 94.46% | 93.64% | 89.42% |
+| MindSpore (original image scale) | 95.07% | 93.61% | 84.84% |
+| PyTorch (same parameter with MXNet) | 94.82 % | 93.84% | 89.60% |
+| PyTorch (original image scale) | 95.48% | 94.04% | 84.43% |
 | MXNet | 94.86% | 93.87% | 88.33% |
-| MXNet(原始图像尺寸) | 94.97% | 93.89% | 82.27% |
+| MXNet(original image scale) | 94.97% | 93.89% | 82.27% |
 
-## 使用Mobilenet0.25作为backbone进行单尺度训练在WiderFace Val数据集上的表现.
-| 版本 | 简单样本 | 中等样本 | 困难样本 |
+## 使用Mobilenet0.25作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+| Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (与MXNet相同参数) | 88.62% | 86.96% | 79.93% |
-| MindSpore (原始图像尺寸) | 90.73% | 88.24% | 73.87% |
-| PyTorch (与MXNet相同参数) | 88.67% | 87.09% | 80.99% |
-| PyTorch (原始图像尺寸) | 90.70% | 88.16% | 73.82% |
+| MindSpore (same parameter with MXNet) | 88.51% | 86.86% | 80.88% |
+| MindSpore (original image scale) | 90.77% | 88.20% | 74.76% |
+| PyTorch (same parameter with MXNet) | 88.67% | 87.09% | 80.99% |
+| PyTorch (original image scale) | 90.70% | 88.16% | 73.82% |
 | MXNet | 88.72% | 86.97% | 79.19% |
-| MXNet(原始图像尺寸) | 89.58% | 87.11% | 69.12% |
-
+| MXNet(original image scale) | 89.58% | 87.11% | 69.12% |
 
 ## 快速入门
 1. 安装
 
-    1.1 从[此处](https://github.com/mindspore-ecosystem/mindface.git)下载mindface仓库并安装mindface
+    1.1 从[此处](https://github.com/mindspore-lab/mindface.git)下载mindface仓库并安装mindface
 
     ```shell 
-    git clone https://github.com/mindspore-ecosystem/mindface.git
+    git clone https://github.com/mindspore-lab/mindface.git
     cd mindface
     python setup.py install
     ```

@@ -1,4 +1,6 @@
 # import packages
+import sys
+sys.path.append('.')
 from mindface.detection.loss import MultiBoxLoss
 
 def test_multiboxloss():
