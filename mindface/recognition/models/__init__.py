@@ -3,4 +3,4 @@ init
 """
 from .iresnet import *
 from .mobilefacenet import *
-from .partialfc import *
+from .partial_fc import *
