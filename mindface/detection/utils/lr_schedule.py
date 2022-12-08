@@ -16,7 +16,7 @@ import math
 import numpy as np
 
 
-def warmup_cosine_annealing_lr(lr5, steps_per_epoch, warmup_epochs, max_epoch, T_max, eta_min=0):
+def warmup_cosine_annealing_lr(lr5, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0):
     """ warmup cosine annealing lr"""
     base_lr = lr5
     warmup_init_lr = 0
@@ -29,7 +29,7 @@ def warmup_cosine_annealing_lr(lr5, steps_per_epoch, warmup_epochs, max_epoch, T
         if i < warmup_steps:
             lr5 = _linear_warmup_learning_rate(i + 1, warmup_steps, base_lr, warmup_init_lr)
         else:
-            lr5 = eta_min + (base_lr - eta_min) * (1. + math.cos(math.pi * last_epoch / T_max)) / 2
+            lr5 = eta_min + (base_lr - eta_min) * (1. + math.cos(math.pi * last_epoch / t_max)) / 2
         lr_each_step.append(lr5)
 
     return np.array(lr_each_step).astype(np.float32)

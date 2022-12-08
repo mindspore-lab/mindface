@@ -46,7 +46,7 @@ You can reproduce the results in the table above with the downloaded pretrained 
 Step1. Git clone this repo
 
 ```shell
-git clone https://github.com/mindlab-ai/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 ```
 
 Step2. Install dependencies

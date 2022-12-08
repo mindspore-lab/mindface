@@ -25,7 +25,7 @@ MindFace mainly has the following features.
 
 ### Dependency
 
-- mindspore_gpu==1.8.0
+- mindspore_gpu==1.8.1
 - numpy==1.21.6
 - opencv_python==4.6.0.66
 - scipy==1.7.3
@@ -53,7 +53,7 @@ pip install mindface
 To install MindFace from source, please run,
 ```shell
 # Clone the mindface repository.
-git clone https://github.com/mindlab-ai/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
 # Install
@@ -62,13 +62,11 @@ python setup.py install
 
 ## Tutorials
 ---
-<!-- We provide [jupyter notebook tutorials](tutorials) for  
+We provide [tutorials](tutorials) for  
 
-- [Learn about configs](tutorials/learn_about_config.ipynb)  
-- [Inference with a pretrained model](tutorials/inference.ipynb) 
-- [Finetune a pretrained model on custom datasets](tutorials/finetune.ipynb) 
-- [Customize models](tutorials/customize_model.ipynb) 
-- [Optimizing performance for vision transformer](tutorials/transformer.ipynb)  -->
+- [Learn about detection configs](tutorials/detection/config.md)  
+- [Inference with a pretrained detection model](tutorials/detection/infer.md) 
+- [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.ipynb)
 
 ### Projects
 ---
@@ -87,16 +85,13 @@ The mindspore implementation of ArcFace and has achieved great performance. We i
 
 #### Detection
 ---
-For Face detection, We choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
+For Face detection, We choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below. 
 
-##### WiderFace Val Performance in single scale When using ResNet50 or mobileNet025 as backbone.
-| Model | Easy | Medium | Hard |
+##### WiderFace Val Performance in multiscale When using ResNet50 or mobileNet025 as backbone.
+| backbone | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| RetinaFace_ResNet50 | 94.42% | 93.37% | 89.25% |
-| RetinaFace_ResNet50 (original image scale) | 95.34% | 93.91% | 84.01% |
-| RetinaFace_MobileNet025 (same parameter with MXNet) | 88.62% | 86.96% | 79.93% |
-| RetinaFace_MobileNet025 (original image scale) | 90.73% | 88.24% | 73.87% |
-
+| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| ResNet50 | 95.81% | 94.89% | 90.10% |
 
 ## License
 
@@ -147,3 +142,4 @@ CMIC has won 24 Grand Challenge Champion Awards from premier conferences, includ
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
 - Keda Lu, ``wujiekd666[at]gmail.com``
+- Pengwei Li ``lipw@mail.ustc.edu.cn``

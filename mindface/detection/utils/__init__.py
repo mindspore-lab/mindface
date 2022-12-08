@@ -1,3 +1,4 @@
+"""detection init"""
 from .lr_schedule import *
 from .box_utils import decode_bbox, prior_box
 
