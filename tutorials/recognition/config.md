@@ -1,4 +1,4 @@
-# 模型训练/微调
+# 模型微调
 
 MindFace套件支持用户加载配置文件中进行设置加载预训练的模型权重，在自身任务上进行微调(finetune).
 
@@ -41,27 +41,5 @@ use_nesterov: False
 save_checkpoint_steps: 60                               # 每次模型保存间隔的step数
 keep_checkpoint_max: 20                                 # 最多保存模型的数量
 train_url: '.'                                          # 模型保存位置
-resume: False                                           # 预训练模型路径
-```
-
-## 启动训练/微调
-训练和微调的步骤基本相同。如果进行微调，请先修改模型配置文件中的`resume`的权重路径，后面的步骤和正常训练的步骤一致。同理，加载预训练模型进行训练也是同样的步骤。
-### 单卡训练/微调
-GPU平台
-```
-sh scripts/run_standalone_train_gpu.sh  /path/to/configs
-```
-Ascend平台
-```
-sh scripts/run_standalone_train.sh  /path/to/configs
-```
-
-### 分布式训练/微调
-GPU平台
-```
-sh scripts/run_distribute_train_gpu.sh /path/to/configs rank_size
-```
-Ascend平台
-```
-sh scripts/run_distribute_train.sh rank_size /path/to/configs
+resume: False                                           # 加载模型路径
 ```
