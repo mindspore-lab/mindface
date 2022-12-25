@@ -9,7 +9,7 @@
 MindSpore是华为在2019年8月推出的新一代全场景AI计算框架，于2020年3月28日正式发布。
 
 本存储库包含了ArcFace的mindspore实现，并取得了很好的性能。我们基于ResNet50和MobileNet0.45g做了两个不同版本实现，以满足不同的需求。
-<div align="center"><img src="imgs/arcface.png" width="600" ></div>
+<div align="center"><img src="image/arcface.png" width="600" ></div>
 
 
 ## 更新!!

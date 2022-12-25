@@ -12,7 +12,7 @@ class ArcFace(nn.Cell):
     Implement of large margin arc distance.
 
     Args:
-        world_size (Int): Number of processes involved in this work.
+        world_size (Int): Size of each input sample.
         s (Float): Norm of input feature. Default: 64.0.
         m (Float): Margin. Default: 0.5.
 
@@ -21,7 +21,7 @@ class ArcFace(nn.Cell):
     """
     def __init__(self, world_size, s=64.0, m=0.5):
         super().__init__()
-        self.size = s
+        self.s = s
         self.shape = ops.Shape()
         self.mul = ops.Mul()
         self.cos = ops.Cos()
@@ -33,8 +33,11 @@ class ArcFace(nn.Cell):
         self.ce_loss = SoftMaxCE(world_size=world_size)
 
     def construct(self, cosine, label):
-        m_hot = self.onehot(label, self.shape(
-            cosine)[1], self.on_value, self.off_value)
+        """
+        Construct.
+        """
+        m_hot = self.onehot(label, self.shape(cosine)[1],
+                            self.on_value, self.off_value)
 
         cosine = self.acos(cosine)
         cosine += m_hot

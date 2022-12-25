@@ -4,25 +4,30 @@ costmodel_gamma: 0.001
 costmodel_beta: 280.0
 
 # Dataset
-data_url: "/home/data/dushens/dataset/mindspore/faces_webface_112x112_train"
+data_dir: '/home/data1/xieguochen/dataset/AgeDataset'
+top_dir_name: "faces_webface_112x112_train"
 num_classes: 10572
 
 # Model
-backbone: 'iresnet50' # 'mobilefacenet', 'iresnet50', 'iresnet100'
+backbone: 'vit_b'
 method: "arcface"
+loss_scale: 32.0
+amp_level: "O2"
 num_features: 512
 
 # Train parameters
 epochs: 25
-batch_size: 256
-learning_rate: 0.02
 schedule: [10, 16, 21]
 gamma: 0.1
-momentum: 0.9
-weight_decay: 0.0001
+
+optimizer: "adamw"
+learning_rate: 0.0001
+weight_decay: 0.025
+filter_bias_and_bn: True
+use_nesterov: False
 
 # Checkpoint
 save_checkpoint_steps: 60
 keep_checkpoint_max: 20
-train_url: '.'
+train_dir: './output/casia_vit_b'
 resume: False

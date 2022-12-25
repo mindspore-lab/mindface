@@ -3,12 +3,14 @@ Training face recognition models.
 """
 import os
 import argparse
+import time
 
 from datasets import create_dataset
 from models import iresnet100, iresnet50, get_mbf, PartialFC, vit_t, vit_s, vit_b, vit_l
 from loss import ArcFace
 from runner import Network, lr_generator
-from utils import read_yaml
+from utils import ObsToEnv, EnvToObs
+from configs import config_combs
 from optim import create_optimizer
 
 import mindspore
@@ -26,15 +28,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Training')
 
     # configs
-    parser.add_argument('--config', default='configs/train_config_casia_vit_t.yaml',
-                        type=str, help='output path')
+    parser.add_argument('--config', default='casia_mobile', type=str, help='output path')
+    parser.add_argument('--data_url', default='data path', type=str)
+    parser.add_argument('--train_url', default= '/cache/output/',
+                        type=str, help='output folder to save/load')
 
     # Optimization options
-    parser.add_argument('--batch_size', default=128, type=int,
-                        help='train batchsize (default: 128)')
+    parser.add_argument('--batch_size', default=64, type=int, help='train batchsize (default: 64)')
     parser.add_argument('--device_target', type=str, default='Ascend',
                         choices=['GPU', 'Ascend'])
-    parser.add_argument('--running_mode', type=str, default='GRAPH',
+    parser.add_argument('--running_mode', type=str, default='PYNATIVE',
                         choices=['GRAPH', 'PYNATIVE'])
 
     # Random seed
@@ -44,9 +47,12 @@ if __name__ == "__main__":
 
     mindspore.common.set_seed(args.seed)
 
-    train_info = read_yaml(os.path.join(os.getcwd(), args.config))
+    train_info = config_combs[args.config]
 
     print(args, train_info)
+
+    os.makedirs(train_info["data_dir"], exist_ok=True)
+    os.makedirs(train_info["train_dir"], exist_ok=True)
 
     if args.running_mode == "GRAPH":
         DATASET_SINK_MODE = True
@@ -60,8 +66,8 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     device_num = int(os.getenv('RANK_SIZE'))
-    # local_rank = int(os.getenv('RANK_ID'))
-    # print("device_num: ", device_num, "local_rank: ", local_rank)
+    local_rank = int(os.getenv('RANK_ID'))
+    print("device_num: ", device_num, "local_rank: ", local_rank)
 
     if device_num > 1:
         if args.device_target == 'Ascend':
@@ -85,12 +91,26 @@ if __name__ == "__main__":
                                               gradients_mean=True,
                                               search_mode="recursive_programming")
     else:
-        device_id = int(os.getenv('DEVICE_ID')) if os.getenv('DEVICE_ID') is not None else 0
+        device_id = int(os.getenv('DEVICE_ID'))
+
+    if args.device_target == 'Ascend':
+        print("Downloading dataset ...")
+        if device_num ==1:
+            ObsToEnv(args.data_url, train_info['data_dir'])
+        else:
+            if local_rank % 8==0:
+                ObsToEnv(args.data_url, train_info['data_dir'])
+
+            while not os.path.exists("/cache/download_input.txt"):
+                time.sleep(1)
+    else:
+        pass
 
     train_dataset = create_dataset(
         dataset_path=os.path.join(train_info['data_dir'], train_info['top_dir_name']),
         do_train=True,
         repeat_num=1,
+        # batch_size=train_info['batch_size'],
         batch_size=args.batch_size,
         target=args.device_target,
         is_parallel=(device_num > 1)
@@ -160,16 +180,17 @@ if __name__ == "__main__":
 
     if loss_scale_manager is not None:
         model = Model(train_net, loss_fn=loss_func, optimizer=optimizer,
-                      amp_level=train_info["amp_level"], loss_scale_manager=loss_scale_manager)
+                      amp_level=train_info["amp_level"],
+                    loss_scale_manager=loss_scale_manager)
     else:
         model = Model(train_net, loss_fn=loss_func, optimizer=optimizer,
                       amp_level=train_info["amp_level"])
 
     config_ck = CheckpointConfig(save_checkpoint_steps=train_info["save_checkpoint_steps"],
-                                keep_checkpoint_max=train_info["keep_checkpoint_max"])
+                                 keep_checkpoint_max=train_info["keep_checkpoint_max"])
 
     ckpt_cb = ModelCheckpoint(prefix="_".join([train_info["method"], train_info['backbone']]),
-                                config=config_ck, directory=train_info['train_dir'])
+                              config=config_ck, directory=train_info['train_dir'])
     time_cb = TimeMonitor(data_size=train_dataset.get_dataset_size())
     loss_cb = LossMonitor()
     cb = [ckpt_cb, time_cb, loss_cb]
@@ -182,3 +203,9 @@ if __name__ == "__main__":
                     callbacks=cb, dataset_sink_mode=DATASET_SINK_MODE)
     else:
         model.train(train_info['epochs'], train_dataset, dataset_sink_mode=DATASET_SINK_MODE)
+
+    if args.device_target == 'Ascend':
+        if local_rank ==0:
+            EnvToObs(train_info['train_dir'], args.train_url)
+    else:
+        pass

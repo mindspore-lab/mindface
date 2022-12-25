@@ -8,7 +8,7 @@ English | [简体中文](README_zh-CN.md)
 MindSpore is a new generation of full-scenario AI computing framework launched by Huawei in August 2019 and released On March 28, 2020.
 
 This repository is the mindspore implementation of ArcFace and has achieved great performance. We implemented two versions based on ResNet and MobileNet to meet different needs.
-<div align="center"><img src="imgs/arcface.png" width="600" ></div>
+<div align="center"><img src="image/arcface.png" width="600" ></div>
 
 
 ## Updates!!

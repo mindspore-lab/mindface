@@ -3,12 +3,14 @@ Training face recognition models.
 """
 import os
 import argparse
+import time
 
 from datasets import create_dataset
 from models import iresnet100, iresnet50, get_mbf, PartialFC, vit_t, vit_s, vit_b, vit_l
 from loss import ArcFace
 from runner import Network, lr_generator
-from utils import read_yaml
+from utils import C2netMultiObsToEnv, EnvToObs
+from configs import config_combs
 from optim import create_optimizer
 
 import mindspore
@@ -26,15 +28,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Training')
 
     # configs
-    parser.add_argument('--config', default='configs/train_config_casia_vit_t.yaml',
-                        type=str, help='output path')
+    parser.add_argument('--config', default='casia_vit_b', type=str, help='output path')
+    parser.add_argument('--multi_data_url', default='/cache/data/',
+                        type=str, help='path to multi dataset')
+    parser.add_argument('--train_url', default= '/cache/output/',
+                        type=str, help='output folder to save/load')
+    parser.add_argument('--ckpt_url', default= '/cache/checkpoint.ckpt',
+                        type=str, help='output folder to save/load')
 
     # Optimization options
-    parser.add_argument('--batch_size', default=128, type=int,
-                        help='train batchsize (default: 128)')
-    parser.add_argument('--device_target', type=str, default='Ascend',
-                        choices=['GPU', 'Ascend'])
-    parser.add_argument('--running_mode', type=str, default='GRAPH',
+    parser.add_argument('--batch_size', default=64, type=int, help='train batchsize (default: 64)')
+    parser.add_argument('--device_target', type=str, default='Ascend', choices=['GPU', 'Ascend'])
+    parser.add_argument('--running_mode', type=str, default='PYNATIVE',
                         choices=['GRAPH', 'PYNATIVE'])
 
     # Random seed
@@ -44,9 +49,13 @@ if __name__ == "__main__":
 
     mindspore.common.set_seed(args.seed)
 
-    train_info = read_yaml(os.path.join(os.getcwd(), args.config))
+    # train_info = read_yaml(os.path.join(os.getcwd(), args.config))
+    train_info = config_combs[args.config]
 
     print(args, train_info)
+
+    os.makedirs(train_info["data_dir"], exist_ok=True)
+    os.makedirs(train_info["train_dir"], exist_ok=True)
 
     if args.running_mode == "GRAPH":
         DATASET_SINK_MODE = True
@@ -60,8 +69,8 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     device_num = int(os.getenv('RANK_SIZE'))
-    # local_rank = int(os.getenv('RANK_ID'))
-    # print("device_num: ", device_num, "local_rank: ", local_rank)
+    local_rank = int(os.getenv('RANK_ID'))
+    print("device_num: ", device_num, "local_rank: ", local_rank)
 
     if device_num > 1:
         if args.device_target == 'Ascend':
@@ -85,12 +94,26 @@ if __name__ == "__main__":
                                               gradients_mean=True,
                                               search_mode="recursive_programming")
     else:
-        device_id = int(os.getenv('DEVICE_ID')) if os.getenv('DEVICE_ID') is not None else 0
+        device_id = int(os.getenv('DEVICE_ID'))
+
+    if args.device_target == 'Ascend':
+        print("Downloading dataset ...")
+        if device_num ==1:
+            C2netMultiObsToEnv(args.multi_data_url, train_info['data_dir'])
+        else:
+            if local_rank % 8==0:
+                C2netMultiObsToEnv(args.multi_data_url, train_info['data_dir'])
+
+            while not os.path.exists("/cache/download_input.txt"):
+                time.sleep(1)
+    else:
+        pass
 
     train_dataset = create_dataset(
         dataset_path=os.path.join(train_info['data_dir'], train_info['top_dir_name']),
         do_train=True,
         repeat_num=1,
+        # batch_size=train_info['batch_size'],
         batch_size=args.batch_size,
         target=args.device_target,
         is_parallel=(device_num > 1)
@@ -120,6 +143,10 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     if train_info["resume"]:
+        if args.device_target == 'Ascend':
+            train_info["resume"] = args.ckpt_url
+        else:
+            pass
         param_dict = load_checkpoint(train_info["resume"])
         load_param_into_net(net, param_dict)
 
@@ -182,3 +209,9 @@ if __name__ == "__main__":
                     callbacks=cb, dataset_sink_mode=DATASET_SINK_MODE)
     else:
         model.train(train_info['epochs'], train_dataset, dataset_sink_mode=DATASET_SINK_MODE)
+
+    if args.device_target == 'Ascend':
+        # if local_rank == 0:
+        EnvToObs(train_info['train_dir'], args.train_url)
+    else:
+        pass

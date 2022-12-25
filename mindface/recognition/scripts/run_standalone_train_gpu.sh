@@ -21,10 +21,11 @@ echo "==========================================================================
 export CONFIG=$1
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 export CUDA_VISIBLE_DEVICES=0
-export DEVICE_ID=0
+export RANK_SIZE=1
+export RANK_ID=0
 
 env > env_standalone_gpu.log
 echo "start training"
 
-python train.py --device_target 'GPU' --device_num 1 --config $1 
+python train.py --device_target 'GPU' --config $1 
 # > train.log 2>&1 &
