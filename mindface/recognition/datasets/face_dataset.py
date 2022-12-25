@@ -1,17 +1,17 @@
 """
-Face dataset.
+face_dataset
 """
 import os
 import mindspore.common.dtype as mstype
 import mindspore.dataset.engine as de
-import mindspore.dataset.vision as C
-import mindspore.dataset.transforms as C2
+import mindspore.dataset.vision.c_transforms as C
+import mindspore.dataset.transforms.c_transforms as C2
 from mindspore.communication.management import init, get_rank, get_group_size
 
 __all__=["create_dataset"]
 
-def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32,
-                    augmentation=None, target="Ascend", is_parallel=True):
+def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmentation=None,
+                    target="Ascend", is_parallel=True):
     """
     Create a train dataset.
 
@@ -25,7 +25,7 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32,
         is_parallel (Bool): Parallel training parameters. Default: True.
 
     Returns:
-        data_set (Object), data loader.
+        ds (Object), data loader.
 
     Examples:
         >>> training_dataset = "/path/to/face_dataset"
@@ -43,7 +43,7 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32,
             device_num = 1
 
     if device_num == 1:
-        data_set= de.ImageFolderDataset(
+        data_set = de.ImageFolderDataset(
             dataset_path, num_parallel_workers=8, shuffle=True)
     else:
         data_set = de.ImageFolderDataset(dataset_path, num_parallel_workers=8, shuffle=True,
@@ -67,7 +67,7 @@ def create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32,
     else:
         trans = [
             C.Decode(),
-            C.Resize(256),
+            C.Resize(112),
             C.CenterCrop(image_size),
             C.Normalize(mean=mean, std=std),
             C.HWC2CHW()

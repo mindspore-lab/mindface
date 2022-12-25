@@ -1,9 +1,7 @@
 """
-partailfc.
+partail_fc.
 """
 from mindspore import Parameter, nn, ops
-from mindspore import dtype as mstype
-from mindspore.ops import functional as F
 from mindspore.common.initializer import initializer
 
 
@@ -31,6 +29,9 @@ class PartialFC(nn.Cell):
             ((1, 1), (world_size, 1)))
 
     def construct(self, features):
+        """
+        construct.
+        """
         total_features = self.l2_norm(features)
         norm_weight = self.l2_norm(self.sub_weight)
         logits = self.forward(total_features, norm_weight)
@@ -40,6 +41,5 @@ class PartialFC(nn.Cell):
         """
         forward.
         """
-        logits = self.linear(F.cast(total_features, mstype.float16), F.cast(
-            norm_weight, mstype.float16))
-        return F.cast(logits, mstype.float32)
+        logits = self.linear(total_features, norm_weight)
+        return logits

@@ -1,5 +1,5 @@
 """
-Iresnet.
+iresnet.
 """
 from mindspore import nn, ops
 from mindspore.common.initializer import initializer, HeNormal
@@ -68,9 +68,9 @@ class IBasicBlock(nn.Cell):
         self.stride = stride
 
     def construct(self, x):
-        '''
-        construct
-        '''
+        """
+        construct.
+        """
         identity = x
 
         out = self.bn1(x)
@@ -115,8 +115,8 @@ class IResNet(nn.Cell):
         if replace_stride_with_dilation is None:
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
-            raise ValueError("replace_stride_with_dilation should be None "
-                            f"or a 3-element tuple, got {format(replace_stride_with_dilation)}")
+            raise ValueError(f"replace_stride_with_dilation should be None\
+                             or a 3-element tuple, got {replace_stride_with_dilation}")
         self.groups = groups
         self.base_width = width_per_group
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3,
@@ -141,7 +141,7 @@ class IResNet(nn.Cell):
                                        dilate=replace_stride_with_dilation[2])
         self.bn2 = nn.BatchNorm2d(512 * block.expansion, eps=1e-05,)
         self.dropout = nn.Dropout(keep_prob=1.0-dropout)
-        self.f_c = nn.Dense(512 * block.expansion * self.fc_scale,
+        self.fc = nn.Dense(512 * block.expansion * self.fc_scale,
                            num_features)
         self.features = nn.BatchNorm1d(num_features, eps=1e-05)
         self.features.gamma.requires_grad = False
@@ -152,7 +152,7 @@ class IResNet(nn.Cell):
 
     def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
         """
-        Make layer.
+        make_layer.
         """
         downsample = None
         previous_dilation = self.dilation
@@ -182,27 +182,30 @@ class IResNet(nn.Cell):
 
     def _initialize_weights(self):
         """
-        Initialize weights.
+        initialize_weights.
         """
         for _, cell in self.cells_and_names():
             if isinstance(cell, nn.Conv2d):
                 cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'),
-                                        cell.weight.data.shape, cell.weight.data.dtype))
+                                                cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
                     cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                        cell.bias.data.dtype))
+                                                cell.bias.data.dtype))
             elif isinstance(cell, nn.BatchNorm2d):
                 cell.gamma.set_data(initializer('ones', cell.gamma.data.shape))
                 cell.beta.set_data(initializer('zeros', cell.beta.data.shape))
             elif isinstance(cell, nn.Dense):
                 cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'),
-                                        cell.weight.data.shape, cell.weight.data.dtype))
+                                                cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
                     cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                        cell.bias.data.dtype))
+                                                cell.bias.data.dtype))
 
 
     def construct(self, x):
+        """
+        construct.
+        """
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.prelu(x)

@@ -19,14 +19,16 @@ echo "It is better to use the absolute path."
 echo "=============================================================================================================="
 set -e
 
-export DEVICE_NUM=$2
 export RANK_SIZE=$2
 export CONFIG=$1
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-export CUDA_VISIBLE_DEVICES=0,1
+# export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=2,3
+# export CUDA_VISIBLE_DEVICES=4,5
+# export CUDA_VISIBLE_DEVICES=6,7
+# export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 env > env_distribute_gpu.log
 echo "start training"
 mpirun -n $2 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
-python train.py --device_num $2 --device_target 'GPU' --config $1 
-# >train.log 2>&1 &
+python train.py --device_target 'GPU' --config $1 --batch_size 128

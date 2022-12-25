@@ -325,7 +325,7 @@ for i, img_name in enumerate(test_dataset):
     boxes, confs, _ = network(img)
     timers['forward_time'].end()
     timers['misc'].start()
-    detection.detect(boxes, confs, resize, scale, img_name, priors)
+    detection.eval(boxes, confs, resize, scale, img_name, priors)
     timers['misc'].end()
 
     ave_time = ave_time + timers['forward_time'].diff + timers['misc'].diff

@@ -143,23 +143,23 @@ class SSH(nn.Cell):
 
 class FPN(nn.Cell):
     """FPN"""
-    def __init__(self, cfg):
+    def __init__(self, in_channel, out_channel):
         super().__init__()
-        out_channels = cfg['out_channel']
+        out_channels = out_channel
         leaky = 0
         if out_channels <= 64:
             leaky = 0.1
         norm_layer = nn.BatchNorm2d
-        self.output1 = ConvBNReLU(cfg['in_channel'] * 2, cfg['out_channel'], kernel_size=1, stride=1,
+        self.output1 = ConvBNReLU(in_channel * 2, out_channel, kernel_size=1, stride=1,
                                   padding=0, groups=1, norm_layer=norm_layer, leaky=leaky)
-        self.output2 = ConvBNReLU(cfg['in_channel'] * 4, cfg['out_channel'], kernel_size=1, stride=1,
+        self.output2 = ConvBNReLU(in_channel * 4, out_channel, kernel_size=1, stride=1,
                                   padding=0, groups=1, norm_layer=norm_layer, leaky=leaky)
-        self.output3 = ConvBNReLU(cfg['in_channel'] * 8, cfg['out_channel'], kernel_size=1, stride=1,
+        self.output3 = ConvBNReLU(in_channel * 8, out_channel, kernel_size=1, stride=1,
                                   padding=0, groups=1, norm_layer=norm_layer, leaky=leaky)
 
-        self.merge1 = ConvBNReLU(cfg['out_channel'], cfg['out_channel'], kernel_size=3, stride=1, padding=1, groups=1,
+        self.merge1 = ConvBNReLU(out_channel, out_channel, kernel_size=3, stride=1, padding=1, groups=1,
                                  norm_layer=norm_layer, leaky=leaky)
-        self.merge2 = ConvBNReLU(cfg['out_channel'], cfg['out_channel'], kernel_size=3, stride=1, padding=1, groups=1,
+        self.merge2 = ConvBNReLU(out_channel, out_channel, kernel_size=3, stride=1, padding=1, groups=1,
                                  norm_layer=norm_layer, leaky=leaky)
 
     def construct(self, input1, input2, input3):
@@ -235,38 +235,38 @@ class LandmarkHead(nn.Cell):
         return self.reshape(out, (P.Shape()(out)[0], -1, 10))
 
 class RetinaFace(nn.Cell):
-    """
-    Build the retinaface model without loss function.
+    """Build the retinaface model without loss function.
 
     Args:
         phase (String): Set the 'train' mode or 'val' mode. Default: 'train'
         backbone (Object): The backbone is used to extract features.
-        cfg (Dict): The configuration file that contains parameters related to model.
+        in_channel (int): DetectionHead input channel.
+        out_channel (int): DetectionHead output channel.
 
     Examples:
         >>> backbone = resnet50(1001)
-        >>> net = RetinaFace(phase='train', backbone=backbone, cfg=cfg)
+        >>> net = RetinaFace(phase='train', backbone=backbone, in_channel=32, out_channel=64)
     """
-    def __init__(self, phase='train', backbone=None, cfg=None):
+    def __init__(self, phase='train', backbone=None, in_channel=32, out_channel=64):
 
         super().__init__()
         self.phase = phase
 
         self.base = backbone
 
-        self.fpn = FPN(cfg)
+        self.fpn = FPN(in_channel, out_channel)
 
-        self.ssh1 = SSH(cfg['out_channel'], cfg['out_channel'])
-        self.ssh2 = SSH(cfg['out_channel'], cfg['out_channel'])
-        self.ssh3 = SSH(cfg['out_channel'], cfg['out_channel'])
+        self.ssh1 = SSH(out_channel, out_channel)
+        self.ssh2 = SSH(out_channel, out_channel)
+        self.ssh3 = SSH(out_channel, out_channel)
 
-        self.classhead = self._make_class_head(fpn_num=3, inchannels=[cfg['out_channel'], cfg['out_channel'],
-                                                                      cfg['out_channel']], anchor_num=[2, 2, 2])
-        self.bboxhead = self._make_bbox_head(fpn_num=3, inchannels=[cfg['out_channel'], cfg['out_channel'],
-                                                                    cfg['out_channel']], anchor_num=[2, 2, 2])
-        self.landmarkhead = self._make_landmark_head(fpn_num=3, inchannels=[cfg['out_channel'],
-                                                                            cfg['out_channel'],
-                                                                            cfg['out_channel']],
+        self.classhead = self._make_class_head(fpn_num=3, inchannels=[out_channel, out_channel,
+                                                                      out_channel], anchor_num=[2, 2, 2])
+        self.bboxhead = self._make_bbox_head(fpn_num=3, inchannels=[out_channel, out_channel,
+                                                                    out_channel], anchor_num=[2, 2, 2])
+        self.landmarkhead = self._make_landmark_head(fpn_num=3, inchannels=[out_channel,
+                                                                            out_channel,
+                                                                            out_channel],
                                                      anchor_num=[2, 2, 2])
 
         self.cat = P.Concat(axis=1)
@@ -339,12 +339,12 @@ class RetinaFaceWithLossCell(nn.Cell):
         >>> net = RetinaFace(phase='train', backbone=backbone, cfg = cfg)
         >>> net = RetinaFaceWithLossCell(net, multibox_loss, config = cfg)
     """
-    def __init__(self, network, multibox_loss, config):
+    def __init__(self, network, multibox_loss, loc_weight=2.0, class_weight=1.0, landm_weight=1.0):
         super().__init__()
         self.network = network
-        self.loc_weight = config['loc_weight']
-        self.class_weight = config['class_weight']
-        self.landm_weight = config['landm_weight']
+        self.loc_weight = loc_weight
+        self.class_weight = class_weight
+        self.landm_weight = landm_weight
         self.multibox_loss = multibox_loss
 
     def construct(self, img, loc_t, conf_t, landm_t):
