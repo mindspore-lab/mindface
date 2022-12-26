@@ -58,7 +58,7 @@ python setup.py install
 ```
 ## Get Started
 - [Recognition get started](tutorials/recognition/get_started.md)
-- [Detection get started]()
+- [Detection get started](tutorials/detection/get_started.md)
 ## Tutorials
 ---
 We provide [tutorials](tutorials) for the recognition and detection task.
@@ -72,6 +72,7 @@ We provide [tutorials](tutorials) for the recognition and detection task.
 - [Learn about how to create model and custom model](tutorials/recognition/model.md)
 
 ### Detection
+- [Get started](tutorials/detection/get_started.md)
 - [Learn about detection configs](tutorials/detection/config.md)  
 - [Inference with a pretrained detection model](tutorials/detection/infer.md) 
 - [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.ipynb)

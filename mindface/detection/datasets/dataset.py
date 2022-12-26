@@ -133,8 +133,8 @@ def read_dataset(img_path, annotation):
     return img, target
 
 
-def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True,
-                   multiprocessing=True, num_worker=4, is_distribute=False):
+def create_dataset(data_dir, variance=None, match_thresh=0.35, image_size=640, clip=False, batch_size=32,
+                        repeat_num=1, shuffle=True, multiprocessing=True, num_worker=4, is_distribute=False):
     """
     Create a callable dataloader from a python function.
 
@@ -142,26 +142,27 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True,
 
     Args:
         data_dir (String): The path of dataset.
-        cfg (Dict): The configuration file that contains parameters related to data.
+        variance (List): The variance of the data. Default: None
+        match_thresh (Float): The threshold of match the ground truth. Default: 0.35
+        image_size (Int): The image size of per image. Default: 640
+        clip (Bool): Whether to clip the image. Default: False
         batch_size (Int): The batch size of dataset. Default: 32
         repeat_num (Int): The repeat times of dataset. Default: 1
-        shuffle (Bool): whether to blend the dataset. Default: True
-        multiprocessing (Bool): Parallelize Python function per_batch_map with multi-processing.
-                                                                Default: True
+        shuffle (Bool): Whether to blend the dataset. Default: True
+        multiprocessing (Bool): Parallelize Python function per_batch_map with multi-processing. Default: True
         num_worker (Int): The number of child processes that process data in parallel. Default: 4
         is_distribute (Bool): Distributed training parameters. Default: False
 
     Returns:
-        de_dataset (Object), data loader.
+        de_dataset (Object): Data loader.
 
     Examples:
         >>> training_dataset = "/path/to/wider_face_dataset"
-        >>> config = cfg_res50
-        >>> batch_size = 32
-        >>> ds_train = create_dataset(training_dataset, config, batch_size, multiprocessing=True)
+        >>> ds_train = create_dataset(data_dir, variance=[0.1,0.2], match_thresh=0.35, image_size=640, clip=False,
+                batch_size=32, repeat_num=1, shuffle=True,multiprocessing=True, num_worker=4, is_distribute=False)
     """
     dataset = WiderFace(data_dir)
-
+    variance = variance or [0.1, 0.2]
     if is_distribute:
         init("nccl")
         rank_id = get_rank()
@@ -181,8 +182,8 @@ def create_dataset(data_dir, cfg, batch_size=32, repeat_num=1, shuffle=True,
                                          num_shards=device_num,
                                          shard_id=rank_id)
 
-    aug = Preproc(cfg['image_size'])
-    encode = Bboxencode(cfg)
+    aug = Preproc(image_size)
+    encode = Bboxencode(variance, match_thresh, image_size, clip)
 
     def read_data_from_dataset(image, annot):
         i, a = read_dataset(image, annot)

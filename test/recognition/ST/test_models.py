@@ -36,8 +36,7 @@ def test_retinaface_mobilenet025():
     """test retinaface_mobilenet025"""
     batchsize = 8 
     backbone_mobilenet025 = mobilenet025(1000)
-    cfg = {'in_channel':32,'out_channel':64}
-    retinaface_mobilenet025 = RetinaFace(phase='train', backbone = backbone_mobilenet025, cfg=cfg)
+    retinaface_mobilenet025 = RetinaFace(phase='train', backbone = backbone_mobilenet025, in_channel=32, out_channel=64)
     dummy_input = Tensor(np.random.rand(batchsize, 3, 224, 224), dtype=mindspore.float32)
     y = retinaface_mobilenet025(dummy_input)
 
@@ -49,8 +48,7 @@ def test_retinaface_resnet50():
     """test retinaface_resnet50"""
     batchsize = 8 
     backbone_resnet50 = resnet50(1001)
-    cfg = {'in_channel':256,'out_channel':256}
-    retinaface_resnet50 = RetinaFace(phase='train', backbone = backbone_resnet50, cfg=cfg)
+    retinaface_resnet50 = RetinaFace(phase='train', backbone=backbone_resnet50, in_channel=256, out_channel=256)
     dummy_input = Tensor(np.random.rand(batchsize, 3, 224, 224), dtype=mindspore.float32)
     y = retinaface_resnet50(dummy_input)
 
