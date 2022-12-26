@@ -13,6 +13,9 @@ class Flatten(Cell):
     Flatten.
     """
     def construct(self, x):
+        """
+        construct.
+        """
         return x.view(x.shape[0], -1)
 
 
@@ -23,13 +26,16 @@ class ConvBlock(Cell):
     def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0, 0, 0), group=1):
         super().__init__()
         self.layers = nn.SequentialCell(
-            Conv2d(in_c, out_c, kernel, group=group, stride=stride,
-                    pad_mode='pad', padding=padding, has_bias=False),
+            Conv2d(in_c, out_c, kernel, group=group, stride=stride, pad_mode='pad',
+                    padding=padding, has_bias=False),
             BatchNorm2d(num_features=out_c),
             PReLU(channel=out_c)
         )
 
     def construct(self, x):
+        """
+        construct.
+        """
         return self.layers(x)
 
 
@@ -37,16 +43,18 @@ class LinearBlock(Cell):
     """
     LinearBlock.
     """
-    def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1),
-                    padding=(0, 0, 0, 0), group=1):
+    def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0, 0, 0), group=1):
         super().__init__()
         self.layers = nn.SequentialCell(
-            Conv2d(in_c, out_c, kernel, group=group, stride=stride,
-                    pad_mode='pad', padding=padding, has_bias=False),
+            Conv2d(in_c, out_c, kernel, group=group, stride=stride, pad_mode='pad',
+                    padding=padding, has_bias=False),
             BatchNorm2d(num_features=out_c)
         )
 
     def construct(self, x):
+        """
+        construct.
+        """
         return self.layers(x)
 
 
@@ -54,8 +62,8 @@ class DepthWise(Cell):
     """
     DepthWise.
     """
-    def __init__(self, in_c, out_c, residual=False, kernel=(3, 3),
-                    stride=(2, 2), padding=(1, 1, 1, 1), group=1):
+    def __init__(self, in_c, out_c, residual=False, kernel=(3, 3), stride=(2, 2),
+                    padding=(1, 1, 1, 1), group=1):
         super().__init__()
         self.residual = residual
         self.layers = nn.SequentialCell(
@@ -65,6 +73,9 @@ class DepthWise(Cell):
         )
 
     def construct(self, x):
+        """
+        construct.
+        """
         short_cut = None
         if self.residual:
             short_cut = x
@@ -84,11 +95,13 @@ class Residual(Cell):
         super().__init__()
         cells = []
         for _ in range(num_block):
-            cells.append(DepthWise(c, c, True, kernel, stride,
-                        padding, group))
+            cells.append(DepthWise(c, c, True, kernel, stride, padding, group))
         self.layers = SequentialCell(*cells)
 
     def construct(self, x):
+        """
+        construct.
+        """
         return self.layers(x)
 
 
@@ -99,13 +112,15 @@ class GDC(Cell):
     def __init__(self, embedding_size):
         super().__init__()
         self.layers = nn.SequentialCell(
-            LinearBlock(512, 512, kernel=(7, 7), stride=(1, 1),
-                        padding=(0, 0, 0, 0), group=512),
+            LinearBlock(512, 512, kernel=(7, 7), stride=(1, 1), padding=(0, 0, 0, 0), group=512),
             Flatten(),
             Dense(512, embedding_size, has_bias=False),
             BatchNorm1d(embedding_size))
 
     def construct(self, x):
+        """
+        construct.
+        """
         return self.layers(x)
 
 
@@ -144,8 +159,8 @@ class MobileFaceNet(Cell):
         [
             DepthWise(64 * self.scale, 64 * self.scale, kernel=(3, 3), stride=(2, 2),
                         padding=(1, 1, 1, 1), group=128),
-            Residual(64 * self.scale, num_block=blocks[1], group=128, kernel=(3, 3),
-                        stride=(1, 1), padding=(1, 1, 1, 1)),
+            Residual(64 * self.scale, num_block=blocks[1], group=128, kernel=(3, 3), stride=(1, 1),
+                        padding=(1, 1, 1, 1)),
             DepthWise(64 * self.scale, 128 * self.scale, kernel=(3, 3), stride=(2, 2),
                         padding=(1, 1, 1, 1), group=256),
             Residual(128 * self.scale, num_block=blocks[2], group=256, kernel=(3, 3),
@@ -156,15 +171,15 @@ class MobileFaceNet(Cell):
                         stride=(1, 1), padding=(1, 1, 1, 1)),
         ])
 
-        self.conv_sep = ConvBlock(128 * self.scale, 512, kernel=(1, 1),
-                        stride=(1, 1), padding=(0, 0, 0, 0))
+        self.conv_sep = ConvBlock(128 * self.scale, 512, kernel=(1, 1), stride=(1, 1),
+                        padding=(0, 0, 0, 0))
         self.features = GDC(num_features)
         self._initialize_weights()
 
 
     def _initialize_weights(self):
         """
-        Initialize weights.
+        initialize_weights
         """
         for _, cell in self.cells_and_names():
             if isinstance(cell, nn.Conv2d):
@@ -172,18 +187,22 @@ class MobileFaceNet(Cell):
                         cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
                     cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                cell.bias.data.dtype))
+                        cell.bias.data.dtype))
             elif isinstance(cell, nn.BatchNorm2d):
                 cell.gamma.set_data(initializer('ones', cell.gamma.data.shape))
                 cell.beta.set_data(initializer('zeros', cell.beta.data.shape))
             elif isinstance(cell, nn.Dense):
                 cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'),
-                            cell.weight.data.shape, cell.weight.data.dtype))
+                        cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
                     cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                cell.bias.data.dtype))
+                        cell.bias.data.dtype))
+
 
     def construct(self, x):
+        """
+        construct.
+        """
         for func in self.layers:
             x = func(x)
         x = self.conv_sep(x)

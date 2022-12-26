@@ -18,8 +18,8 @@ echo "For example: bash run.sh 8 path/dataset"
 echo "It is better to use the absolute path."
 echo "=============================================================================================================="
 
-RANK_SIZE=$1
-DATA_PATH=$2
+export RANK_SIZE=$2
+CONFIG=$1
 
 EXEC_PATH=$(pwd)
 echo "$EXEC_PATH"
@@ -46,9 +46,9 @@ do
     echo "start training for device $i"
     env > env$i.log
     python train.py  \
-    --data_url $DATA_PATH \
-    --train_url ckpt$i  \
+    --config $CONFIG \
     --device_num $RANK_SIZE \
+    --device_target 'Ascend'
     > train.log$i 2>&1 &
     cd ../
 done

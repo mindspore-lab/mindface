@@ -20,10 +20,6 @@ echo "==========================================================================
 
 export CONFIG=$1
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-export DEVICE_ID=0
 
-env > env_standalone_train.log
-echo "start training"
-
-python train.py --device_target 'Ascend' --device_num 1 --config $1 
+python train.py --device_target 'Ascend' --config $1 --batch_size 64
 

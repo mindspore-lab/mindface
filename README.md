@@ -4,10 +4,6 @@ Face recognition and detection occupy an important position in the face field. M
 
 For all main contributors, please check [contributing](#contributing).
 
-## Top News
----
-**`2022-06-18`**: We have created our official repo about face research based on MindSpore. 
-
 
 ## Introduction
 ---
@@ -33,6 +29,7 @@ MindFace mainly has the following features.
 - scikit-learn==1.1.2
 - Pillow==9.2.0
 - matplotlib==3.6.0
+- easydict==1.9
 
 To install the dependency, please run
 ```shell
@@ -59,29 +56,51 @@ cd mindface
 # Install
 python setup.py install
 ```
-
+## Get Started
+- [Recognition get started](tutorials/recognition/get_started.md)
+- [Detection get started]()
 ## Tutorials
 ---
-We provide [tutorials](tutorials) for  
+We provide [tutorials](tutorials) for the recognition and detection task.
+### Recognition
+- [Get started](tutorials/recognition/get_started.md)
+- [Learn about recognition configs](tutorials/recognition/config.md) 
+- [Learn to reproduce the eval result and inference with a pretrained model](tutorials/recognition/inference.md) 
+- [Learn about how to create dataset](tutorials/recognition/dataset.md)
+- [Learn about how to train/finetune a pretrained model](tutorials/recognition/finetune.md)
+- [Learn about how to use the loss function](tutorials/recognition/loss.md)
+- [Learn about how to create model and custom model](tutorials/recognition/model.md)
 
+### Detection
 - [Learn about detection configs](tutorials/detection/config.md)  
 - [Inference with a pretrained detection model](tutorials/detection/infer.md) 
 - [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.ipynb)
 
-### Projects
 ---
+
+
+### Supported Projects
+
 #### Recognition
 ---
-The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
+The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet, MobileNet and vit to meet different needs. Detailed results are shown in the table below.
 
 | Datasets       | Backbone            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
 | CASIA         | mobilefacenet-0.45g | 0.98483+-0.00425 | 0.86843+-0.01838 | 0.90133+-0.02118 | 0.90917+-0.01294 | 0.81217+-0.02232 |
 | CASIA         | r50 | 0.98667+-0.00435 | 0.90357+-0.01300 | 0.91750+-0.02277 | 0.92033+-0.01122 | 0.83667+-0.01719 |
 | CASIA         | r100 | 0.98950+-0.00366 | 0.90943+-0.01300 | 0.91833+-0.01655 | 0.92433+-0.01017 | 0.84967+-0.01904 |
+| CASIA         | vit-t | 0.98400+-0.00704 | 0.83229+-0.01877 | 0.87283+-0.02468 | 0.90667+-0.00934 | 0.80700+-0.01767 |
+| CASIA         | vit-s | 0.98550+-0.00806 | 0.85557+-0.01617 | 0.87850+-0.02194 | 0.91083+-0.00876 | 0.82500+-0.01685 |
+| CASIA         | vit-b | 0.98333+-0.00553 | 0.85829+-0.01836 | 0.87417+-0.01838 | 0.90800+-0.00968 | 0.81400+-0.02236 |
+| CASIA         | vit-l | 0.97600+-0.00898 | 0.84543+-0.01718 | 0.85317+-0.01411 | 0.89733+-0.00910 | 0.79550+-0.01648 |
 | MS1MV2         | mobilefacenet-0.45g| 0.98700+-0.00364 | 0.88214+-0.01493 | 0.90950+-0.02076 | 0.91750+-0.01088 | 0.82633+-0.02014 |
 | MS1MV2         | r50 | 0.99767+-0.00260 | 0.97186+-0.00652 | 0.97783+-0.00869 | 0.96067+-0.01121 | 0.92033+-0.01732 |
 | MS1MV2         | r100 | 0.99383+-0.00334 | 0.96800+-0.01042 | 0.93767+-0.01724 | 0.93267+-0.01327 | 0.89150+-0.01763 |
+| MS1MV2         | vit-t | 0.99717+-0.00279 | 0.92714+-0.01389 | 0.96717+-0.00727 | 0.95600+-0.01198 | 0.89950+-0.01291 |
+| MS1MV2         | vit-s | 0.99767+-0.00260 | 0.95771+-0.01058 | 0.97617+-0.00972 | 0.95800+-0.01142 | 0.91267+-0.01104 |
+| MS1MV2         | vit-b | 0.99817+-0.00252 | 0.94200+-0.01296 | 0.97517+-0.00858 | 0.96000+-0.01179 | 0.90967+-0.01152 |
+| MS1MV2         | vit-l | 0.99750+-0.00291 | 0.93714+-0.01498 | 0.96483+-0.01031 | 0.95817+-0.01158 | 0.90450+-0.01062 |
 
 #### Detection
 ---
@@ -129,6 +148,10 @@ CMIC has published more than 200 journal articles and conference papers, includi
 CMIC has received 6 best paper awards from premier conferences, including CVPR MAVOC, ICCV MFR, ICME, FG. 
 
 CMIC has won 24 Grand Challenge Champion Awards from premier conferences, including CVPR, ICCV, MM, ECCV, AAAI, ICME.
+
+## Notes
+* We have created our official repo about face research based on MindSpore. 
+* MindFace supports recognition and detection task.
 
 **Main contributors:**
 
