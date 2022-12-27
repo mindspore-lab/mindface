@@ -91,12 +91,13 @@ Comming soon!
 
     We provide two versions of configs ([RetinaFace_mobilenet025](./configs/RetinaFace_mobilenet025.yaml) and [RetinaFace_resnet50](./configs/RetinaFace_resnet50.yaml)).
 
+
 4. Train
 
 ```
     python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 ```
-
+> note: if your device is Ascend, please set the "device_target" in config file as "Ascend".
 5. Eval
 ```
     python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
