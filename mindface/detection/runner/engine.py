@@ -80,21 +80,18 @@ class DetectionEngine:
         conf_thresh (Float): The threshold of confidence. DeFault: 0.02
         iou_thresh (Float): The threshold of iou. DeFault: 0.5
         var (List): Variances of priorboxes. Default: [0.1, 0.2]
-        save_prefix (String): The path to save results.
         gt_dir (String): The path of ground truth.
     Examples:
         >>> detection = DetectionEngine(cfg)
     """
     def __init__(self, nms_thresh=0.4, conf_thresh=0.02, iou_thresh=0.5, var=None,
-                        save_prefix='./result', gt_dir='/data/WiderFace/ground_truth'):
+                        gt_dir='data/WiderFace/ground_truth'):
         self.results = {}
         self.nms_thresh = nms_thresh
         self.conf_thresh = conf_thresh
         self.iou_thresh = iou_thresh
         self.var = var or [0.1,0.2]
-        self.save_prefix = save_prefix
         self.gt_dir = gt_dir
-        self.file_path = None
 
     def _iou(self, a, b):
         """_iou"""
@@ -150,23 +147,24 @@ class DetectionEngine:
 
         return reserved_boxes
 
-    def write_result(self):
+    def write_result(self, save_path  = None):
         """write_result"""
         # save result to file.
+        if not save_path:
+            return self.results
         t = datetime.datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
         try:
-            if not os.path.isdir(self.save_prefix):
-                os.makedirs(self.save_prefix)
+            if not os.path.isdir(save_path):
+                os.makedirs(save_path)
 
-            self.file_path = self.save_prefix + '/predict' + t + '.json'
-            with open(self.file_path, 'w', encoding='utf-8') as file:
-            # f = open(self.file_path, 'w', encoding='utf-8')
+            file_path = save_path + '/predict' + t + '.json'
+            with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(self.results, file)
+                print(f"The results were saved in {file_path}.")
+            file.close()
+            return self.results
         except IOError as err:
             raise RuntimeError(f"Unable to open json file to dump. What(): {err}") from err
-        else:
-            file.close()
-            return self.file_path
 
     def eval(self, boxes, confs, resize, scale, image_path, priors):
         """eval
@@ -181,7 +179,8 @@ class DetectionEngine:
 
         if boxes.shape[0] == 0:
             # add to result
-            event_name, img_name = image_path.split('/')
+            event_name = image_path.split('/')[-2]
+            img_name = image_path.split('/')[-1]
             self.results[event_name][img_name[:-4]] = {'img_path': image_path,
                                                        'bboxes': []}
             return
@@ -218,7 +217,8 @@ class DetectionEngine:
 
 
         # add to result
-        event_name, img_name = image_path.split('/')
+        event_name = image_path.split('/')[-2]
+        img_name = image_path.split('/')[-1]
         event_names = self.results.keys()
         if event_name not in event_names:
             self.results[event_name] = {}

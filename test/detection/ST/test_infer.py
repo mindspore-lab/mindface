@@ -5,19 +5,16 @@ sys.path.append('.')
 import numpy as np
 import pytest
 import cv2
-import urllib.request
 
 from mindspore import Tensor, context
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
 from mindface.detection.models import RetinaFace, mobilenet025, resnet50
 from mindface.detection.runner import DetectionEngine
 from mindface.detection.utils import prior_box
 
 @pytest.mark.parametrize('backbone_name', ['mobilenet025', 'resnet50'])
 @pytest.mark.parametrize('target_size', [1200, 1600])
-def test_infer(backbone_name, target_size):
-    """The test api of infer."""
+def test_detect(backbone_name, target_size):
+    """The test api of eval and infer."""
     context.set_context(mode=context.PYNATIVE_MODE, device_target='CPU')
     if backbone_name == 'resnet50':
         backbone = resnet50(1001)
@@ -65,5 +62,9 @@ def test_infer(backbone_name, target_size):
     boxes_infer = detector.infer(boxes, confs, resize, scale, priors)
     assert len(boxes_infer) >0, 'Can not detect the faces'
     assert len(boxes_infer[0])==5, 'Not a BBox'
+    detector.eval(boxes, confs, resize, scale, image_path, priors)
+    results = detector.write_result()
+    assert results is not None, 'Saved Nothing!'
+
 if __name__ == '__main__':
-    test_infer('mobilenet025', 1600)
+    test_detect('mobilenet025', 1600)
