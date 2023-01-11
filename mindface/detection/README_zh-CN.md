@@ -20,41 +20,48 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 ## 更新日志
 敬请期待!
 
+## 使用不同backbone进行多尺度测试在WiderFace Val数据集上的表现.
 
-## 使用Resnet50作为backbone进行单尺度训练在WiderFace Val数据集上的表现.
-| 版本 | 简单样本 | 中等样本 | 困难样本 |
+| backbone | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (与MXNet相同参数) | 94.42% | 93.37% | 89.25% |
-| MindSpore (原始图像尺寸) | 95.34% | 93.91% | 84.01% |
-| PyTorch (与MXNet相同参数) | 94.82 % | 93.84% | 89.60% |
-| PyTorch (原始图像尺寸) | 95.48% | 94.04% | 84.43% |
+| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| ResNet50 | 95.81% | 94.89% | 90.10% |
+
+## 使用Resnet50作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+| Style | Easy | Medium | Hard |
+|:-|:-:|:-:|:-:|
+| MindSpore (same parameter with MXNet) | 94.46% | 93.64% | 89.42% |
+| MindSpore (original image scale) | 95.07% | 93.61% | 84.84% |
+| PyTorch (same parameter with MXNet) | 94.82 % | 93.84% | 89.60% |
+| PyTorch (original image scale) | 95.48% | 94.04% | 84.43% |
 | MXNet | 94.86% | 93.87% | 88.33% |
-| MXNet(原始图像尺寸) | 94.97% | 93.89% | 82.27% |
+| MXNet(original image scale) | 94.97% | 93.89% | 82.27% |
 
-## 使用Mobilenet0.25作为backbone进行单尺度训练在WiderFace Val数据集上的表现.
-| 版本 | 简单样本 | 中等样本 | 困难样本 |
+## 使用Mobilenet0.25作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+| Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (与MXNet相同参数) | 88.62% | 86.96% | 79.93% |
-| MindSpore (原始图像尺寸) | 90.73% | 88.24% | 73.87% |
-| PyTorch (与MXNet相同参数) | 88.67% | 87.09% | 80.99% |
-| PyTorch (原始图像尺寸) | 90.70% | 88.16% | 73.82% |
+| MindSpore (same parameter with MXNet) | 88.51% | 86.86% | 80.88% |
+| MindSpore (original image scale) | 90.77% | 88.20% | 74.76% |
+| PyTorch (same parameter with MXNet) | 88.67% | 87.09% | 80.99% |
+| PyTorch (original image scale) | 90.70% | 88.16% | 73.82% |
 | MXNet | 88.72% | 86.97% | 79.19% |
-| MXNet(原始图像尺寸) | 89.58% | 87.11% | 69.12% |
-
+| MXNet(original image scale) | 89.58% | 87.11% | 69.12% |
 
 ## 快速入门
 1. 安装
 
-    1.1 从[此处](https://github.com/harryjun-ustc/MindFace)进行Git clone
+    1.1 从[此处](https://github.com/mindspore-lab/mindface.git)下载mindface仓库并安装mindface
 
-    ```
-    git clone https://github.com/harryjun-ustc/MindFace.git
+    ```shell 
+    git clone https://github.com/mindspore-lab/mindface.git
+    cd mindface
+    python setup.py install
     ```
 
     1.2 安装依赖包
 
     ```
-    cd MindFace/detection/RetinaFace
+    cd mindface/detection/
     pip install -r requirements.txt
     ```
 
@@ -64,7 +71,7 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
     
 
 
-    2.2. 在 MindFace/RetinaFace/ 目录下存放数据集，结构树如下所示:
+    2.2. 在 mindface/detection/ 目录下存放数据集，结构树如下所示:
     ```
     data/WiderFace/
         train/
@@ -83,31 +90,30 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 
     请在配置文件 ```./configs```中修改参数.
 
-    我们提供了两种配置文件(MobileNet0.25和ResNet50).
+    我们提供了两种配置文件([RetinaFace_mobilenet025](./configs/RetinaFace_mobilenet025.yaml) and [RetinaFace_resnet50](./configs/RetinaFace_resnet50.yaml)).
 
-4. 训练
-
+4. Train
 
 ```
-    python tools/train.py --backbone ResNet50 or MobileNet025
+    python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
+```
+> 注意：如果你的设备是Ascend，请在配置文件中设置 "device_target "为 "Ascend"。
+5. Eval
+```
+    python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
 ```
 
-5. 评估
+6. Predict
 ```
-    python tools/eval.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt
-```
-
-6. 预测
-```
-    python tools/infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
 
 
 ## RetinaFace预训练模型
 从此处下载预训练模型
-RetinaFace-ResNet50 ：[百度云](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) 或 [谷歌云盘](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing)
-RetinaFace-MobileNet025 ：[百度云](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) 或 [谷歌云盘](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing) 
+[RetinaFace-ResNet50](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_ResNet50.ckpt)
+[RetinaFace-MobileNet025](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_MobileNet025.ckpt)
 
 你可以在此[表格](#widerface-val-performance-in-single-scale-when-using-resnet50-as-backbone-net)中核验预训练模型和结果.
 

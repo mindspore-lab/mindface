@@ -18,40 +18,49 @@ This repository is the mindspore implementation of RetinaFace and has achieved g
 Comming soon!
 
 
+## WiderFace Val Performance in multiscale.
+| backbone | Easy | Medium | Hard |
+|:-|:-:|:-:|:-:|
+| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| ResNet50 | 95.81% | 94.89% | 90.10% |
+
 ## WiderFace Val Performance in single scale When using ResNet50 as backbone.
 | Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (same parameter with MXNet) | 94.42% | 93.37% | 89.25% |
-| MindSpore (original image scale) | 95.34% | 93.91% | 84.01% |
+| MindSpore (same parameter with MXNet) | 94.46% | 93.64% | 89.42% |
+| MindSpore (original image scale) | 95.07% | 93.61% | 84.84% |
 | PyTorch (same parameter with MXNet) | 94.82 % | 93.84% | 89.60% |
 | PyTorch (original image scale) | 95.48% | 94.04% | 84.43% |
 | MXNet | 94.86% | 93.87% | 88.33% |
 | MXNet(original image scale) | 94.97% | 93.89% | 82.27% |
 
-## WiderFace Val Performance in single scale When using mobileNet0.25 as backbone.
+## WiderFace Val Performance in single scale When using MobileNet0.25 as backbone.
 | Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
-| MindSpore (same parameter with MXNet) | 88.62% | 86.96% | 79.93% |
-| MindSpore (original image scale) | 90.73% | 88.24% | 73.87% |
+| MindSpore (same parameter with MXNet) | 88.51% | 86.86% | 80.88% |
+| MindSpore (original image scale) | 90.77% | 88.20% | 74.76% |
 | PyTorch (same parameter with MXNet) | 88.67% | 87.09% | 80.99% |
 | PyTorch (original image scale) | 90.70% | 88.16% | 73.82% |
 | MXNet | 88.72% | 86.97% | 79.19% |
 | MXNet(original image scale) | 89.58% | 87.11% | 69.12% |
 
 
+
 ## Quick Start
 1. Installation
 
-    1.1 Git clone this [repo](https://github.com/harryjun-ustc/MindFace)
+    1.1 Git clone this [repo](https://github.com/mindspore-lab/mindface.git) and install mindface.
 
-    ```
-    git clone https://github.com/harryjun-ustc/MindFace.git
+    ```shell
+    git clone https://github.com/mindspore-lab/mindface.git
+    cd mindface
+    python setup.py install
     ```
 
     1.2 Install dependencies
 
     ```
-    cd MindFace/detection/RetinaFace
+    cd mindface/detection/
     pip install -r requirements.txt
     ```
 
@@ -61,7 +70,7 @@ Comming soon!
     
 
 
-    2.2. Organise the dataset directory under MindFace/RetinaFace/ as follows:
+    2.2. Organise the dataset directory under mindface/detection/ as follows:
     ```
     data/WiderFace/
         train/
@@ -80,29 +89,29 @@ Comming soon!
 
     You can Modify the parameters of the config file in ```./configs```.
 
-    We provide two versions of configs (MobileNet0.25 and ResNet50).
+    We provide two versions of configs ([RetinaFace_mobilenet025](./configs/RetinaFace_mobilenet025.yaml) and [RetinaFace_resnet50](./configs/RetinaFace_resnet50.yaml)).
+
 
 4. Train
 
-
 ```
-    python tools/train.py --backbone ResNet50 or MobileNet025
+    python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 ```
-
+> note: if your device is Ascend, please set the "device_target" in config file as "Ascend".
 5. Eval
 ```
-    python tools/eval.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt
+    python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
 ```
 
 6. Predict
 ```
-    python tools/infer.py --backbone ResNet50 or MobileNet025 --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
 
 
 ## RetinaFace Pretrained Models
-You can download the pretrained model from RetinaFace-ResNet50 ([baidu cloud](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) or [googledrive](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing)) and  RetinaFace-MobileNet025 ([baidu cloud](https://pan.baidu.com/s/1AOUY-b21gcU7X0ghQ0CYlw?pwd=qccr) or [googledrive](https://drive.google.com/file/d/1MOw5n7V_LSxcbqw7g5FNtJmeZj4qnd3c/view?usp=sharing)). 
+You can download our pretrained model of [RetinaFace-ResNet50](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_ResNet50.ckpt) and  [RetinaFace-MobileNet025](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_MobileNet025.ckpt).
 
 You can verify the results in the [table](#widerface-val-performance-in-single-scale-when-using-resnet50-as-backbone-net) with the downloaded pretrained model.
 

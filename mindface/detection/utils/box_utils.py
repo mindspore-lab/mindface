@@ -47,14 +47,14 @@ def center_point_2_box(boxes):
 
 def compute_intersect(a, b):
     """compute_intersect"""
-    A = a.shape[0]
-    B = b.shape[0]
+    a_shape0 = a.shape[0]
+    b_shape0 = b.shape[0]
     max_xy = np.minimum(
-        np.broadcast_to(np.expand_dims(a[:, 2:4], 1), [A, B, 2]),
-        np.broadcast_to(np.expand_dims(b[:, 2:4], 0), [A, B, 2]))
+        np.broadcast_to(np.expand_dims(a[:, 2:4], 1), [a_shape0, b_shape0, 2]),
+        np.broadcast_to(np.expand_dims(b[:, 2:4], 0), [a_shape0, b_shape0, 2]))
     min_xy = np.maximum(
-        np.broadcast_to(np.expand_dims(a[:, 0:2], 1), [A, B, 2]),
-        np.broadcast_to(np.expand_dims(b[:, 0:2], 0), [A, B, 2]))
+        np.broadcast_to(np.expand_dims(a[:, 0:2], 1), [a_shape0, b_shape0, 2]),
+        np.broadcast_to(np.expand_dims(b[:, 0:2], 0), [a_shape0, b_shape0, 2]))
     inter = np.maximum((max_xy - min_xy), np.zeros_like(max_xy - min_xy))
     return inter[:, :, 0] * inter[:, :, 1]
 
@@ -126,15 +126,15 @@ def match(threshold, boxes, priors, var, labels, landms):
     return loc, np.array(conf, dtype=np.int32), landm
 
 
-class bbox_encode():
-    """bbox_encode"""
-    def __init__(self, cfg):
-        self.match_thresh = cfg['match_thresh']
-        self.variances = cfg['variance']
-        self.priors = prior_box((cfg['image_size'], cfg['image_size']),
+class Bboxencode():
+    """Bbox_encode"""
+    def __init__(self, variances, match_thresh, image_size, clip=False):
+        self.match_thresh = match_thresh
+        self.variances = variances
+        self.priors = prior_box((image_size, image_size),
                                 [[16, 32], [64, 128], [256, 512]],
                                 [8, 16, 32],
-                                cfg['clip'])
+                                clip)
 
     def __call__(self, image, targets):
 

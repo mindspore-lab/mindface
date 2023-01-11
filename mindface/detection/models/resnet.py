@@ -15,11 +15,11 @@
 import numpy as np
 
 import mindspore
-import mindspore.nn as nn
+from mindspore import nn
 from mindspore.ops import operations as P
 from mindspore import Tensor
 
-conv_weight_init = 'HeUniform'
+# conv_weight_init = 'HeUniform'
 
 # ResNet
 def _weight_variable(shape, factor=0.01):
@@ -75,7 +75,7 @@ class ResidualBlock(nn.Cell):
                  in_channel,
                  out_channel,
                  stride=1):
-        super(ResidualBlock, self).__init__()
+        super().__init__()
 
         channel = out_channel // self.expansion
         self.conv1 = _conv1x1(in_channel, channel, stride=1)
@@ -124,7 +124,26 @@ class ResidualBlock(nn.Cell):
         return out
 
 class ResNet(nn.Cell):
-    """ResNet"""
+    """
+    ResNet architecture, returns last 3 layers outputs
+
+    Args:
+
+        block (Object): ResidualBlock.
+        layer_nums (list): A list indicating how many layers each ResidualBlock has.
+        in_channels (list): A list indicating the input channels of each ResidualBlock.
+        out_channels (list): A list indicating the output channels of each ResidualBlock.
+        strides (list):  A list indicating the strides of each ResidualBlock.
+        classnum (int): num of classes.
+
+    Examples:
+        >>> resnet50 = ResNet(ResidualBlock,
+                  [3, 4, 6, 3],
+                  [64, 256, 512, 1024],
+                  [256, 512, 1024, 2048],
+                  [1, 2, 2, 2],
+                  class_num)
+    """
     def __init__(self,
                  block,
                  layer_nums,
@@ -132,7 +151,7 @@ class ResNet(nn.Cell):
                  out_channels,
                  strides,
                  num_classes):
-        super(ResNet, self).__init__()
+        super().__init__()
 
         if not len(layer_nums) == len(in_channels) == len(out_channels) == 4:
             raise ValueError("the length of layer_num, in_channels, out_channels list must be 4!")
@@ -210,7 +229,15 @@ class ResNet(nn.Cell):
         return c3, c4, c5
 
 def resnet50(class_num=10):
-    """resnet50 model"""
+    """
+    resnet50 model, returns last 3 layers outputs
+
+    Args:
+        classnum (int): num of classes
+
+    Examples:
+        >>> backbone = resnet50(1001)
+    """
     return ResNet(ResidualBlock,
                   [3, 4, 6, 3],
                   [64, 256, 512, 1024],

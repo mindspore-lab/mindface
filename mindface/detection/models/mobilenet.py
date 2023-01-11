@@ -12,7 +12,7 @@
 # ============================================================================
 
 """Network."""
-import mindspore.nn as nn
+from mindspore import nn
 from mindspore.ops import operations as P
 
 # MobileNet0.25
@@ -23,6 +23,7 @@ def conv_bn(inp, oup, stride=1, leaky=0):
                   pad_mode='pad', padding=1, has_bias=False),
         nn.BatchNorm2d(num_features=oup, momentum=0.9),
         nn.LeakyReLU(alpha=leaky)  # ms official: nn.get_activation('relu6')
+        # nn.get_activation('relu6'),
     ])
 
 def conv_dw(inp, oup, stride, leaky=0.1):
@@ -37,13 +38,22 @@ def conv_dw(inp, oup, stride, leaky=0.1):
                   pad_mode='pad', padding=0, has_bias=False),
         nn.BatchNorm2d(num_features=oup, momentum=0.9),
         nn.LeakyReLU(alpha=leaky),  # ms official: nn.get_activation('relu6')
+        # nn.get_activation('relu6'),
     ])
 
 
 class MobileNetV1(nn.Cell):
-    """MobileNetV1"""
+    """
+    MobileNetV1 architecture, returns last 3 layers outputs
+
+    Args:s
+        classnum (int): num of classes.
+
+    Examples:
+        >>> mobilenet025 = MobileNetV1(1000)
+    """
     def __init__(self, num_classes):
-        super(MobileNetV1, self).__init__()
+        super().__init__()
         self.stage1 = nn.SequentialCell([
             conv_bn(3, 8, 2, leaky=0.1),  # 3
             conv_dw(8, 16, 1),  # 7
@@ -78,5 +88,13 @@ class MobileNetV1(nn.Cell):
 
 
 def mobilenet025(class_num=1000):
-    """mobilenet025"""
+    """
+    mobilenet025 model, returns last 3 layers outputs
+
+    Args:
+        classnum (int): num of classes
+
+    Examples:
+        >>> backbone = mobilenet025(1000)
+    """
     return MobileNetV1(class_num)

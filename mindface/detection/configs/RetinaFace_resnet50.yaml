@@ -1,0 +1,65 @@
+#"""Config for train and eval."""
+
+# model
+'name': 'ResNet50'
+'mode': 'Graph'
+'device_target': "GPU"
+'variance': [0.1,0.2]
+'clip': False
+'loc_weight': 2.0
+'class_weight': 1.0
+'landm_weight': 1.0
+'batch_size': 16
+'num_workers': 1
+'num_anchor': 29126
+'nnpu': 8
+'ngpu': 1
+'image_size': 840
+'in_channel': 256
+'out_channel': 256
+'match_thresh': 0.35
+'num_classes' : 2
+'device_id': 0
+'grad_clip': True
+
+# opt
+'optim': 'sgd'
+'momentum': 0.9
+'weight_decay': 0.0001
+
+# seed
+'seed': 1
+
+# lr
+'epoch': 70
+'T_max': 50  # cosine_annealing
+'eta_min': 0.0  # cosine_annealing
+'decay1': 20
+'decay2': 40
+'lr_type': 'dynamic_lr'  # 'dynamic_lr' or cosine_annealing
+'initial_lr': 0.04
+'warmup_epoch': -1 # dynamic_lr: -1, cosine_annealing:0
+'gamma': 0.1
+
+# checkpoint
+'ckpt_path': './resnet_graph/'
+'save_checkpoint_steps': 1608
+'keep_checkpoint_max': 10
+'resume_net': ~
+
+
+# dataset
+'training_dataset': 'data/WiderFace/train/label.txt'
+'pretrain': True
+'pretrain_path': 'pretrained/resnet50_ascend_v170_imagenet2012_official_cv_top1acc76.97_top5acc93.44.ckpt'
+
+# val
+'val_model': '/home/d1/czp21/czp/mindspore/20221011/mindface/RetinaFace-70_804.ckpt'
+'val_dataset_folder': 'data/WiderFace/val/'
+'val_origin_size': True
+'val_confidence_threshold': 0.02
+'val_nms_threshold': 0.4
+'val_iou_threshold': 0.5
+'val_save_result': False
+'val_predict_save_folder': './widerface_result'
+'val_gt_dir': 'data/WiderFace/ground_truth'

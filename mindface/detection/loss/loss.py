@@ -13,7 +13,7 @@
 
 """Loss."""
 import mindspore.common.dtype as mstype
-import mindspore.nn as nn
+from mindspore import nn
 from mindspore.ops import operations as P
 from mindspore.ops import functional as F
 from mindspore import Tensor
@@ -21,7 +21,7 @@ from mindspore import Tensor
 class SoftmaxCrossEntropyWithLogits(nn.Cell):
     """SoftmaxCrossEntropyWithLogits"""
     def __init__(self):
-        super(SoftmaxCrossEntropyWithLogits, self).__init__()
+        super().__init__()
         self.log_softmax = P.LogSoftmax()
         self.neg = P.Neg()
         self.one_hot = P.OneHot()
@@ -38,9 +38,22 @@ class SoftmaxCrossEntropyWithLogits(nn.Cell):
 
 
 class MultiBoxLoss(nn.Cell):
-    """MultiBoxLoss"""
+    """MultiBoxLoss
+    The MultiBoxLoss of face Boxes loss, classfication loss  and landMarks loss
+
+    Args:
+        num_classes (Int): The number of classes.
+        num_boxes (Int): The number of classes.
+        neg_pre_positive (Int): Negative and Positive sample ratios.
+
+    Returns:
+        loss_l, loss_c, loss_landm (Tensor): Face Boxes Loss, Classfication Loss, LandMarks Loss.
+
+    Examples:
+        >>> multibox_loss = MultiBoxLoss(num_classes=2, num_anchor=16800, negative_ratio=7)
+    """
     def __init__(self, num_classes, num_boxes, neg_pre_positive):
-        super(MultiBoxLoss, self).__init__()
+        super().__init__()
         self.num_classes = num_classes
         self.num_boxes = num_boxes
         self.neg_pre_positive = neg_pre_positive
@@ -69,19 +82,19 @@ class MultiBoxLoss(nn.Cell):
         # landm loss
         mask_pos1 = F.cast(self.less(0.0, F.cast(conf_t, mstype.float32)), mstype.float32)
 
-        N1 = self.maximum(self.reduce_sum(mask_pos1), 1)
+        num_1 = self.maximum(self.reduce_sum(mask_pos1), 1)
         mask_pos_idx1 = self.tile(self.expand_dims(mask_pos1, -1), (1, 1, 10))
         loss_landm = self.reduce_sum(self.smooth_l1_loss(landm_data, landm_t) * mask_pos_idx1)
-        loss_landm = loss_landm / N1
+        loss_landm = loss_landm / num_1
 
         # Localization Loss
         mask_pos = F.cast(self.notequal(0, conf_t), mstype.float32)
         conf_t = F.cast(mask_pos, mstype.int32)
 
-        N = self.maximum(self.reduce_sum(mask_pos), 1)
+        num = self.maximum(self.reduce_sum(mask_pos), 1)
         mask_pos_idx = self.tile(self.expand_dims(mask_pos, -1), (1, 1, 4))
         loss_l = self.reduce_sum(self.smooth_l1_loss(loc_data, loc_t) * mask_pos_idx)
-        loss_l = loss_l / N
+        loss_l = loss_l / num
 
         # Conf Loss
         conf_t_shape = F.shape(conf_t)
@@ -114,6 +127,6 @@ class MultiBoxLoss(nn.Cell):
 
         loss_c = self.reduce_sum(cross_entropy * self.minimum(mask_pos + top_k_neg_mask, 1))
 
-        loss_c = loss_c / N
+        loss_c = loss_c / num
 
         return loss_l, loss_c, loss_landm
