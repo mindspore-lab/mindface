@@ -1,17 +1,59 @@
 # 本文档将介绍如何finetune
-在本教程中，您将学会如何使用MIndFace套件搭建RetinaFace模型并进行微调。在此之前，请先保证您安装了mindface.
+在本教程中，您将学会如何使用MIndFace套件搭建RetinaFace模型并进行微调。本文档将分成四个模块（数据准备、模型创建、训练微调、模型评估）详细介绍。
 
-## 加载功能包，调用所需函数
+## 准备数据
+---
+
+1. 安装mindface
+
+    1.1 从[此处](https://github.com/mindspore-lab/mindface.git)下载mindface仓库并安装mindface
+
+    ```shell 
+    git clone https://github.com/mindspore-lab/mindface.git
+    cd mindface
+    python setup.py install
+    ```
+
+    1.2 安装依赖包
+
+    ```
+    pip install -r requirements.txt
+    ```
+
+2. 数据集准备
+
+    2.1. 从[百度云](https://pan.baidu.com/s/1eET2kirYbyM04Bg1s12K5g?pwd=jgcf)或[谷歌云盘](https://drive.google.com/file/d/1pBHUJRWepXZj-X3Brm0O-nVhTchH11YY/view?usp=sharing)下载WIDERFACE数据集和标签。
+    
+    2.2. 在 mindface/detection/ 目录下存放数据集，结构树如下所示:
+    ```
+    data/WiderFace/
+        train/
+            images/
+            label.txt
+        val/
+            images/
+            label.txt
+        ground_truth/
+            wider_easy_val.mat
+            wider_medium_val.mat
+            wider_hard_val.mat
+            wider_face_val.mat
+    ```
+
+3. 下载预训练模型用于微调
+从此处下载预训练模型
+[RetinaFace-ResNet50](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_ResNet50.ckpt)
+[RetinaFace-MobileNet025](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_MobileNet025.ckpt)
+    
+## 构建模型
+---
+加载功能包，调用所需函数
 在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数
 
 ```
 import argparse
 import math
 import mindspore
-import os
-import sys
-sys.path.append('../../../mindface/detection/')
-sys.path.append('../../..')
 
 from mindspore import context
 from mindspore.context import ParallelMode
@@ -20,46 +62,46 @@ from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMoni
 from mindspore.communication.management import init, get_rank, get_group_size
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-
-from mindface.detection.configs.RetinaFace_mobilenet import cfg_mobile025
-from mindface.detection.configs.RetinaFace_resnet50 import cfg_res50
 from mindface.detection.loss import MultiBoxLoss
 from mindface.detection.datasets import create_dataset
-from mindface.detection.utils.lr_schedule import adjust_learning_rate, warmup_cosine_annealing_lr
+from mindface.detection.utils import adjust_learning_rate
 
-from mindface.detection.models import RetinaFace, RetinaFaceWithLossCell, TrainingWrapper, resnet50, mobilenet025
-
-
+from mindface.detection.models import RetinaFace, RetinaFaceWithLossCell, resnet50, mobilenet025
+from mindface.detection.runner import read_yaml, TrainingWrapper
 ```
 
-## 基本设置
-1）使用set_seed函数设置随机种子，在set_context函数中，指定模式为`mode=context.PYNATIVE_MODE`动态图模式，选定GPU平台`device_target='GPU'`进行训练
-选择配置文件为cfg_res50，该文件集中包含一些重要参数的配置,具体配置信息其查阅[config](config.md).
+使用set_seed函数设置随机种子，在set_context函数中，指定模式为`mode=context.PYNATIVE_MODE`动态图模式，也可以更改成静态图模式，通过修改`mode=context.GRAPH_MODE`选定GPU平台`device_target='GPU'`进行训练。
 
-2）使用mindface.detection.datasets中的create_dataset函数，可以轻易加载自定义数据集：
-    ·选择配置文件为cfg_res50，该文件中包含一些重要参数的配置
-    ·为data_dir变量指定自己的标签路径
-    ·指定batch_size = 2
 
 ```
 #set seed
 mindspore.common.seed.set_seed(42)
 
-
 #set mode
 context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU')
-
-# create dataset
-# set parameters
-cfg = cfg_res50
-batch_size = 2
-data_dir = '/home/d1/czp21/czp/mindspore/retinaface/retinaface_mindinsight/data/WiderFace/train/label.txt' # changde the dataset path of yours
-ds_train = create_dataset(data_dir, cfg, batch_size, multiprocessing=True, num_worker=2)
-assert ds_train.get_batch_size() == batch_size
 ```
 
-## 设置学习率
-在adjust_learning_rate函数中设置学习率相关参数，学习率类型lr_type1='dynamic_lr'表示选择动态学习率。
+### 加载配置文件数据集
+设置config_path，用read_yaml函数加载config文件，此处选择的是RetinaFace_mobilenet025的配置文件，读者可自行修改路径。
+设置数据集路径为数据集准备中下好的数据集路径。然后调用create_dataset加载数据集。
+```
+# create dataset
+# set parameters
+cfg = read_yaml(config_cfg) #config_cfg为配置文件的地址
+data_dir = 'mindface/detection/data/WiderFace/train/label.txt' # changde the dataset path of yours
+ds_train = create_dataset(data_dir, variance=[0.1,0.2], match_thresh=0.35, image_size=640, clip=False, batch_size=8,
+                        repeat_num=1, shuffle=True, multiprocessing=True, num_worker=4, is_distribute=False)
+print('dataset size is : \n', ds_train.get_dataset_size())
+
+```
+正确加载数据集的输出结果为：
+```
+dataset size is : 
+ 1609
+```
+
+### 设置学习率
+在adjust_learning_rate函数中设置学习率相关参数，adjust_learning_rate的参数分别为：initial_lr（初始化学习率）, gamma, stepvalues, steps_pre_epoch, total_epochs, warmup_epoch=5, 学习率类型lr_type1='dynamic_lr'表示选择动态学习率。
 
 ```
 #set learning rate schedule
@@ -68,59 +110,65 @@ lr = adjust_learning_rate(0.01, 0.1, (70,90), steps_per_epoch, 100,
                               warmup_epoch=5, lr_type1='dynamic_lr')
 ```
 
-## 建立模型
-训练模型使用retinaface_resnet50，指定backbone为resnet50，网络参数通过先前导入的cfg配置文件进行配置。
+### 构建retinaface_mobilenet025
+训练模型使用retinaface_mobilenet025，指定backbone为mobilenet0.25.
 
 ```
 #build model
-backbone_resnet50 = resnet50(1001)
-retinaface_resnet50  = RetinaFace(phase='train', backbone = backbone_resnet50, cfg=cfg)
-retinaface_resnet50.set_train(True)
+backbone_mobilenet025 = mobilenet025(1000)
+retinaface_mobilenet025  = RetinaFace(phase='train', backbone=backbone_mobilenet025, in_channel=32, out_channel=64)
+retinaface_mobilenet025.set_train(True)
 ```
+这一部分代码如果模型构建没有出问题的话，会直接显示RetinaFace的模型结构。
 
-## 加载预训练模型
-当接口中的pretrain_model_path参数设置为预训练权重路径时，可以通过load_checkpoint函数从本地加载.ckpt的预训练模型文件，并通过load_param_into_net函数将backbone和预训练模型加载进训练网络。
+## 训练微调
+---
+### 加载预训练模型
+当接口中的pretrain_model_path参数设置为预训练权重路径时，可以通过load_checkpoint函数从本地加载.ckpt的预训练模型文件，并通过load_param_into_net函数将backbone和预训练模型加载进训练网络。此处的权重路径读者既可以修改pretrain_model_path为自己权重的具体位置，注意使用`RetinaFace_mobilenet025`的配置文件一定要加载名为`RetinaFace_MobileNet025.ckpt`的权重，resnet亦然。
 
 ```
 
 # load checkpoint
-pretrain_model_path = '/home/d1/czp21/czp/mindspore/retinaface/retinaface_mindinsight/pretrained/RetinaFace_ResNet50.ckpt'
+pretrain_model_path = 'minbdface/detecton/pretrained/RetinaFace_MobileNet025.ckpt'
 param_dict_retinaface = load_checkpoint(pretrain_model_path)
-load_param_into_net(retinaface_resnet50, param_dict_retinaface)
+load_param_into_net(retinaface_mobilenet025, param_dict_retinaface)
 print(f'Resume Model from [{pretrain_model_path}] Done.')
 ```
+正确运行的结果为
 
-## 设置loss函数参数
-在MultiBoxLoss函数中指定类别数num_classes，此处为2，根据配置文件给定的参数设定矩形框num_boxes数量
+`Resume Model from [minbdface/detecton/pretrained/RetinaFace_MobileNet025.ckpt] Done.`
+
+### 设置loss函数参数
+在MultiBoxLoss函数中指定类别数num_classes，此处为2（只检测人脸），根据配置文件给定的参数设定矩形框num_boxes数量
 
 ```
 # set loss
-multibox_loss = MultiBoxLoss(num_classes = 2, num_boxes = cfg['num_anchor'], neg_pre_positive=7)
+multibox_loss = MultiBoxLoss(num_classes = 2, num_boxes = 16800, neg_pre_positive=7)
 ```
 
-## 选择优化器
+### 选择优化器
 选择优化器为SGD，用变量learning_rate将学习率lr传入优化器，优化器权重衰减weight_decay=5e-4，loss_scale为梯度放大倍数，此处置为1
 ```
 # set optimazer
 opt = mindspore.nn.SGD(params=retinaface_resnet50.trainable_params(), learning_rate=lr, momentum=0.9,
                                weight_decay=5e-4, loss_scale=1)
 ```
-## 将loss函数和优化器加入到网络中
-loss函数选用multibox_loss，并将loss函数和优化器整合进训练网络
+### 将loss函数和优化器加入到网络中
+loss函数用multibox_loss，并将loss函数和优化器整合进训练网络
 ```
 # add loss and optimazer  
-net = RetinaFaceWithLossCell(retinaface_resnet50, multibox_loss, cfg)
+net = RetinaFaceWithLossCell(retinaface_resnet50, multibox_loss, loc_weight=2.0, class_weight=1.0, landm_weight=1.0)
 net = TrainingWrapper(net, opt)
 ```
 
-## 设置预训练权重参数
+### 设置预训练权重参数
 保存检查点迭代save_checkpoint_steps，预留检查点数量keep_checkpoint_max，指定模型保存路径ckpt_path，之后开始训练
 
 ```
 finetune_epochs = 10
 model = Model(net)
-config_ck = CheckpointConfig(save_checkpoint_steps=cfg['save_checkpoint_steps'],
-                                 keep_checkpoint_max=cfg['keep_checkpoint_max'])
+config_ck = CheckpointConfig(save_checkpoint_steps=1000,
+                                 keep_checkpoint_max=3)
 ckpoint_cb = ModelCheckpoint(prefix="RetinaFace", directory=cfg['ckpt_path'], config=config_ck)
 
 time_cb = TimeMonitor(data_size=ds_train.get_dataset_size())
@@ -128,4 +176,190 @@ callback_list = [LossMonitor(), time_cb, ckpoint_cb]
 
 print("============== Starting Training ==============")
 model.train(finetune_epochs, ds_train, callbacks=callback_list, dataset_sink_mode=False)
+```
+
+整套流程走下来，模型可以开始微调训练啦，权重保存在`cfg['ckpt_path']`中，输出应当类似于：
+```
+============== Starting Training ==============
+epoch: 1 step: 1, loss is 39.44330978393555
+epoch: 1 step: 2, loss is 40.87006378173828
+epoch: 1 step: 3, loss is 37.974769592285156
+epoch: 1 step: 4, loss is 39.08790588378906
+epoch: 1 step: 5, loss is 37.38018035888672
+epoch: 1 step: 6, loss is 36.850799560546875
+epoch: 1 step: 7, loss is 36.3499755859375
+epoch: 1 step: 8, loss is 35.01698303222656
+epoch: 1 step: 9, loss is 35.564842224121094
+epoch: 1 step: 10, loss is 35.35591125488281
+epoch: 1 step: 11, loss is 32.42792510986328
+epoch: 1 step: 12, loss is 31.537368774414062
+epoch: 1 step: 13, loss is 31.820585250854492
+epoch: 1 step: 14, loss is 31.04840850830078
+...
+
+```
+
+## 模型评估
+
+### 切换模型为predict模式并冻结模型参数
+```
+network = RetinaFace(phase='predict', backbone=backbone, in_channel=32, out_channel=64)
+backbone.set_train(False)
+net.set_train(False)
+```
+
+### 加载微调好的权重
+```
+cfg['val_model'] = '微调好的权重地址'
+assert cfg['val_model'] is not None, 'val_model is None.'
+param_dict = load_checkpoint(cfg['val_model'])
+print('Load trained model done. {}'.format(cfg['val_model']))
+network.init_parameters_data()
+load_param_into_net(network, param_dict)
+```
+
+### 构建验证集
+通过设置val_dataset_folder为验证集的路径，读取出每张图片位置。
+```
+testset_folder = cfg['val_dataset_folder']
+testset_label_path = cfg['val_dataset_folder'] + "label.txt"
+with open(testset_label_path, 'r') as f:
+    _test_dataset = f.readlines()
+    test_dataset = []
+    for im_path in _test_dataset:
+        if im_path.startswith('# '):
+            test_dataset.append(im_path[2:-1])  # delete '# ...\n'
+
+num_images = len(test_dataset)
+print(num_images)
+```
+输出结果为
+```
+3226
+```
+
+### 对验证集图片做初步处理
+如果`cfg['val_origin_size']`为True,则根据输入图片大小的不同计算需要使用的priorbox，为False也可以直接使用设定好的图片尺寸然后做resize。
+```
+# 初始化计时器，forward_time表示网络推理的时间，misc表示后处理的时间。
+timers = {'forward_time': Timer(), 'misc': Timer()}
+
+if cfg['val_origin_size']:
+    h_max, w_max = 0, 0
+    for img_name in test_dataset:
+        image_path = os.path.join(testset_folder, 'images', img_name)
+        _img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        if _img.shape[0] > h_max:
+            h_max = _img.shape[0]
+        if _img.shape[1] > w_max:
+            w_max = _img.shape[1]
+
+    h_max = (int(h_max / 32) + 1) * 32
+    w_max = (int(w_max / 32) + 1) * 32
+
+    priors = prior_box(image_sizes=(h_max, w_max),
+                        min_sizes=[[16, 32], [64, 128], [256, 512]],
+                        steps=[8, 16, 32],
+                        clip=False)
+else:
+    target_size = 1600
+    max_size = 2160
+    priors = prior_box(image_sizes=(max_size, max_size),
+                        min_sizes=[[16, 32], [64, 128], [256, 512]],
+                        steps=[8, 16, 32],
+                        clip=False)
+```
+
+### 初始化检测器
+
+```
+from mindface.detection.runner import DetectionEngine, Timer
+detection = DetectionEngine(nms_thresh=0.4, conf_thresh=0.02, iou_thresh=0.5, var=[0.1,0.2],)
+```
+
+### 验证开始
+```
+print('Predict box starting')
+ave_time = 0
+ave_forward_pass_time = 0
+ave_misc = 0
+for i, img_name in enumerate(test_dataset):
+    image_path = os.path.join(testset_folder, 'images', img_name)
+
+    img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    img = np.float32(img_raw)
+
+    # testing scale
+    if cfg['val_origin_size']:
+        resize = 1
+        assert img.shape[0] <= h_max and img.shape[1] <= w_max
+        image_t = np.empty((h_max, w_max, 3), dtype=img.dtype)
+        image_t[:, :] = (104.0, 117.0, 123.0)
+        image_t[0:img.shape[0], 0:img.shape[1]] = img
+        img = image_t
+    else:
+        im_size_min = np.min(img.shape[0:2])
+        im_size_max = np.max(img.shape[0:2])
+        resize = float(target_size) / float(im_size_min)
+        # prevent bigger axis from being more than max_size:
+        if np.round(resize * im_size_max) > max_size:
+            resize = float(max_size) / float(im_size_max)
+
+        img = cv2.resize(img, None, None, fx=resize, fy=resize, interpolation=cv2.INTER_LINEAR)
+
+        assert img.shape[0] <= max_size and img.shape[1] <= max_size
+        image_t = np.empty((max_size, max_size, 3), dtype=img.dtype)
+        image_t[:, :] = (104.0, 117.0, 123.0)
+        image_t[0:img.shape[0], 0:img.shape[1]] = img
+        img = image_t
+
+    scale = np.array([img.shape[1], img.shape[0], img.shape[1], img.shape[0]], dtype=img.dtype)
+    img -= (104, 117, 123)
+    img = img.transpose(2, 0, 1)
+    img = np.expand_dims(img, 0)
+    img = Tensor(img)
+
+    timers['forward_time'].start()
+    boxes, confs, _ = network(img)
+    timers['forward_time'].end()
+    timers['misc'].start()
+    detection.eval(boxes, confs, resize, scale, img_name, priors)
+    timers['misc'].end()
+
+    ave_time = ave_time + timers['forward_time'].diff + timers['misc'].diff
+    ave_forward_pass_time = ave_forward_pass_time + timers['forward_time'].diff
+    ave_misc = ave_misc + timers['misc'].diff
+    print('im_detect: {:d}/{:d} forward_pass_time: {:.4f}s misc: {:.4f}s sum_time: {:.4f}s'.format(i + 1, num_images,
+                                                                                    timers['forward_time'].diff,
+                                                                                    timers['misc'].diff,
+                                                                                    timers['forward_time'].diff + timers['misc'].diff))
+```
+正常输出的结果为：
+```
+Predict box starting
+im_detect: 1/3226 forward_pass_time: 7.0862s misc: 0.0602s sum_time: 7.1464s
+im_detect: 2/3226 forward_pass_time: 0.1645s misc: 0.0393s sum_time: 0.2037s
+im_detect: 3/3226 forward_pass_time: 0.0638s misc: 0.0522s sum_time: 0.1160s
+im_detect: 4/3226 forward_pass_time: 0.0648s misc: 0.0338s sum_time: 0.0986s
+im_detect: 5/3226 forward_pass_time: 0.0656s misc: 0.0365s sum_time: 0.1021s
+im_detect: 6/3226 forward_pass_time: 0.0648s misc: 0.0424s sum_time: 0.1071s
+im_detect: 7/3226 forward_pass_time: 0.0648s misc: 0.0352s sum_time: 0.1000s
+im_detect: 8/3226 forward_pass_time: 0.0648s misc: 0.0396s sum_time: 0.1044s
+im_detect: 9/3226 forward_pass_time: 0.0648s misc: 0.0315s sum_time: 0.0963s
+im_detect: 10/3226 forward_pass_time: 0.0647s misc: 0.0344s sum_time: 0.0991s
+...
+im_detect: 3226/3226 forward_pass_time: 0.0703s misc: 0.0358s sum_time: 0.1061s
+```
+
+### 计算并输出AP
+为了让输出结果直观一些，我们调用detection.write_result()计算ap。
+```
+predict_result_path = detection.write_result()
+print('predict result path is {}'.format(predict_result_path))
+```
+输出结果为：
+``` 
+Easy   Val Ap : 0.8862
+Medium Val Ap : 0.8696
+Hard   Val Ap : 0.7993
 ```
