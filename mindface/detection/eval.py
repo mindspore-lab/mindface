@@ -37,7 +37,7 @@ def val(cfg):
         backbone = resnet50(1001)
     elif cfg['name'] == 'MobileNet025':
         backbone = mobilenet025(1000)
-    network = RetinaFace(phase='predict', backbone=backbone, cfg=cfg)
+    network = RetinaFace(phase='predict',backbone=backbone,in_channel=cfg['in_channel'],out_channel=cfg['out_channel'])
     backbone.set_train(False)
     network.set_train(False)
 
@@ -88,7 +88,9 @@ def val(cfg):
                            clip=False)
 
     # init detection engine
-    detection = DetectionEngine(cfg)
+    detection = DetectionEngine(nms_thresh=cfg['val_nms_threshold'], conf_thresh=cfg['val_confidence_threshold'],
+        iou_thresh=cfg['val_iou_threshold'], var=cfg['variance'],
+        save_prefix=cfg['val_predict_save_folder'], gt_dir=cfg['val_gt_dir'])
 
 
     # testing begin
@@ -153,7 +155,7 @@ def val(cfg):
         resize = resize_all
 
         timers['misc'].start()
-        detection.detect(boxes, confs, resize, scale, img_name, priors)
+        detection.eval(boxes, confs, resize, scale, img_name, priors)
         timers['misc'].end()
 
         ave_time = ave_time + timers['forward_time'].diff + timers['misc'].diff

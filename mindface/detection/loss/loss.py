@@ -38,7 +38,20 @@ class SoftmaxCrossEntropyWithLogits(nn.Cell):
 
 
 class MultiBoxLoss(nn.Cell):
-    """MultiBoxLoss"""
+    """MultiBoxLoss
+    The MultiBoxLoss of face Boxes loss, classfication loss  and landMarks loss
+
+    Args:
+        num_classes (Int): The number of classes.
+        num_boxes (Int): The number of classes.
+        neg_pre_positive (Int): Negative and Positive sample ratios.
+
+    Returns:
+        loss_l, loss_c, loss_landm (Tensor): Face Boxes Loss, Classfication Loss, LandMarks Loss.
+
+    Examples:
+        >>> multibox_loss = MultiBoxLoss(num_classes=2, num_anchor=16800, negative_ratio=7)
+    """
     def __init__(self, num_classes, num_boxes, neg_pre_positive):
         super().__init__()
         self.num_classes = num_classes

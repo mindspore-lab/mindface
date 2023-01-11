@@ -128,13 +128,13 @@ def match(threshold, boxes, priors, var, labels, landms):
 
 class Bboxencode():
     """Bbox_encode"""
-    def __init__(self, cfg):
-        self.match_thresh = cfg['match_thresh']
-        self.variances = cfg['variance']
-        self.priors = prior_box((cfg['image_size'], cfg['image_size']),
+    def __init__(self, variances, match_thresh, image_size, clip=False):
+        self.match_thresh = match_thresh
+        self.variances = variances
+        self.priors = prior_box((image_size, image_size),
                                 [[16, 32], [64, 128], [256, 512]],
                                 [8, 16, 32],
-                                cfg['clip'])
+                                clip)
 
     def __call__(self, image, targets):
 

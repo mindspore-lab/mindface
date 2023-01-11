@@ -1,4 +1,5 @@
 mindspore-dev
+numpy
 pylint
 pytest
 numpy==1.21.6

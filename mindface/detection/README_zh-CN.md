@@ -97,7 +97,7 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 ```
     python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 ```
-
+> 注意：如果你的设备是Ascend，请在配置文件中设置 "device_target "为 "Ascend"。
 5. Eval
 ```
     python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
