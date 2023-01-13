@@ -1,3 +1,7 @@
+"""
+init
+"""
 from .iresnet import *
 from .mobilefacenet import *
-from .partialFC import *
+from .partial_fc import *
+from .vit import *

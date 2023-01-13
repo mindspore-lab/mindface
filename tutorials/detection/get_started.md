@@ -29,7 +29,7 @@ It is easy to train your model on standard datasets or your own dataset with Min
 
 - Standalone Training
 
-It is easy to do model training with `train.py`. Here is an example for training a RetinaFace with mobilenet on WiderFace dataset using one computing device (i.e., standalone GPU).
+It is easy to train with `train.py`. Here is an example for training a RetinaFace network with mobilenet on WiderFace dataset using one computing device (i.e., standalone GPU).
 ``` shell
 python train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 ```

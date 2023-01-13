@@ -1,6 +1,7 @@
-from mindspore import Tensor
-import mindspore.nn as nn
-import mindspore.ops as ops
+"""
+Arcface loss.
+"""
+from mindspore import Tensor, nn, ops
 from mindspore import dtype as mstype
 
 from .ce_loss import SoftMaxCE
@@ -14,12 +15,12 @@ class ArcFace(nn.Cell):
         world_size (Int): Size of each input sample.
         s (Float): Norm of input feature. Default: 64.0.
         m (Float): Margin. Default: 0.5.
-    
+
     Examples:
         >>> margin_softmax = ArcFace(world_size=world_size)
     """
     def __init__(self, world_size, s=64.0, m=0.5):
-        super(ArcFace, self).__init__()
+        super().__init__()
         self.s = s
         self.shape = ops.Shape()
         self.mul = ops.Mul()
@@ -32,8 +33,11 @@ class ArcFace(nn.Cell):
         self.ce_loss = SoftMaxCE(world_size=world_size)
 
     def construct(self, cosine, label):
-        m_hot = self.onehot(label, self.shape(
-            cosine)[1], self.on_value, self.off_value)
+        """
+        Construct.
+        """
+        m_hot = self.onehot(label, self.shape(cosine)[1],
+                            self.on_value, self.off_value)
 
         cosine = self.acos(cosine)
         cosine += m_hot
