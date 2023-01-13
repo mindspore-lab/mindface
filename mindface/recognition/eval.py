@@ -1,12 +1,23 @@
-"""
-Evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw.
-"""
+'''
+evaluation of lfw, calfw, cfp_fp, agedb_30, cplfw
+'''
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
 
 import datetime
 import os
 import pickle
 from io import BytesIO
-import mxnet as mx
 
 import numpy as np
 import sklearn
@@ -18,22 +29,19 @@ import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
 
-from .models import iresnet50, iresnet100, get_mbf, vit_t, vit_s, vit_b, vit_l
+from .models import iresnet50, iresnet100, get_mbf
 
 
 class LFold:
-    """
-    LFold.
-    """
+    '''
+    LFold
+    '''
     def __init__(self, n_splits=2, shuffle=False):
         self.n_splits = n_splits
         if self.n_splits > 1:
             self.k_fold = KFold(n_splits=n_splits, shuffle=shuffle)
 
     def split(self, indices):
-        """
-        split.
-        """
         if self.n_splits > 1:
             return self.k_fold.split(indices)
         return [(indices, indices)]
@@ -45,9 +53,9 @@ def calculate_roc(thresholds,
                   actual_issame,
                   nrof_folds=10,
                   pca=0):
-    """
-    calculate_roc.
-    """
+    '''
+    calculate_roc
+    '''
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
@@ -68,9 +76,9 @@ def calculate_roc(thresholds,
             print('doing pca on', fold_idx)
             embed1_train = embeddings1[train_set]
             embed2_train = embeddings2[train_set]
-            embed_train = np.concatenate((embed1_train, embed2_train), axis=0)
+            _embed_train = np.concatenate((embed1_train, embed2_train), axis=0)
             pca_model = PCA(n_components=pca)
-            pca_model.fit(embed_train)
+            pca_model.fit(_embed_train)
             embed1 = pca_model.transform(embeddings1)
             embed2 = pca_model.transform(embeddings2)
             embed1 = sklearn.preprocessing.normalize(embed1)
@@ -98,9 +106,8 @@ def calculate_roc(thresholds,
 
 
 def calculate_accuracy(threshold, dist, actual_issame):
-    """
-    calculate_acc.
-    """
+    '''calculate_acc
+    '''
     predict_issame = np.less(dist, threshold)
     tp = np.sum(np.logical_and(predict_issame, actual_issame))
     fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
@@ -121,9 +128,9 @@ def calculate_val(thresholds,
                   actual_issame,
                   far_target,
                   nrof_folds=10):
-    """
-    calculate_val.
-    """
+    '''
+    calculate_val
+    '''
     assert embeddings1.shape[0] == embeddings2.shape[0]
     assert embeddings1.shape[1] == embeddings2.shape[1]
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
@@ -160,9 +167,8 @@ def calculate_val(thresholds,
 
 
 def calculate_val_far(threshold, dist, actual_issame):
-    """
-    calculate_val_far
-    """
+    '''calculate_val_far
+    '''
     predict_issame = np.less(dist, threshold)
     true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
     false_accept = np.sum(
@@ -175,9 +181,8 @@ def calculate_val_far(threshold, dist, actual_issame):
 
 
 def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
-    """
-    evaluate
-    """
+    '''evaluate
+    '''
     # Calculate evaluation metrics
     thresholds = np.arange(0, 4, 0.01)
     embeddings1 = embeddings[0::2]
@@ -199,9 +204,8 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
 
 
 def load_bin(path, image_size):
-    """
-    load evalset of .bin
-    """
+    '''load evalset of .bin
+    '''
     try:
         with open(path, 'rb') as f:
             bins, issame_list = pickle.load(f)  # py2
@@ -214,8 +218,8 @@ def load_bin(path, image_size):
             (len(issame_list) * 2, 3, image_size[0], image_size[1]))
         data_list.append(data)
     for idx in range(len(issame_list) * 2):
-        bin_set = bins[idx]
-        img = plt.imread(BytesIO(bin_set), "jpg")
+        _bin = bins[idx]
+        img = plt.imread(BytesIO(_bin), "jpg")
         if img.shape[1] != image_size[0]:
             img = mx.image.resize_short(img, image_size[0])
         img = np.transpose(img, axes=(2, 0, 1))
@@ -227,9 +231,8 @@ def load_bin(path, image_size):
 
 
 def test(data_set, backbone, batch_size, nfolds=10):
-    """
-    test
-    """
+    '''test
+    '''
     print('testing verification..')
     data_list = data_set[0]
     issame_list = data_set[1]
@@ -241,29 +244,29 @@ def test(data_set, backbone, batch_size, nfolds=10):
         while ba < data.shape[0]:
             bb = min(ba + batch_size, data.shape[0])
             count = bb - ba
-            b_data = data[bb - batch_size: bb]
+            _data = data[bb - batch_size: bb]
 
             time0 = datetime.datetime.now()
-            img = ((b_data / 255) - 0.5) / 0.5
+            img = ((_data / 255) - 0.5) / 0.5
             net_out = backbone(ms.Tensor(img, ms.float32))
-            embeddings = net_out.asnumpy()
+            _embeddings = net_out.asnumpy()
             time_now = datetime.datetime.now()
             diff = time_now - time0
             time_consumed += diff.total_seconds()
             if embeddings is None:
-                embeddings = np.zeros((data.shape[0], embeddings.shape[1]))
-            embeddings[ba:bb, :] = embeddings[(batch_size - count):, :]
+                embeddings = np.zeros((data.shape[0], _embeddings.shape[1]))
+            embeddings[ba:bb, :] = _embeddings[(batch_size - count):, :]
             ba = bb
         embeddings_list.append(embeddings)
-    xnorm = 0.0
-    xnorm_cnt = 0
+    _xnorm = 0.0
+    _xnorm_cnt = 0
     for embed in embeddings_list:
         for i in range(embed.shape[0]):
-            em = embed[i]
-            norm = np.linalg.norm(em)
-            xnorm += norm
-            xnorm_cnt += 1
-    xnorm /= xnorm_cnt
+            _em = embed[i]
+            _norm = np.linalg.norm(_em)
+            _xnorm += _norm
+            _xnorm_cnt += 1
+    _xnorm /= _xnorm_cnt
 
     embeddings = embeddings_list[0].copy()
     embeddings = sklearn.preprocessing.normalize(embeddings)
@@ -277,9 +280,9 @@ def test(data_set, backbone, batch_size, nfolds=10):
     _, _, accuracy, _, _, _ = evaluate(
         embeddings, issame_list, nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
-    return acc1, std1, acc2, std2, xnorm, embeddings_list
+    return acc1, std1, acc2, std2, _xnorm, embeddings_list
 
-def face_eval(model_name, ckpt_url, eval_url,num_features=512,
+def face_eval(model_name, ckpt_url, eval_url, num_features=512,
         target='lfw,cfp_fp,agedb_30,calfw,cplfw',
         device_id=0, device_target="GPU", batch_size=64, nfolds=10
     ):
@@ -290,7 +293,6 @@ def face_eval(model_name, ckpt_url, eval_url,num_features=512,
         model_name (String): The name of backbone.
         ckpt_url (String): The The path of .ckpt
         eval_url (String): The The path of saved results.
-        num_features(Int): The number of features. Default: 512.
         target (String): The eval datasets. Default: 'lfw,cfp_fp,agedb_30,calfw,cplfw'.
         device_id (Int): The id of eval device. Default: 0.
         device_target (String): The device target. Default: "GPU".
@@ -308,27 +310,12 @@ def face_eval(model_name, ckpt_url, eval_url,num_features=512,
     image_size = [112, 112]
     time0 = datetime.datetime.now()
 
-    if model_name == 'iresnet50':
+    if model_name == "iresnet50":
         model = iresnet50(num_features=num_features)
-        print("Finish loading iresnet50")
-    elif model_name == 'iresnet100':
+    elif model_name == "iresnet100":
         model = iresnet100(num_features=num_features)
-        print("Finish loading iresnet100")
-    elif model_name == 'mobilefacenet':
+    elif model_name == "mobilefacenet":
         model = get_mbf(num_features=num_features)
-        print("Finish loading mobilefacenet")
-    elif model_name == 'vit_t':
-        model = vit_t(num_features=num_features)
-        print("Finish loading vit_t")
-    elif model_name == 'vit_s':
-        model = vit_s(num_features=num_features)
-        print("Finish loading vit_s")
-    elif model_name == 'vit_b':
-        model = vit_b(num_features=num_features)
-        print("Finish loading vit_b")
-    elif model_name == 'vit_l':
-        model = vit_l(num_features=num_features)
-        print("Finish loading vit_l")
     else:
         raise NotImplementedError
 
@@ -352,6 +339,7 @@ def face_eval(model_name, ckpt_url, eval_url,num_features=512,
     for i in range(length):
         acc1, std1, acc2, std2, xnorm, _ = test(
             ver_list[i], model, batch_size, nfolds)
-        print(f"[{ver_name_list[i]}]XNorm: {xnorm}")
-        print(f"'[{ver_name_list[i]}]Accuracy: {acc1:1.5f}+-{std1:1.5f}")
-        print(f"[{ver_name_list[i]}]Accuracy-Flip: {acc2:1.5f}+-%{std2:1.5f}")
+        print('[%s]XNorm: %f' % (ver_name_list[i], xnorm))
+        print('[%s]Accuracy: %1.5f+-%1.5f' % (ver_name_list[i], acc1, std1))
+        print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
+              (ver_name_list[i], acc2, std2))

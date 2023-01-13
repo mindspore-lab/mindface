@@ -36,16 +36,6 @@ python train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 
 
 
-**Resume training.** To resume training, please specify `--resume_net` for the checkpoint. The optimizer state including learning rate of the last epoch will also be recovered. 
-
-```python
-python train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml \
-		--resume_net=checkpoints
-``` 
-
-
-
-
 - Validation
 
 It is easy to validate a trained model with `eval.py`. 

@@ -24,7 +24,8 @@ MODEL_NAME=$3
 
 python val.py \
 --ckpt_url "$CKPT_PATH" \
---data_url "$EVAL_PATH" \
+--device_id 0 \
+--eval_url "$EVAL_PATH" \
 --device_target "Ascend" \
 --model "$MODEL_NAME" \
 --target lfw,cfp_fp,agedb_30,calfw,cplfw 

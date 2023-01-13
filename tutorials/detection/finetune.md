@@ -87,12 +87,10 @@ context.set_context(mode=context.PYNATIVE_MODE, device_target='GPU')
 ```
 # create dataset
 # set parameters
-config_path = 'mindface/detection/configs/RetinaFace_mobilenet025.yaml'
-cfg = read_yaml(config_path)
-batch_size = 2
+cfg = read_yaml(config_cfg) #config_cfg为配置文件的地址
 data_dir = 'mindface/detection/data/WiderFace/train/label.txt' # changde the dataset path of yours
-ds_train = create_dataset(data_dir, cfg, batch_size, multiprocessing=True, num_worker=2)
-assert ds_train.get_batch_size() == batch_size
+ds_train = create_dataset(data_dir, variance=[0.1,0.2], match_thresh=0.35, image_size=640, clip=False, batch_size=8,
+                        repeat_num=1, shuffle=True, multiprocessing=True, num_worker=4, is_distribute=False)
 print('dataset size is : \n', ds_train.get_dataset_size())
 
 ```
@@ -113,12 +111,12 @@ lr = adjust_learning_rate(0.01, 0.1, (70,90), steps_per_epoch, 100,
 ```
 
 ### 构建retinaface_mobilenet025
-训练模型使用retinaface_mobilenet025，指定backbone为resnet50，网络参数通过先前导入的cfg配置文件进行配置。
+训练模型使用retinaface_mobilenet025，指定backbone为mobilenet0.25.
 
 ```
 #build model
 backbone_mobilenet025 = mobilenet025(1000)
-retinaface_mobilenet025  = RetinaFace(phase='train', backbone = backbone_mobilenet025, cfg=cfg)
+retinaface_mobilenet025  = RetinaFace(phase='train', backbone=backbone_mobilenet025, in_channel=32, out_channel=64)
 retinaface_mobilenet025.set_train(True)
 ```
 这一部分代码如果模型构建没有出问题的话，会直接显示RetinaFace的模型结构。
@@ -145,7 +143,7 @@ print(f'Resume Model from [{pretrain_model_path}] Done.')
 
 ```
 # set loss
-multibox_loss = MultiBoxLoss(num_classes = 2, num_boxes = cfg['num_anchor'], neg_pre_positive=7)
+multibox_loss = MultiBoxLoss(num_classes = 2, num_boxes = 16800, neg_pre_positive=7)
 ```
 
 ### 选择优化器
@@ -159,7 +157,7 @@ opt = mindspore.nn.SGD(params=retinaface_resnet50.trainable_params(), learning_r
 loss函数用multibox_loss，并将loss函数和优化器整合进训练网络
 ```
 # add loss and optimazer  
-net = RetinaFaceWithLossCell(retinaface_resnet50, multibox_loss, cfg)
+net = RetinaFaceWithLossCell(retinaface_resnet50, multibox_loss, loc_weight=2.0, class_weight=1.0, landm_weight=1.0)
 net = TrainingWrapper(net, opt)
 ```
 
@@ -169,8 +167,8 @@ net = TrainingWrapper(net, opt)
 ```
 finetune_epochs = 10
 model = Model(net)
-config_ck = CheckpointConfig(save_checkpoint_steps=cfg['save_checkpoint_steps'],
-                                 keep_checkpoint_max=cfg['keep_checkpoint_max'])
+config_ck = CheckpointConfig(save_checkpoint_steps=1000,
+                                 keep_checkpoint_max=3)
 ckpoint_cb = ModelCheckpoint(prefix="RetinaFace", directory=cfg['ckpt_path'], config=config_ck)
 
 time_cb = TimeMonitor(data_size=ds_train.get_dataset_size())
@@ -205,7 +203,7 @@ epoch: 1 step: 14, loss is 31.04840850830078
 
 ### 切换模型为predict模式并冻结模型参数
 ```
-network = RetinaFace(phase='predict', backbone=backbone, cfg=cfg)
+network = RetinaFace(phase='predict', backbone=backbone, in_channel=32, out_channel=64)
 backbone.set_train(False)
 net.set_train(False)
 ```
@@ -276,7 +274,7 @@ else:
 
 ```
 from mindface.detection.runner import DetectionEngine, Timer
-detection = DetectionEngine(cfg)
+detection = DetectionEngine(nms_thresh=0.4, conf_thresh=0.02, iou_thresh=0.5, var=[0.1,0.2],)
 ```
 
 ### 验证开始

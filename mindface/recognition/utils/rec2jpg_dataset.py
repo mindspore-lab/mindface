@@ -1,3 +1,15 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
 """
 rec format to jpg
 """
@@ -10,9 +22,6 @@ from tqdm import tqdm
 
 
 def main(dataset_path, output_dir):
-    """
-    main.
-    """
     path_imgrec = os.path.join(dataset_path, 'train.rec')
     path_imgidx = os.path.join(dataset_path, 'train.idx')
     if not os.path.exists(output_dir):
@@ -32,7 +41,7 @@ def main(dataset_path, output_dir):
         label_dir = os.path.join(output_dir, label)
         if not os.path.exists(label_dir):
             os.mkdir(label_dir)
-        fname = f"Figure_{ids}.png"
+        fname = 'Figure_{}.png'.format(ids)
         fpath = os.path.join(label_dir, fname)
         io.imsave(fpath, img)
 

@@ -1,4 +1,10 @@
 # MindFace: 
+<div align="center">
+
+English | [简体中文](README_CN.md)
+
+</div>
+
 | [Introduction](#introduction) | [Installation](#installation) | [Get Started](#get-started) | [Tutorials](#tutorials) | [Model List](#model-list) | [Notes](#notes) | [License](#license) | [Feedbacks and Contact](#feedbacks-and-contact) | [Acknowledgement](#acknowledgement) | [Contributing](#contributing) |
 
 ## Introduction
@@ -8,16 +14,16 @@ Face recognition and detection occupy an important position in the face field. M
 For all main contributors, please check [contributing](#contributing).
 
 <details>
-<summary>Major Featires</summary>
+<summary>Major Features</summary>
 MindFace mainly has the following features.
 
 - Unified Application Programming Interface
 
     MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the mindface APIs, which greatly improves the ease of building algorithms for users
 
-- Strong extensibility
+- Strong Extensibility
 
-    MindFace currently supports face recognition and detection, based on the unified APIs. MindFace is highly scalable, it can support lots of backbones, datasets, and loss functions. What's More, MindFace also supports many platforms, including CPU/GPU/Ascend.
+    MindFace currently supports face recognition and detection, based on the unified APIs. MindFace is highly scalable, it can support lots of backbones, datasets, and loss functions. What's more, MindFace also supports many platforms, including CPU/GPU/Ascend.
 
 </details>
 
@@ -35,7 +41,7 @@ The mindspore implementation of ArcFace and has achieved great performance. We i
 | MS1MV2         | r100 | 0.99383+-0.00334 | 0.96800+-0.01042 | 0.93767+-0.01724 | 0.93267+-0.01327 | 0.89150+-0.01763 |
 
 #### Detection
-For Face detection, We choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
+For face detection, we choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
 
 | Backbone | Easy | Middle | Hard |
 |:-|:-:|:-:|:-:|
@@ -64,10 +70,10 @@ pip install -r requirements.txt
 MindSpore can be easily installed by following the official [instruction](https://www.mindspore.cn/install) where you can select your hardware platform for the best fit. To run in distributed mode, [openmpi](https://www.open-mpi.org/software/ompi/v4.0/) is required to install.   
 
 ### Install from source
-To install MindFace from source, please run,
+To install MindFace from source, please run
 ```shell
 # Clone the mindface repository.
-git clone https://github.com/mindlab-ai/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
 # Install
@@ -77,7 +83,7 @@ python setup.py install
 
 ## Get Started
 
-To get started with MindCV, please click the following links see the [tutorials for detection](tutorials/detection/getstart.md) and [tutorials for recognition](tutorials/recognition/getstart.md), which will give a quick tour on each key component and the train/validate/predict pipelines in Mindface.
+To get started with MindFace, please click the following links see the [tutorials for detection](tutorials/detection/get_started.md) and [tutorials for recognition](tutorials/recognition/get_started.md), which will give a quick tour on each key component and the train/validate/predict pipelines in Mindface.
 
 
 ## Tutorials
@@ -93,7 +99,7 @@ We provide [tutorials](tutorials) for
 ### Recognition
 
 - [Learn about recognition configs](tutorials/recognition/config.md)
-- [Inference with a pretrained recognition model](tutorials/recognition/infer.md)
+- [Inference with a pretrained recognition model](tutorials/recognition/inference.md)
 - [Finetune a pretrained recognition model on WiderFace](tutorials/recognition/finetune.md)
 
 
@@ -111,10 +117,10 @@ Currently, Mindface supports the model families listed below. More models with p
   - arcface-mobilefacenet-0.45g
   - arcface-r50
   - arcface-r100
-  - arcface -vit-t
-  - arcface -vit-s
-  - arcface -vit-b
-  - arcface -vit-l
+  - arcface-vit-t
+  - arcface-vit-s
+  - arcface-vit-b
+  - arcface-vit-l
 
 </details>
 
@@ -133,12 +139,12 @@ This project is released under the [Apache License 2.0](LICENSE.md).
 
 ## Feedbacks and Contact
 
-The dynamic version is still under development, if you find any issue or have an idea on new features, please don't hesitate to contact us via [issue](https://github.com/mindlab-ai/mindface/issues).
+The dynamic version is still under development, if you find any issues or have an idea on new features, please don't hesitate to contact us via [issues](https://github.com/mindspore-lab/mindface/issues).
 
 
 ## Acknowledgement
 
-MindSpore is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
+MindFace is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
 
 If you find *MindFace* useful in your research, please consider to cite the following related papers:
 
@@ -146,7 +152,7 @@ If you find *MindFace* useful in your research, please consider to cite the foll
 @misc{MindFace 2022,
     title={{mindface}:mindface for face recognition and detection},
     author={mindface},
-    howpublished = {\url{https://github.com/mindlab-ai/mindface/}},
+    howpublished = {\url{https://github.com/mindspore-lab/mindface/}},
     year={2022}
 }
 

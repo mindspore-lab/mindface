@@ -1,6 +1,6 @@
 # 使用模型
 mindface人脸套件中包含两类网络结构组件
-- 骨干网络(backbone)：目前支持的有`iresnet50`, `iresnet100`, `mobilefacenet`, `vit-tiny`, `vit-small`, `vit-base`, `vit-large`等
+- 骨干网络(backbone)：目前支持的有`iresnet50`, `iresnet100`, `mobilefacenet`等
 - 分类层：`PartialFC`，用于支持大规模的分类训练
 
 ## 引入现有模型
@@ -26,14 +26,6 @@ elif model_name == "iresnet100":
     model = iresnet100(num_features=512)
 elif model_name == "mobilefacenet":
     model = get_mbf(num_features=512)
-elif train_info['backbone'] == 'vit_t':
-    net = vit_t(num_features=train_info['num_features'])
-elif train_info['backbone'] == 'vit_s':
-    net = vit_s(num_features=train_info['num_features'])
-elif train_info['backbone'] == 'vit_b':
-    net = vit_b(num_features=train_info['num_features'])
-elif train_info['backbone'] == 'vit_l':
-    net = vit_l(num_features=train_info['num_features'])
 else:
     raise NotImplementedError
 

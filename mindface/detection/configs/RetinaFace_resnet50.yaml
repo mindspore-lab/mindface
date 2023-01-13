@@ -54,7 +54,7 @@
 'pretrain_path': 'pretrained/resnet50_ascend_v170_imagenet2012_official_cv_top1acc76.97_top5acc93.44.ckpt'
 
 # val
-'val_model': '/home/d1/czp21/czp/mindspore/20221011/mindface/RetinaFace-70_804.ckpt'
+'val_model': 'RetinaFace.ckpt'
 'val_dataset_folder': 'data/WiderFace/val/'
 'val_origin_size': True
 'val_confidence_threshold': 0.02

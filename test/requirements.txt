@@ -1,5 +1,4 @@
 mindspore-dev
-numpy
 pylint
 pytest
 numpy==1.21.6
@@ -9,4 +8,4 @@ pyyaml>=5.3
 scikit-learn
 Pillow==9.2.0
 matplotlib
-download
+

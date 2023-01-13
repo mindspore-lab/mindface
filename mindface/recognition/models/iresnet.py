@@ -1,7 +1,5 @@
-"""
-iresnet.
-"""
-from mindspore import nn, ops
+from mindspore import nn
+import mindspore.ops as ops
 from mindspore.common.initializer import initializer, HeNormal
 
 __all__ = ['iresnet18', 'iresnet34', 'iresnet50', 'iresnet100']
@@ -9,7 +7,7 @@ __all__ = ['iresnet18', 'iresnet34', 'iresnet50', 'iresnet100']
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """
-    3x3 convolution with padding.
+    3x3 convolution with padding
     """
     return nn.Conv2d(in_planes,
                      out_planes,
@@ -24,7 +22,7 @@ def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
 
 def conv1x1(in_planes, out_planes, stride=1):
     """
-    1x1 convolution.
+    1x1 convolution
     """
     return nn.Conv2d(in_planes,
                      out_planes,
@@ -35,13 +33,13 @@ def conv1x1(in_planes, out_planes, stride=1):
 
 class IBasicBlock(nn.Cell):
     '''
-    IBasicBlock.
+    IBasicBlock
     '''
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None,
                  groups=1, base_width=64, dilation=1):
-        super().__init__()
+        super(IBasicBlock, self).__init__()
         if groups != 1 or base_width != 64:
             raise ValueError(
                 'BasicBlock only supports groups=1 and base_width=64')
@@ -68,9 +66,9 @@ class IBasicBlock(nn.Cell):
         self.stride = stride
 
     def construct(self, x):
-        """
-        construct.
-        """
+        '''
+        construct
+        '''
         identity = x
 
         out = self.bn1(x)
@@ -100,23 +98,23 @@ class IResNet(nn.Cell):
         groups (Int): The num of groups. Default: 1.
         width_per_group (Int): The width of per group. Default: 64.
         replace_stride_with_dilation (Bool): Replacing stride with dilation. Default: None.
-
+        
     Examples:
         >>> model = IResNet(block, layers, **kwargs)
     """
     fc_scale = 7 * 7
 
     def __init__(self,
-                 block, layers, dropout=0, num_features=512,
+                 block, layers, dropout=0, num_features=512, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None):
-        super().__init__()
+        super(IResNet, self).__init__()
         self.inplanes = 64
         self.dilation = 1
         if replace_stride_with_dilation is None:
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
-            raise ValueError(f"replace_stride_with_dilation should be None\
-                             or a 3-element tuple, got {replace_stride_with_dilation}")
+            raise ValueError("replace_stride_with_dilation should be None "
+                             "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3,
@@ -151,9 +149,9 @@ class IResNet(nn.Cell):
 
 
     def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
-        """
-        make_layer.
-        """
+        '''
+        make_layer
+        '''
         downsample = None
         previous_dilation = self.dilation
         if dilate:
@@ -181,31 +179,24 @@ class IResNet(nn.Cell):
 
 
     def _initialize_weights(self):
-        """
-        initialize_weights.
-        """
-        for _, cell in self.cells_and_names():
+        for name, cell in self.cells_and_names():
             if isinstance(cell, nn.Conv2d):
-                cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'),
-                                                cell.weight.data.shape, cell.weight.data.dtype))
+                cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'), cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
-                    cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                                cell.bias.data.dtype))
+                    cell.bias.set_data(initializer('zeros', cell.bias.data.shape, cell.bias.data.dtype))
             elif isinstance(cell, nn.BatchNorm2d):
                 cell.gamma.set_data(initializer('ones', cell.gamma.data.shape))
                 cell.beta.set_data(initializer('zeros', cell.beta.data.shape))
             elif isinstance(cell, nn.Dense):
-                cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'),
-                                                cell.weight.data.shape, cell.weight.data.dtype))
+                cell.weight.set_data(initializer(HeNormal(mode='fan_out', nonlinearity='relu'), cell.weight.data.shape, cell.weight.data.dtype))
                 if cell.bias is not None:
-                    cell.bias.set_data(initializer('zeros', cell.bias.data.shape,
-                                                cell.bias.data.dtype))
+                    cell.bias.set_data(initializer('zeros', cell.bias.data.shape, cell.bias.data.dtype))
 
 
     def construct(self, x):
-        """
-        construct.
-        """
+        '''
+        construct
+        '''
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.prelu(x)
@@ -224,7 +215,7 @@ class IResNet(nn.Cell):
         return x
 
 
-def _iresnet(_, block, layers, pretrained, *_progress, **kwargs):
+def _iresnet(arch, block, layers, pretrained, progress, **kwargs):
     model = IResNet(block, layers, **kwargs)
     if pretrained:
         raise ValueError()

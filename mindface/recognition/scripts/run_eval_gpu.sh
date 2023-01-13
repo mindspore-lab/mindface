@@ -22,11 +22,11 @@ EVAL_PATH=$1
 CKPT_PATH=$2
 MODEL_NAME=$3
 CUDA_VISIBLE_DEVICES=0
-export DEVICE_ID=0
 
 python val.py \
 --ckpt_url "$CKPT_PATH" \
---data_url "$EVAL_PATH" \
+--device_id 0 \
+--eval_url "$EVAL_PATH" \
 --device_target "GPU" \
 --model "$MODEL_NAME" \
 --target lfw,cfp_fp,agedb_30,calfw,cplfw

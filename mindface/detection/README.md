@@ -97,7 +97,7 @@ Comming soon!
 ```
     python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
 ```
-> note: if your device is Ascend, please set the "device_target" in config file as "Ascend".
+> note: if your device is Ascend, please set the "device_target" in config file to "Ascend".
 5. Eval
 ```
     python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt

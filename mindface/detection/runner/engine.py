@@ -148,7 +148,12 @@ class DetectionEngine:
         return reserved_boxes
 
     def write_result(self, save_path  = None):
-        """write_result"""
+        """
+        Save result to file
+        
+        Args:
+            save_path: Path to save the result.
+        """
         # save result to file.
         if not save_path:
             return self.results
@@ -167,7 +172,9 @@ class DetectionEngine:
             raise RuntimeError(f"Unable to open json file to dump. What(): {err}") from err
 
     def eval(self, boxes, confs, resize, scale, image_path, priors):
-        """eval
+        """
+        Eval
+        
         Args:
             boxes: The boxes predicted by network.
             confs: The confidence of boxes.
@@ -226,7 +233,9 @@ class DetectionEngine:
                                                    'bboxes': dets[:, :5].astype(np.float32).tolist()}
 
     def infer(self, boxes, confs, resize, scale, priors):
-        """infer
+        """
+        Infer
+        
         Args:
             boxes: The boxes predicted by network.
             confs: The confidence of boxes.
@@ -350,7 +359,12 @@ class DetectionEngine:
 
 
     def get_eval_result(self):
-        """get_eval_result"""
+        """
+        Output evaluation results
+        
+        Retruns:
+            ap_dict (Dict): Evaluation results.
+        """
         self._norm_pre_score()
         facebox_list, event_list, file_list, hard_gt_list, medium_gt_list, easy_gt_list = self._get_gt_boxes()
         section_num = 1000

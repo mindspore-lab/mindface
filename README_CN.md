@@ -1,4 +1,10 @@
 # MindFace: 
+<div align="center">
+
+[English](README.md) | 简体中文
+
+</div>
+
 | [简介](#简介) | [安装](#安装) | [快速入门](#快速入门) | [教程](#教程) | [模型列表](#模型列表) | [重要通知](#重要通知) | [许可证](#许可证) | [反馈和联系](#反馈和联系) | [引用需知](#引用需知) | [贡献者](#贡献者) |
 
 ## 简介
@@ -67,7 +73,7 @@ pip install -r requirements.txt
 利用源安装MindFace，请运行：
 ```shell
 # Clone the mindface repository.
-git clone https://github.com/mindlab-ai/mindface.git
+git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
 # Install
@@ -77,7 +83,7 @@ python setup.py install
 
 ## 快速入门
 
-为了快速入门MindFace，请点击[检测教程](tutorials/detection/getstart.md)和[识别教程](tutorials/recognition/getstart.md)，仔细阅读文档，其中将会对Mindface中的每个关键组件和训练、验证、预测进行快速介绍。
+为了快速入门MindFace，请点击[检测教程](tutorials/detection/get_started.md)和[识别教程](tutorials/recognition/get_started.md)，仔细阅读文档，其中将会对Mindface中的每个关键组件和训练、验证、预测进行快速介绍。
 
 
 ## 教程
@@ -93,7 +99,7 @@ python setup.py install
 ### 识别任务
 
 - [识别任务配置](tutorials/recognition/config.md)
-- [使用预训练的检测模型进行推理](tutorials/recognition/infer.md)
+- [使用预训练的检测模型进行推理](tutorials/recognition/inference.md)
 - [在WiderFace数据集上微调预训练模型](tutorials/recognition/finetune.md)
 
 
@@ -110,10 +116,10 @@ python setup.py install
   - arcface-mobilefacenet-0.45g
   - arcface-r50
   - arcface-r100
-  - arcface -vit-t
-  - arcface -vit-s
-  - arcface -vit-b
-  - arcface -vit-l
+  - arcface-vit-t
+  - arcface-vit-s
+  - arcface-vit-b
+  - arcface-vit-l
 
 </details>
 
@@ -132,12 +138,12 @@ python setup.py install
 
 ## 反馈和联系
 
-新版本正在开发中，如果您有任何问题或者建议，请通过[issue](https://github.com/mindlab-ai/mindface/issues)与我们联系。
+新版本正在开发中，如果您有任何问题或者建议，请通过[issues](https://github.com/mindspore-lab/mindface/issues)与我们联系。
 
 
 ## 引用需知
 
-MindSpore是一款开源项目，我们欢迎任何贡献和反馈。我们希望工具箱和基准性能可以通过提供灵活和标准化的工具箱来重新实现现有方法，并基于此开发出新计算机视觉算法，为研究社区贡献一份力量。
+MindFace是一款开源项目，我们欢迎任何贡献和反馈。我们希望工具箱和基准性能可以通过提供灵活和标准化的工具箱来重新实现现有方法，并基于此开发出新的计算机视觉算法，为研究社区贡献一份力量。
 
 如果您觉得*MindFace*对您的研究有所帮助，希望您能考虑引用以下文章:
 
@@ -145,7 +151,7 @@ MindSpore是一款开源项目，我们欢迎任何贡献和反馈。我们希�
 @misc{MindFace 2022,
     title={{mindface}:mindface for face recognition and detection},
     author={mindface},
-    howpublished = {\url{https://github.com/mindlab-ai/mindface/}},
+    howpublished = {\url{https://github.com/mindspore-lab/mindface/}},
     year={2022}
 }
 
