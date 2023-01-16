@@ -1,4 +1,4 @@
-# 基于MindSpore框架的RetinaFace网络实现
+# MindFace人脸检测库
 
 
 <div align="center">
@@ -9,25 +9,22 @@
 
 
 ## 简介
-MindSpore是华为在2019年8月推出的新一代全场景AI计算框架，于2020年3月28日正式发布。
 
-RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://openaccess.thecvf.com/content_CVPR_2020/html/Deng_RetinaFace_Single-Shot_Multi-Level_Face_Localisation_in_the_Wild_CVPR_2020_paper.html)会议收录。
+MindFace是一款基于MindSpore的开源工具包，目前包含最先进的人脸识别和检测模型，如ArcFace、RetinaFace等。MindFace有统一应用程序编程接口和强大的可扩展性，可以用于面部识别和检测等常见应用场景。
 
+本仓库为MindFace人脸套件的人脸检测库。目前可供用户使用的深度学习模型有基于不同骨干网络（resnet50和mobiletnet0.25）实现的RetinaFace网络模型。
+RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://openaccess.thecvf.com/content_CVPR_2020/html/Deng_RetinaFace_Single-Shot_Multi-Level_Face_Localisation_in_the_Wild_CVPR_2020_paper.html)会议收录。其中，我们实现的基于ResNet50的版本能提供更好的精度，而基于MobileNet0.25的轻量版本，检测速度更快。
 
-本存储库包含了RetinaFace的mindspore实现，并取得了很好的性能。我们基于ResNet50和MobileNet0.25做了两个不同版本实现，以满足不同的需求。
-![retinaface_picture](imgs/0000_pred.jpg)
+## 性能
 
-## 更新日志
-敬请期待!
-
-## 使用不同backbone进行多尺度测试在WiderFace Val数据集上的表现.
+### 使用不同backbone进行多尺度测试在WiderFace Val数据集上的表现.
 
 | backbone | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
 | mobileNet0.25 | 91.60% | 89.50% | 82.39% |
 | ResNet50 | 95.81% | 94.89% | 90.10% |
 
-## 使用Resnet50作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+### 使用Resnet50作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
 | Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
 | MindSpore (same parameter with MXNet) | 94.46% | 93.64% | 89.42% |
@@ -37,7 +34,7 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 | MXNet | 94.86% | 93.87% | 88.33% |
 | MXNet(original image scale) | 94.97% | 93.89% | 82.27% |
 
-## 使用Mobilenet0.25作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
+### 使用Mobilenet0.25作为backbone进行单尺度测试在WiderFace Val数据集上的表现.
 | Style | Easy | Medium | Hard |
 |:-|:-:|:-:|:-:|
 | MindSpore (same parameter with MXNet) | 88.51% | 86.86% | 80.88% |
@@ -67,7 +64,7 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 
 2. 数据集准备
 
-    2.1. 从[百度云](https://pan.baidu.com/s/1eET2kirYbyM04Bg1s12K5g?pwd=jgcf)或[谷歌云盘](https://drive.google.com/file/d/1pBHUJRWepXZj-X3Brm0O-nVhTchH11YY/view?usp=sharing)下载WIDERFACE数据集和标签。
+    2.1. 从[百度云](https://pan.baidu.com/s/1eET2kirYbyM04Bg1s12K5g?pwd=jgcf)或[谷歌云盘](https://drive.google.com/file/d/1pBHUJRWepXZj-X3Brm0O-nVhTchH11YY/view?usp=sharing)下载WiderFace数据集和标签。
     
 
 
@@ -92,22 +89,40 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 
     我们提供了两种配置文件([RetinaFace_mobilenet025](./configs/RetinaFace_mobilenet025.yaml) and [RetinaFace_resnet50](./configs/RetinaFace_resnet50.yaml)).
 
-4. Train
+4. 训练
 
-```
-    python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
-```
-> 注意：如果你的设备是Ascend，请在配置文件中设置 "device_target "为 "Ascend"。
-5. Eval
+    通过运行`train.py`可以训练你自己的人脸检测模型，使用的模型方法和训练策略可以通过命令行参数或者yaml配置文件来配置。
+
+    - 单卡训练
+    ```shell
+        python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
+    ```
+
+    - 多卡训练
+
+        为了使用多卡训练，需要先安装[openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+    ```shell
+        export CUDA_VISIBLE_DEVICES=0,1,2,3  # 4 GPUs
+        mpirun -n 4 python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
+    ```
+    > 注意：如果你的设备是Ascend，请在配置文件中设置 "device_target "为 "Ascend"。
+5. 验证
+
+    通过运行`eval.py`可以对模型在WiderFace上的性能做评估。
 ```
     python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
 ```
 
-6. Predict
+6. 推理
+
+    通过运行`infer.py`可以对单张图片进行推理。
 ```
     python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
+ 
+## 推理结果示意图
+![retinaface_picture](imgs/0000_pred.jpg)
 
 
 ## RetinaFace预训练模型
