@@ -1,4 +1,4 @@
-# 基于MindSpore框架的ArcFace实现
+# 基于MindSpore框架的人脸识别系列算法
 <div align="center">
 
 [English](README.md) | 简体中文
@@ -8,14 +8,15 @@
 ## 简介
 MindSpore是华为在2019年8月推出的新一代全场景AI计算框架，于2020年3月28日正式发布。
 
-本存储库包含了ArcFace的mindspore实现，并取得了很好的性能。我们基于ResNet50和MobileNet0.45g做了两个不同版本实现，以满足不同的需求。
-<div align="center"><img src="image/arcface.png" width="600" ></div>
+本代码库将不断更新人脸识别的系列算法，目前已经包含ArcFace的mindspore实现，我们基于ResNet50和MobileNet0.45g做了两个不同版本实现，以满足不同的需求。
+<div align="center"><img src="image/arcface.png" width="800" ></div>
+<div align="center">基于ArcFace loss实现人脸识别网络的训练</div>
 
 
 ## 更新!!
 + 【2022/12/20】 支持基于vit tiny/small/base/large的骨干网络。
 + 【2022/09/24】 我们上传了基于MindSpore的实现的ArcFace代码，并更新了测试数据集的结果。
-+ 【2022/06/18】 我们建造了这个代码仓库。
++ 【2022/06/18】 我们建造了这个代码库。
 
 ## 在 lfw, cfp_fp, agedb_30, calfw and cplfw数据集上的性能
 
@@ -73,27 +74,37 @@ cd mindface/recognition
 python utils/rec2jpg_dataset.py --include the/path/to/rec --output output/path
 ```
 
-<summary>训练和评估</summary>
-下面的例子展现了如何进行分布式训练。
 
-步骤1. 训练
-```shell
+<summary>训练</summary>
+
+```python
 # Distributed training example
-bash scripts/run_distribute_train.sh rank_size /path/dataset
+mpirun -n 4 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
+python train.py --config 'configs/train_config_casia_vit_t.yaml' --device_target 'GPU'
 ```
 
-步骤2. 评估
-```shell
+<summary>评估</summary>
+
+```python
 # Evaluation example
-bash scripts/run_eval.sh /path/evalset /path/ckpt
+python eval.py --ckpt_url 'pretrained/arcface_vit_t.ckpt' --device_target "GPU" --model "vit_t" --target lfw,cfp_fp,agedb_30,calfw,cplfw
 ```
+
+<summary>推理</summary>
+
+```python
+# Use infer() to predict the image
+>>> img = input_img
+>>> out1 = infer(input_img, backbone="vit_t", pretrained="pretrained/arcface_vit_t.ckpt")
+```
+
 
 
 
 
 <summary>教程</summary>
 
-- [学习识别的配置](../../tutorials/detection/config.md) 
+- [学习人脸识别模型的配置](../../tutorials/recognition/config.md) 
 
 - [学习使用预训练模型复现评估结果和推理](../../tutorials/recognition/inference.md) 
 - [学习创建数据集](../../tutorials/recognition/dataset.md)
