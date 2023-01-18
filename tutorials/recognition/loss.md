@@ -1,16 +1,16 @@
 # 使用损失函数
 
-损失函数通过计算前向输出与目标之间的差距，引导模型的训练。MindFace套件目前支持的损失函数包括交叉熵损失函数和Arcface损失函数。
+损失函数通过计算前向输出与目标之间的差距，引导模型的训练。MindFace 套件目前支持的损失函数包括交叉熵损失函数和 Arcface 损失函数。
 
 ## 添加损失函数
 
-MindFace支持添加新的损失函数，损失函数的添加方式如下：
+MindFace 支持添加新的损失函数，损失函数的添加方式如下：
 
-1. 定义损失函数
+### 定义损失函数
 
 损失函数的形式为:
 
-```
+```python
 class Loss(nn.Cell):
     def __init__(self, arg1, arg2):
         super(Loss, self).__init__()
@@ -20,10 +20,9 @@ class Loss(nn.Cell):
         pass
 ```
 
-2. 添加到`mindface/recognition/loss/__init__.py`中
+### 添加到`mindface/recognition/loss/__init__.py`中
 
-```
-# 以模型文件名为Loss为例，在__init__.py中添加引用
+```python
 from .Loss import *
 ```
 
@@ -31,15 +30,12 @@ from .Loss import *
 
 在训练中，通常将模型和损失函数封装在一个类中，基本结构如下所示：
 
-```
+```python
 class MyNetWithLoss(nn.Cell):
     def __init__(self, backbone, num_classes, device_num):
         super(MyNetWithLoss, self).__init__(auto_prefix=False)
-        # 添加backbone
         self.backbone = backbone
-        # 添加分类层
         self.fc = fc
-        # 添加损失函数
         self.loss = loss
 
     def construct(self, data, label):
@@ -52,7 +48,7 @@ class MyNetWithLoss(nn.Cell):
 
 完整示例如下：
 
-```
+```python
 import mindspore as ms
 import numpy as np
 from mindface.recognition.models import *
