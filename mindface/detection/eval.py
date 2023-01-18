@@ -89,8 +89,7 @@ def val(cfg):
 
     # init detection engine
     detection = DetectionEngine(nms_thresh=cfg['val_nms_threshold'], conf_thresh=cfg['val_confidence_threshold'],
-        iou_thresh=cfg['val_iou_threshold'], var=cfg['variance'],
-        save_prefix=cfg['val_predict_save_folder'], gt_dir=cfg['val_gt_dir'])
+        iou_thresh=cfg['val_iou_threshold'], var=cfg['variance'], gt_dir=cfg['val_gt_dir'])
 
 
     # testing begin
@@ -175,8 +174,8 @@ def val(cfg):
 
     if cfg['val_save_result']:
         # Save the predict result if you want.
-        predict_result_path = detection.write_result()
-        print(f'predict result path is {predict_result_path}')
+        results = detection.write_result(save_path=cfg['val_save_result'])
+        assert results is not None, 'Saved Nothing.'
 
     detection.get_eval_result()
     print('Eval done.')

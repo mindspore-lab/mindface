@@ -52,11 +52,10 @@
 # val
 'val_model': 'RetinaFace.ckpt'
 'val_dataset_folder': 'data/WiderFace/val/'
-'val_origin_size': True
+'val_origin_size': False
 'val_confidence_threshold': 0.02
 'val_nms_threshold': 0.4
 'val_iou_threshold': 0.5
 'val_save_result': False
-'val_predict_save_folder': './widerface_result'
 'val_gt_dir': 'data/WiderFace/ground_truth'
 

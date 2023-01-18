@@ -16,7 +16,6 @@
 
 **Image infer demo**
 
-
 Infer the input image with a pretrained SoTA model,
 
 ```python
@@ -24,22 +23,40 @@ Infer the input image with a pretrained SoTA model,
         --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
 ```
 
+The inference results by using our pre-trained weights are shown in the following figure.
+![retinaface_picture](/mindface/detection/imgs/0000_pred.jpg)
+
 ### Useful Script Guidelines
 It is easy to train your model on standard datasets or your own dataset with MindFace. Model training, transfer learning, or evaluaiton can be done using one or a few line of code with flexible configuration. 
 
-- Standalone Training
+- Training
 
-It is easy to train with `train.py`. Here is an example for training a RetinaFace network with mobilenet on WiderFace dataset using one computing device (i.e., standalone GPU).
-``` shell
-python train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
-```
+    It is easy to train your model using `train.py`, where the training strategy (e.g., augmentation, LR scheduling) can be configured with external arguments or a yaml config file.
+
+    - Standalone Training
+    ```shell
+        python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
+    ```
+
+    - Distributed Training
+
+        To run in distributed mode, [openmpi](https://www.open-mpi.org/software/ompi/v4.0/) is required to install.  
+
+    ```shell
+        export CUDA_VISIBLE_DEVICES=0,1,2,3  # 4 GPUs
+        mpirun -n 4 python mindface/detection/train.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml
+    ```
+
+    > note: if your device is Ascend, please set the "device_target" in the config file to "Ascend".
+
+
 
 
 
 - Validation
 
-It is easy to validate a trained model with `eval.py`. 
-```python
-# validate a trained checkpoint
-python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
-``` 
+    It is easy to validate a trained model with `eval.py`. 
+    ```python
+    # validate a trained checkpoint
+    python eval.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt
+    ``` 

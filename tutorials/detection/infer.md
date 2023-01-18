@@ -1,5 +1,5 @@
 ## 推理与验证
-本文档将介绍如何使用训练好的RetinaFace模型在单张图片做推理，检测出其中所有的人脸。在此之前，请先保证您安装好了相应的环境
+本文档将介绍如何使用训练好的RetinaFace模型在单张图片做推理，检测出其中所有的人脸。在此之前，请先保证您安装好了相应的环境。
 
 从[此处](https://github.com/mindspore-lab/mindface.git)下载mindface仓库并安装mindface
 
@@ -17,9 +17,9 @@ pip install -r requirements.txt
 ```
 
 ## 加载功能包，调用所需函数
-在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数
+在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数。
 
-```py
+```python
 import argparse
 import numpy as np
 import cv2
@@ -33,9 +33,9 @@ from runner import DetectionEngine, read_yaml
 ```
 
 ## 基本设置
-选择配置文件为RetinaFace_mobilenet025.yaml或者RetinaFace_resnet50.yaml，选择mode设置为“Graph”即静态图模式，或者设置mode为“Pynative”即动态图模式。此处我选择从cfg文件中读取，读者也可自行设置
+选择配置文件为`RetinaFace_mobilenet025.yaml`或者`RetinaFace_resnet50.yaml`，选择`mode`设置为“Graph”即静态图模式，或者设置`mode`为“Pynative”即动态图模式。此处我选择从cfg文件中读取，读者也可自行设置。
 
-```py
+```python
 #set cfg
 config_path = 'mindface/detection/configs/RetinaFace_resnet50.yaml'
 cfg = read_yaml(config_path)
@@ -48,9 +48,9 @@ else :
 ```
 
 ## 搭建模型
-根据配置文件选择backbone为MobileNet025或ResNet50，并根据cfg配置文件中给出的路径对应加载验证模型，如果读者自己的checkpoint，可直接添加一行代码修改`cfg['val_model'] = 读者权重路路径`。
+根据配置文件选择`backbone`为MobileNet025或ResNet50，并根据cfg配置文件中给出的路径对应加载验证模型，如果读者自己的checkpoint，可直接添加一行代码修改`cfg['val_model'] = 读者权重路路径`。
 
-```py
+```python
 #build model
 if cfg['name'] == 'ResNet50':
     backbone = resnet50(1001)
@@ -67,12 +67,14 @@ print('Load trained model done. {}'.format(cfg['val_model']))
 network.init_parameters_data()
 load_param_into_net(network, param_dict)
 ```
-`Load trained model done. /home/user/mindspore/retinaface/retinaface_mindinsight/pretrained/RetinaFace_ResNet50.ckpt`
+```text
+Load trained model done. /home/user/mindspore/retinaface/retinaface_mindinsight/pretrained/RetinaFace_ResNet50.ckpt
+```
 
 ## 预设图片尺寸
-依据不同需求对图片尺寸进行处理，可选择在原尺寸上进行推理或者裁剪后的尺寸，如果test_origin_size为True，则使用原图大小进行推理；否则缩放图片，将其短边和长边尽可能的逼近但不超过1600和2176，缩放结果填充到(2176,2176)大小的画布上面。
+依据不同需求对图片尺寸进行处理，可选择在原尺寸上进行推理或者裁剪后的尺寸，如果`test_origin_size`为True，则使用原图大小进行推理；否则缩放图片，将其短边和长边尽可能的逼近但不超过1600和2176，缩放结果填充到(2176,2176)大小的画布上面。
 
-```py
+```python
 # test image
 conf_test = cfg['conf']
 
@@ -108,15 +110,15 @@ else:
 ```
 
 ## 检测器初始化
-将配置文件中的参数传入runner/engine.py中的DetectionEngine类，对检测器进行初始化，完成之后随即开始推理
+将配置文件中的参数传入runner/engine.py中的DetectionEngine类，对检测器进行初始化，完成之后随即开始推理。
 
-```py
+```python
 detection = DetectionEngine(nms_thresh = cfg['val_nms_threshold'], conf_thresh = cfg['val_confidence_threshold'], iou_thresh = cfg['val_iou_threshold'], var = cfg['variance'])
 ```
 ## 数据预处理
-图片先按照预设尺寸进行缩放，后进行归一化并填充维度转成四维张量
+图片先按照预设尺寸进行缩放，后进行归一化并填充维度转成四维张量。
 
-```py
+```python
 # process the image
 img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
 img = np.float32(img_raw)
@@ -152,16 +154,16 @@ img = np.expand_dims(img, 0)
 img = Tensor(img)
 ```
 ## 推理
-使用前面初始化完成的检测器进行推理，其中detection类为检测器初始化时实例化的DetetionEngine类
+使用前面初始化完成的检测器进行推理，其中detection类为检测器初始化时实例化的`DetetionEngine`类。
 
-```py
+```python
 boxes, confs, _ = network(img)
 boxes = detection.infer(boxes, confs, resize, scale, priors)
 ```
 
-其中infer函数主要进行非极大值抑制操作以获得置信度高的预测框结果。
+其中`infer`函数会输出预测框结果。
 
-```py
+```python
 def infer(self, boxes, confs, resize, scale, image_path, priors):
     """infer"""
     if boxes.shape[0] == 0:
@@ -199,9 +201,9 @@ def infer(self, boxes, confs, resize, scale, image_path, priors):
 ```
 
 ## 结果呈现
-将推理完成的图片中目标以锚框选中并标记类别名称，对推理完成的结果图片名称加上后缀以示区别，存放于指定路径中，并将该路径打印呈现
+将推理完成的图片中目标以锚框选中并标记类别名称，对推理完成的结果图片名称加上后缀以示区别，存放于指定路径中，并将该路径打印呈现.
 
-```py
+```python
 #show results
 img_each = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
@@ -215,9 +217,10 @@ save_path = image_path.split('.')[0]+'_pred.jpg'
 cv2.imwrite(save_path,img_each)
 print(f'Result saving: {save_path}')
 ```
+
 这部分输出结果为
-```
-Result saving: 图片保存路径。
+```text
+Result saving: mindface/detection/imgs/0000_pred.jpg
 ```
 就可以看到如图所示的效果了。
 ![推理结果](/mindface/detection/imgs/0000_pred.jpg)
@@ -225,7 +228,7 @@ Result saving: 图片保存路径。
 ## 验证
 验证逻辑与推理基本相同，区别在于验证时要将所有输出结果拼接起来进行精度评估，并将结果打印出来。
 
-```py
+```python
 boxes, confs, _ = network(img)
 if idx ==0:
     boxes_all = boxes
@@ -260,20 +263,20 @@ print(f"ave_misc: {(ave_misc/(i+1)):.4f}s")
 print('Predict box done.')
 print('Eval starting')
 
+# 保存结果至json文件中，其中保存的目录为cfg['val_save_result']
 if cfg['val_save_result']:
-# Save the predict result if you want.
-predict_result_path = detection.write_result()
-print(f'predict result path is {predict_result_path}')
+    # Save the predict result if you want.
+    results = detection.write_result(save_path=cfg['val_save_result'])
+    assert results is not None, 'Saved Nothing.'
+# 计算ap
+detection.get_eval_result()
 ```
 
-验证使用的检测器函数是detection.detect，这是因为验证时要将所有结果拼接起来，相比推理函数detection.infer，验证时加入了以下代码。
-
-```py
-# add to result
-event_name, img_name = image_path.split('/')
-event_names = self.results.keys()
-if event_name not in event_names:
-    self.results[event_name] = {}
-self.results[event_name][img_name[:-4]] = {'img_path': image_path,
-                                            'bboxes': dets[:, :5].astype(np.float32).tolist()}
+输出结果为：
+```text
+The results were saved in mindface/detection/predict_2023_01_18_14_39_08.json.
+Easy   Val Ap : 0.8862
+Medium Val Ap : 0.8696
+Hard   Val Ap : 0.7993
 ```
+
