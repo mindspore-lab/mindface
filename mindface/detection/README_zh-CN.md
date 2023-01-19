@@ -117,12 +117,12 @@ RetinaFace是一种实用的单级SOTA人脸检测器，被[CVPR 2020](https://o
 
     通过运行`infer.py`可以对单张图片进行推理。
 ```
-    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path test/detection/imgs/0000.jpg --conf 0.5
 ```
 
  
 ## 推理结果示意图
-![retinaface_picture](imgs/0000_pred.jpg)
+![retinaface_picture](/test/detection/imgs/0000_pred.jpg)
 
 
 ## RetinaFace预训练模型

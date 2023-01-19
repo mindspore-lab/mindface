@@ -134,7 +134,7 @@ if __name__ == '__main__':
                         help='configs path')
     parser.add_argument('--checkpoint', type=str, default='',
                         help='checpoint path')
-    parser.add_argument('--image_path', type=str, default='mindface/detection/imgs/0000.jpg',
+    parser.add_argument('--image_path', type=str, default='test/detection/imgs/0000.jpg',
                         help='image path')
     parser.add_argument('--conf', type=float, default=0.5,
                         help='confidence of bbox')

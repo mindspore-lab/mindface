@@ -119,12 +119,12 @@ This is a face detection repository for the MindFace. The deep learning models c
 
     To infer a single image, please run `infer.py`
 ```shell
-    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+    python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml --checkpoint pretrained/weight.ckpt --image_path test/detection/imgs/0000.jpg --conf 0.5
 ```
 
 ## Demo
 The inference results by using our pre-trained weights are shown in the following figure.
-![retinaface_picture](imgs/0000_pred.jpg)
+![retinaface_picture](/test/detection/imgs/0000_pred.jpg)
 
 
 ## RetinaFace Pretrained Models

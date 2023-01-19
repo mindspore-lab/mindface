@@ -20,11 +20,11 @@ Infer the input image with a pretrained SoTA model,
 
 ```python
 >>> !python infer.py --config mindface/detection/configs/RetinaFace_mobilenet025.yaml \        
-        --checkpoint pretrained/weight.ckpt --image_path ./imgs/0000.jpg --conf 0.5
+        --checkpoint pretrained/weight.ckpt --image_path test/detection/imgs/0000.jpg --conf 0.5
 ```
 
 The inference results by using our pre-trained weights are shown in the following figure.
-![retinaface_picture](/mindface/detection/imgs/0000_pred.jpg)
+![retinaface_picture](/test/detection/imgs/0000_pred.jpg)
 
 ### Useful Script Guidelines
 It is easy to train your model on standard datasets or your own dataset with MindFace. Model training, transfer learning, or evaluaiton can be done using one or a few line of code with flexible configuration. 

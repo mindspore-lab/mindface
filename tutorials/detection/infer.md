@@ -220,10 +220,10 @@ print(f'Result saving: {save_path}')
 
 这部分输出结果为
 ```text
-Result saving: mindface/detection/imgs/0000_pred.jpg
+Result saving: test/detection/imgs/0000_pred.jpg
 ```
 就可以看到如图所示的效果了。
-![推理结果](/mindface/detection/imgs/0000_pred.jpg)
+![推理结果](/test/detection/imgs/0000_pred.jpg)
 
 ## 验证
 验证逻辑与推理基本相同，区别在于验证时要将所有输出结果拼接起来进行精度评估，并将结果打印出来。

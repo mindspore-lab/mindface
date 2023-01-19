@@ -33,7 +33,7 @@ def test_detect(backbone_name, target_size):
                         min_sizes=[[16, 32], [64, 128], [256, 512]],
                         steps=[8, 16, 32],
                         clip=False)
-    image_path = 'mindface/detection/imgs/0000.jpg'
+    image_path = 'test/detection/imgs/0000.jpg'
     img = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
     img = np.float32(img)
