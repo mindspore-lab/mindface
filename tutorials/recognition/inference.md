@@ -1,12 +1,12 @@
 # 模型验证
 
-MindFace支持人脸识别模型在多个验证集上验证模型性能，当前支持的人脸验证数据集包括lfw,cfp_fp,agedb_30,calfw,cplfw
+MindFace 支持人脸识别模型在多个验证集上验证模型性能，当前支持的人脸验证数据集包括 lfw,cfp_fp,agedb_30,calfw,cplfw。
 
 ## 验证数据集
 
-MindFace人脸验证数据集使用.bin格式，所有的验证集全部放在同一目录下，数据集的组织结构如下所示：
+MindFace 人脸验证数据集使用`.bin`格式，所有的验证集全部放在同一目录下，数据集的组织结构如下所示：
 
-```
+```txt
 val_dataset
  ├── agedb_30.bin
  ├── calfw.bin
@@ -17,20 +17,16 @@ val_dataset
 
 ### 执行验证程序
 
-GPU平台
+验证程序的启动方式如下：
 
-```
-sh scripts/run_eval_gpu.sh /path/to/val_dataset /path/to/ckpt model_name
-```
-
-Ascend平台
-
-```
-sh scripts/run_eval.sh /path/to/val_dataset /path/to/ckpt model_name
+```python
+# Evaluation example
+python eval.py --ckpt_url 'pretrained/arcface_vit_t.ckpt' --device_target "GPU" --model "vit_t" --target lfw,cfp_fp,agedb_30,calfw,cplfw
 ```
 
-等待模型验证完成即可得到在验证集上的验证结果：
-```
+等待模型验证完成即可得到在验证集上的验证结果，如下所示：
+
+```txt
 Finish loading vit_b
 [WARNING] ME(2133442:139775108977472,MainProcess):2022-12-17-17:20:09.919.747 [mindspore/train/serialization.py:734] For 'load_param_into_net', remove parameter prefix name: _backbone., continue to load.
 model loading time 14.051478
@@ -71,21 +67,24 @@ infer time 76.116541
 [cplfw]Accuracy: 0.90967+-0.01152
 [cplfw]Accuracy-Flip: 0.91317+-0.01102
 ```
-# 部署
-## 安装
-MindSpore Serving当前仅支持Linux环境部署。
 
-MindSpore Serving包在各类硬件平台（Nvidia GPU, Ascend 910/310P/310, CPU）上通用，推理任务依赖MindSpore或MindSpore Lite推理框架，我们需要选择一个作为Serving推理后端。当这两个推理后端同时存在的时候，优先使用MindSpore Lite推理框架。
+## 部署
+
+### 安装
+
+MindSpore Serving 当前仅支持 Linux 环境部署。
+
+MindSpore Serving 包在各类硬件平台（Nvidia GPU, Ascend 910/310P/310, CPU）上通用，推理任务依赖 MindSpore或MindSpore Lite 推理框架，我们需要选择一个作为 Serving 推理后端。当这两个推理后端同时存在的时候，优先使用 MindSpore Lite 推理框架。
 具体安装的步骤可以查看[官方的教程](https://gitee.com/mindspore/docs/blob/master/docs/serving/docs/source_zh_cn/serving_install.md#https://gitee.com/mindspore/docs/blob/master/docs/serving/docs/source_zh_cn/serving_install.md)
 
-## 模型导出
-在模型训练完后，训练完成后的网络模型（即CKPT文件）转换为MindIR格式，用于后续手机侧的推理。通过`export`接口会在当前目录下会生成`xxxxx.mindir`文件。
+### 模型导出
+
+在模型训练完后，训练完成后的网络模型（即 CKPT 文件）转换为 MindIR 格式，用于后续手机端的推理。通过`export`接口会在当前目录下会生成`.mindir`文件。
 
 ```python
 import mindspore as ms
 from mindface.recognition.models import *
 
-# 定义并加载网络参数
 model_name = "iresnet50"
 
 if model_name == "iresnet50":
@@ -108,16 +107,17 @@ else:
 param_dict = ms.load_checkpoint("iresnet50.ckpt")
 ms.load_param_into_net(net, param_dict)
 
-# 将模型由ckpt格式导出为MINDIR格式
 input_np = np.random.uniform(0.0, 1.0, size=[1, 3, 112, 112]).astype(np.float32)
 ms.export(net, ms.Tensor(input_np), file_name="iresnet50_112", file_format="MINDIR")
 ```
-导出成功后，会产生一`iresnet50_112.mindir`结尾的文件。
 
-## 推理目录结构介绍
-创建目录放置推理代码工程，例如`/home/HwHiAiUser/Ascend/ascend-toolkit/20.0.RC1/acllib_linux.arm64/sample/acl_execute_model/ascend310_resnet50_preprocess_sample`，可以从[官网示例](https://gitee.com/mindspore/docs/tree/r1.8/docs/sample_code/ascend310_resnet50_preprocess_sample)下载样例代码，`model`目录用于存放上述导出的`MindIR`模型文件，`test_data`目录用于存放待识别的图片，推理代码工程目录结构如下:
+导出成功后，会产生以`iresnet50_112.mindir`结尾的文件。
 
-```
+### 推理目录结构介绍
+
+创建目录放置推理代码工程，可以从[官网示例](https://gitee.com/mindspore/docs/tree/r1.8/docs/sample_code/ascend310_resnet50_preprocess_sample)下载样例代码，`model`目录用于存放上述导出的`MindIR`模型文件，`test_data`目录用于存放待识别的图片，推理代码工程目录结构如下:
+
+```txt
 └─ascend310_resnet50_preprocess_sample
     ├── CMakeLists.txt                           // 构建脚本
     ├── README.md                                // 使用说明
@@ -131,9 +131,12 @@ ms.export(net, ms.Tensor(input_np), file_name="iresnet50_112", file_format="MIND
         ├── ...                                  // 输入样本图片n
 
 ```
-## 部署Serving推理服务
-### 配置
-```
+
+### 部署Serving推理服务
+
+#### 配置
+
+```txt
 demo
 ├── iresenet50_112
 │   ├── 1
@@ -143,7 +146,9 @@ demo
 ├── serving_client.py
 
 ```
+
 其中，模型配置文件`serving_config.py`内容如下：
+
 ```python
 import numpy as np
 from mindspore_serving.server import register
@@ -172,12 +177,14 @@ def add_cast(x1, x2):
     x1, x2 = register.add_stage(add_trans_datatype, x1, x2, outputs_count=2)  # cast input to float32
     y = register.add_stage(model, x1, x2, outputs_count=1)
     return y
-
 ```
-### 启动服务
-Mindspore的server函数提供两种服务部署，本教程以gRPC方式为例。另一种请查看[官方教程](https://www.mindspore.cn/serving/docs/zh-CN/master/serving_example.html)
+
+#### 启动服务
+
+Mindspore 的 server 函数提供两种服务部署，本教程以 gRPC 方式为例。另一种请查看[官方教程](https://www.mindspore.cn/serving/docs/zh-CN/master/serving_example.html)
 
 执行`serving_server.py`，完成服务启动。
+
 ```python
 import os
 import sys
@@ -197,12 +204,14 @@ def start():
 
 if __name__ == "__main__":
     start()
+```
 
-```
-在shell中打印出下列的日志，说明启动成功。
-```
+在 shell 中打印出下列的日志，说明启动成功。
+
+```txt
 Serving gRPC server start success, listening on 127.0.0.1:5500
 ```
 
-### 执行推理
-本文使用gRPC的方式为例。使用`serving_client.py`，启动客户端，即可得到模型推理结果。
+#### 执行推理
+
+本文使用 gRP 的方式为例。使用`serving_client.py`，启动客户端，即可得到模型推理结果。

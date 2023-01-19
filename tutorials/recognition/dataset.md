@@ -1,12 +1,12 @@
 # 创建数据集
 
-MindFace人脸套件提供了数据集接口 `create_dataset`，方便用户利用接口创建自己的数据集，下边介绍创建数据集的流程
+MindFace 人脸套件提供了数据集接口 `create_dataset`，方便用户利用接口创建自己的数据集，下边介绍创建数据集的流程。
 
 ## 调整数据集格式
 
-使用 `create_dataset`创建数据集，需要将label相同的数据放入同一个文件夹中，所有类别的文件夹再放入同一个数据集目录下，数据集的格式如下所示：
+使用 `create_dataset`创建数据集，需要将 label 相同的数据放入同一个文件夹中，所有类别的文件夹再放入同一个数据集目录下，数据集的格式如下所示：
 
-```
+```txt
 dataset/
 ├── 2553
 │   ├── Figure_166601.png
@@ -58,10 +58,11 @@ dataset/
 
 `create_dataset(dataset_path, do_train, repeat_num=1, batch_size=32, augmentation=None, target="Ascend", is_parallel=True)`
 
-该函数能够为训练和测试提供数据，且支持`Ascend`和`GPU`上的单卡和多卡并行工作，本函数内置了训练所用的数据增强方法，可以直接使用。
+该函数能够为训练和测试提供数据，且支持 Ascend 和 GPU 上的单卡和多卡并行工作，本函数内置了训练所用的数据增强方法，可以直接使用。
 
 内置的方法为：
-```
+
+```python
 # train
 trans = [
             C.Decode(),
@@ -79,11 +80,12 @@ trans = [
             C.HWC2CHW()
 ]
 ```
+
 如果需要特殊的数据增强方法，可以使用`augmentation`参数传入。当`augmentation=None`时，使用默认的增强方式。
 
 完整的数据集加载示例如下：
 
-```
+```python
 from mindspore import context
 from mindface.recognition.datasets import *
 
