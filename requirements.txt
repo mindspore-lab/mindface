@@ -7,4 +7,5 @@ scikit-learn==1.1.2
 Pillow==9.2.0
 matplotlib==3.6.0
 easydict==1.9
+mindcv==0.1.1
 download
