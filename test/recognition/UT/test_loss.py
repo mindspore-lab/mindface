@@ -1,30 +1,43 @@
 # import packages
 import sys
+import os 
 sys.path.append('.')
-import mindspore as ms
-from mindspore import Tensor
-import numpy as np
-from mindface.detection.loss import MultiBoxLoss
-import pytest
+from mindface.recognition.runner import Network
+from mindface.recognition.models import iresnet50, iresnet100, get_mbf, vit_t, vit_s, vit_b, vit_l, PartialFC
+from mindface.recognition.loss import ArcFace
 
-@pytest.mark.parametrize('batchsize', [8, 16])
-@pytest.mark.parametrize('num_classes', [2])
-@pytest.mark.parametrize('num_anchor', [16800, 29196])
-@pytest.mark.parametrize('negative_ratio', [7])
+def test_loss():
+    model_name = 'iresnet50'
+    num_features = 512
+    num_classes = 10572
+    device_num = 1
+    if model_name == 'iresnet50':
+        model = iresnet50(num_features=num_features)
+        print("Finish loading iresnet50")
+    elif model_name == 'iresnet100':
+        model = iresnet100(num_features=num_features)
+        print("Finish loading iresnet100")
+    elif model_name == 'mobilefacenet':
+        model = get_mbf(num_features=num_features)
+        print("Finish loading mobilefacenet")
+    elif model_name == 'vit_t':
+        model = vit_t(num_features=num_features)
+        print("Finish loading vit_t")
+    elif model_name == 'vit_s':
+        model = vit_s(num_features=num_features)
+        print("Finish loading vit_s")
+    elif model_name == 'vit_b':
+        model = vit_b(num_features=num_features)
+        print("Finish loading vit_b")
+    elif model_name == 'vit_l':
+        model = vit_l(num_features=num_features)
+        print("Finish loading vit_l")
+    else:
+        raise NotImplementedError
 
 
-def test_multiboxloss(batchsize, num_classes, num_anchor, negative_ratio):
-    ms.set_seed(1)
-    np.random.seed(1)
-    multibox_loss = MultiBoxLoss(num_classes, num_anchor, negative_ratio)
-    loc_data = ms.Tensor(np.random.randn(batchsize, num_anchor,4), ms.float32)
-    loc_t = ms.Tensor(np.random.randn(batchsize, num_anchor,4), ms.float32)
-    conf_data = ms.Tensor(np.random.randn(batchsize, num_anchor,2), ms.float32)
-    conf_t = ms.Tensor(np.random.randn(batchsize, num_anchor), ms.float32)
-    landm_data = ms.Tensor(np.random.randn(batchsize, num_anchor,10), ms.float32)
-    landm_t = ms.Tensor(np.random.randn(batchsize, num_anchor,10), ms.float32)
-    loss_bbox, loss_class, loss_landm = multibox_loss(loc_data, loc_t, conf_data, conf_t, landm_data, landm_t)
+    head = PartialFC(num_classes = num_classes, world_size=device_num)
 
-    assert loss_bbox > 0, 'Invalid Loss'
-    assert loss_class > 0, 'Invalid Loss'
-    assert loss_landm > 0, 'Invalid Loss'
+    train_net = Network(model, head)
+
+    loss_func = ArcFace(world_size=device_num)
