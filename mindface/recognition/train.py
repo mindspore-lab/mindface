@@ -9,7 +9,7 @@ from models import iresnet100, iresnet50, get_mbf, PartialFC, vit_t, vit_s, vit_
 from loss import ArcFace
 from runner import Network, lr_generator
 from utils import read_yaml
-from optim import create_optimizer
+from mindcv import create_optimizer
 
 import mindspore
 from mindspore import context
