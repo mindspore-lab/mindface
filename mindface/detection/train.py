@@ -62,7 +62,7 @@ def train(cfg):
 
     batch_size = cfg['batch_size']
     max_epoch = cfg['epoch']
-
+    clip = cfg['clip']
     momentum = cfg['momentum']
     lr_type = cfg['lr_type']
     weight_decay = cfg['weight_decay']
@@ -73,7 +73,8 @@ def train(cfg):
     negative_ratio = 7
     stepvalues = (cfg['decay1'], cfg['decay2'])
 
-    ds_train = create_dataset(training_dataset, cfg, batch_size, multiprocessing=True, num_worker=cfg['num_workers'])
+    ds_train = create_dataset(training_dataset, cfg['variance'], cfg['match_thresh'], cfg['image_size'],
+                                clip, batch_size, multiprocessing=True, num_worker=cfg['num_workers'])
     print('dataset size is : \n', ds_train.get_dataset_size())
 
     steps_per_epoch = math.ceil(ds_train.get_dataset_size())
@@ -91,7 +92,7 @@ def train(cfg):
         load_param_into_net(backbone, param_dict)
         print(f"Load RetinaFace_{cfg['name']} from [{cfg['pretrain_path']}] done.")
 
-    net = RetinaFace(phase='train', backbone=backbone, cfg=cfg)
+    net = RetinaFace(phase='train', backbone=backbone, in_channel=cfg['in_channel'], out_channel=cfg['out_channel'])
     net.set_train(True)
 
     if cfg['resume_net'] is not None:
@@ -100,7 +101,10 @@ def train(cfg):
         load_param_into_net(net, param_dict_retinaface)
         print(f"Resume Model from [{cfg['resume_net']}] Done.")
 
-    net = RetinaFaceWithLossCell(net, multibox_loss, cfg)
+    loc_weight = cfg['loc_weight']
+    class_weight = cfg['class_weight']
+    landm_weight = cfg['landm_weight']
+    net = RetinaFaceWithLossCell(net, multibox_loss, loc_weight, class_weight, landm_weight)
 
     lr = adjust_learning_rate(initial_lr, gamma, stepvalues, steps_per_epoch, max_epoch,
                               warmup_epoch=cfg['warmup_epoch'], lr_type1=lr_type)
@@ -113,7 +117,7 @@ def train(cfg):
     else:
         raise ValueError('optim is not define.')
 
-    net = TrainingWrapper(net, opt, clip=cfg['clip'])
+    net = TrainingWrapper(net, opt, grad_clip=cfg['grad_clip'])
 
     model = Model(net)
 
@@ -130,7 +134,7 @@ def train(cfg):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train')
     # configs
-    parser.add_argument('--config', default='mindface/detection/resnet_ep.yaml', type=str,
+    parser.add_argument('--config', default='mindface/detection/configs/RetinaFace_resnet50.yaml', type=str,
                         help='configs path')
     args = parser.parse_args()
 

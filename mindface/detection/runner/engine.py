@@ -38,7 +38,18 @@ def read_yaml(path):
     return dict_yaml
 
 def decode_bbox(bbox, priors, var):
-    """decode_bbox"""
+    """Decode locations from predictions using priors to undo
+    the encoding we did for offset regression at train time.
+    Args:
+        bbox (tensor): location predictions for loc layers,
+            Shape: [num_priors,4]
+        priors (tensor): Prior boxes in center-offset form.
+            Shape: [num_priors,4].
+        var: (list[float]) Variances of priorboxes
+    Return:
+        decoded bounding box predictions
+    """
+
     boxes = np.concatenate((
         priors[:, 0:2] + bbox[:, 0:2] * var[0] * priors[:, 2:4],
         priors[:, 2:4] * np.exp(bbox[:, 2:4] * var[1])), axis=1)  # (xc, yc, w, h)
@@ -65,20 +76,22 @@ class DetectionEngine:
     DetectionEngine, a detector
 
     Args:
-        cfg (Dict): A dictory which should contains nms_thresh, conf_thresh, iou_thresh, var, save_prefix, gt_dir.
-
+        nms_thresh (Float): The threshold of nms method. Default: 0.4
+        conf_thresh (Float): The threshold of confidence. DeFault: 0.02
+        iou_thresh (Float): The threshold of iou. DeFault: 0.5
+        var (List): Variances of priorboxes. Default: [0.1, 0.2]
+        gt_dir (String): The path of ground truth.
     Examples:
         >>> detection = DetectionEngine(cfg)
     """
-    def __init__(self, cfg):
+    def __init__(self, nms_thresh=0.4, conf_thresh=0.02, iou_thresh=0.5, var=None,
+                        gt_dir='data/WiderFace/ground_truth'):
         self.results = {}
-        self.nms_thresh = cfg['val_nms_threshold']
-        self.conf_thresh = cfg['val_confidence_threshold']
-        self.iou_thresh = cfg['val_iou_threshold']
-        self.var = cfg['variance']
-        self.save_prefix = cfg['val_predict_save_folder']
-        self.gt_dir = cfg['val_gt_dir']
-        self.file_path = None
+        self.nms_thresh = nms_thresh
+        self.conf_thresh = conf_thresh
+        self.iou_thresh = iou_thresh
+        self.var = var or [0.1,0.2]
+        self.gt_dir = gt_dir
 
     def _iou(self, a, b):
         """_iou"""
@@ -134,29 +147,40 @@ class DetectionEngine:
 
         return reserved_boxes
 
-    def write_result(self):
+    def write_result(self, save_path  = None):
         """write_result"""
         # save result to file.
+        if not save_path:
+            return self.results
         t = datetime.datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
         try:
-            if not os.path.isdir(self.save_prefix):
-                os.makedirs(self.save_prefix)
+            if not os.path.isdir(save_path):
+                os.makedirs(save_path)
 
-            self.file_path = self.save_prefix + '/predict' + t + '.json'
-            with open(self.file_path, 'w', encoding='utf-8') as file:
-            # f = open(self.file_path, 'w', encoding='utf-8')
+            file_path = save_path + '/predict' + t + '.json'
+            with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(self.results, file)
+                print(f"The results were saved in {file_path}.")
+            file.close()
+            return self.results
         except IOError as err:
             raise RuntimeError(f"Unable to open json file to dump. What(): {err}") from err
-        else:
-            file.close()
-            return self.file_path
 
-    def detect(self, boxes, confs, resize, scale, image_path, priors):
-        """detect"""
+    def eval(self, boxes, confs, resize, scale, image_path, priors):
+        """eval
+        Args:
+            boxes: The boxes predicted by network.
+            confs: The confidence of boxes.
+            resize: The image scaling factor.
+            scale: The origin image size.
+            image_path: The image path of the image.
+            priors: The prior boxes.
+        """
+
         if boxes.shape[0] == 0:
             # add to result
-            event_name, img_name = image_path.split('/')
+            event_name = image_path.split('/')[-2]
+            img_name = image_path.split('/')[-1]
             self.results[event_name][img_name[:-4]] = {'img_path': image_path,
                                                        'bboxes': []}
             return
@@ -193,20 +217,25 @@ class DetectionEngine:
 
 
         # add to result
-        event_name, img_name = image_path.split('/')
+        event_name = image_path.split('/')[-2]
+        img_name = image_path.split('/')[-1]
         event_names = self.results.keys()
         if event_name not in event_names:
             self.results[event_name] = {}
         self.results[event_name][img_name[:-4]] = {'img_path': image_path,
                                                    'bboxes': dets[:, :5].astype(np.float32).tolist()}
 
-    def infer(self, boxes, confs, resize, scale, image_path, priors):
-        """infer"""
+    def infer(self, boxes, confs, resize, scale, priors):
+        """infer
+        Args:
+            boxes: The boxes predicted by network.
+            confs: The confidence of boxes.
+            resize: The image scaling factor.
+            scale: The origin image size.
+            priors: The prior boxes.
+        """
+
         if boxes.shape[0] == 0:
-            # add to result
-            event_name, img_name = image_path.split('/')
-            self.results[event_name][img_name[:-4]] = {'img_path': image_path,
-                                                       'bboxes': []}
             return None
 
         boxes = decode_bbox(np.squeeze(boxes.asnumpy(), 0), priors, self.var)
@@ -395,10 +424,16 @@ def _clip_grad(clip_type, clip_value, grad):
 
 
 class TrainingWrapper(nn.Cell):
-    """TrainingWrapper"""
-    def __init__(self, network, optimizer, sens=1.0,clip=True):
+    """TrainingWrapper
+
+    Args:
+        network (Object): The network.
+        optimizer (Object): The optimizer.
+        grad_clip (Bool): Whether to clip the gradient.
+    """
+    def __init__(self, network, optimizer, sens=1.0,grad_clip=True):
         super().__init__(auto_prefix=False)
-        self.clip = clip
+        self.clip = grad_clip
         self.network = network
         self.weights = mindspore.ParameterTuple(network.trainable_params())
         self.optimizer = optimizer

@@ -34,7 +34,7 @@ def infer(cfg):
         backbone = resnet50(1001)
     elif cfg['name'] == 'MobileNet025':
         backbone = mobilenet025(1000)
-    network = RetinaFace(phase='predict', backbone=backbone, cfg=cfg)
+    network = RetinaFace(phase='predict',backbone=backbone,in_channel=cfg['in_channel'],out_channel=cfg['out_channel'])
     backbone.set_train(False)
     network.set_train(False)
 
@@ -74,7 +74,9 @@ def infer(cfg):
                             min_sizes=[[16, 32], [64, 128], [256, 512]],
                             steps=[8, 16, 32],
                             clip=False)
-    detection = DetectionEngine(cfg)
+    detection = DetectionEngine(nms_thresh = cfg['val_nms_threshold'], conf_thresh = cfg['val_confidence_threshold'],
+                                    iou_thresh = cfg['val_iou_threshold'], var = cfg['variance'])
+
     # testing begin
     print('Predict box starting')
 
@@ -113,7 +115,7 @@ def infer(cfg):
     img = Tensor(img)
 
     boxes, confs, _ = network(img)
-    boxes = detection.infer(boxes, confs, resize, scale, image_path, priors)
+    boxes = detection.infer(boxes, confs, resize, scale, priors)
     img_each = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
     for box in boxes:
@@ -130,9 +132,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='infer')
     parser.add_argument('--config', default='mindface/detection/configs/RetinaFace_mobilenet025.yaml', type=str,
                         help='configs path')
-    parser.add_argument('--checkpoint', type=str, default='ckpt/RetinaFace_5-120_402.ckpt',
+    parser.add_argument('--checkpoint', type=str, default='',
                         help='checpoint path')
-    parser.add_argument('--image_path', type=str, default='mindface/detection/imgs/0000.jpg',
+    parser.add_argument('--image_path', type=str, default='test/detection/imgs/0000.jpg',
                         help='image path')
     parser.add_argument('--conf', type=float, default=0.5,
                         help='confidence of bbox')
