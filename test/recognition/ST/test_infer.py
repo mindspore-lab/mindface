@@ -4,7 +4,7 @@ Training face recognition models.
 import os
 import argparse
 
-from datasets import create_dataset
+from mindface.recognition.datasets import create_dataset
 from mindface.recognition.models import iresnet100, iresnet50, get_mbf, PartialFC, vit_t, vit_s, vit_b, vit_l
 from mindface.recognition.loss import ArcFace
 from mindface.recognition.runner import Network, lr_generator
