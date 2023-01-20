@@ -22,10 +22,9 @@ from mindspore.communication.management import init, get_rank
 from mindspore.parallel import _cost_model_context as cost_model_context
 from mindspore.parallel import set_algo_parameters
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-from mindface.recognition.models import iresnet50, iresnet100, get_mbf, vit_t, vit_s, vit_b, vit_l
+
 
 def main():
-    config = '../../../configs/train_config_casia_vit_t.yaml'
     batch_size = 128
     device_target = 'Ascend'
     running_mode = 'GRAPH'
@@ -34,45 +33,6 @@ def main():
     num_features = 512
     num_classes = 10572
     ms.common.set_seed(seed)
-
-    train_info = read_yaml(os.path.join(os.getcwd(), config))
-
-    if running_mode == "GRAPH":
-        DATASET_SINK_MODE = True
-        context.set_context(mode=context.GRAPH_MODE,
-                            device_target=device_target, save_graphs=False)
-    elif running_mode == "PYNATIVE":
-        DATASET_SINK_MODE = False
-        context.set_context(mode=context.PYNATIVE_MODE,
-                            device_target=device_target, save_graphs=False)
-    else:
-        raise NotImplementedError
-
-    device_num = 1
-
-    if device_num > 1:
-        if device_target == 'Ascend':
-            device_id = int(os.getenv('DEVICE_ID'))
-            context.set_context(device_id=device_id)
-            context.set_auto_parallel_context(
-                    parallel_mode=ParallelMode.DATA_PARALLEL,
-                    gradients_mean=True
-                )
-            cost_model_context.set_cost_model_context(
-                    device_memory_capacity = train_info["device_memory_capacity"],
-                    costmodel_gamma=train_info["costmodel_gamma"],
-                    costmodel_beta=train_info["costmodel_beta"]
-                )
-            set_algo_parameters(elementwise_op_strategy_follow=True)
-            init()
-        elif device_target == 'GPU':
-            init()
-            context.set_auto_parallel_context(device_num=device_num,
-                                              parallel_mode=ParallelMode.DATA_PARALLEL,
-                                              gradients_mean=True,
-                                              search_mode="recursive_programming")
-    else:
-        device_id = int(os.getenv('DEVICE_ID')) if os.getenv('DEVICE_ID') is not None else 0
     if model_name == 'iresnet50':
         model = iresnet50(num_features=num_features)
         print("Finish loading iresnet50")
