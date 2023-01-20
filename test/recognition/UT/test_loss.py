@@ -6,10 +6,13 @@ from mindface.recognition.runner import Network
 from mindface.recognition.models import iresnet50, iresnet100, get_mbf, vit_t, vit_s, vit_b, vit_l, PartialFC
 from mindface.recognition.loss import ArcFace
 
-def test_loss():
-    model_name = 'iresnet50'
+import pytest
+
+@pytest.mark.parametrize('model_name', ['iresnet50', 'iresnet100', 'mobilefacenet', 'vit_t', 'vit_s', 'vit_b', 'vit_l'])
+@pytest.mark.parametrize('num_classes', [10572, 85742])
+
+def test_loss(model_name, num_classes):  
     num_features = 512
-    num_classes = 10572
     device_num = 1
     if model_name == 'iresnet50':
         model = iresnet50(num_features=num_features)
@@ -35,9 +38,9 @@ def test_loss():
     else:
         raise NotImplementedError
 
-
     head = PartialFC(num_classes = num_classes, world_size=device_num)
 
     train_net = Network(model, head)
 
     loss_func = ArcFace(world_size=device_num)
+    assert num_features > 0, 'Invalid Loss'

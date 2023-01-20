@@ -23,15 +23,16 @@ from mindspore.parallel import _cost_model_context as cost_model_context
 from mindspore.parallel import set_algo_parameters
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
+import pytest
 
-def main():
+@pytest.mark.parametrize('model_name', ['iresnet50', 'iresnet100', 'mobilefacenet', 'vit_t', 'vit_s', 'vit_b', 'vit_l'])
+@pytest.mark.parametrize('num_classes', [10572, 85742])
+def infer_test(model_name, num_classes):
     batch_size = 128
     device_target = 'Ascend'
     running_mode = 'GRAPH'
     seed = 2022
-    model_name = iresnet50
     num_features = 512
-    num_classes = 10572
     ms.common.set_seed(seed)
     if model_name == 'iresnet50':
         model = iresnet50(num_features=num_features)
