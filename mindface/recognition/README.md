@@ -1,15 +1,18 @@
-# ArcFace in MindSpore
+# Face Recognition in MindSpore
 <div align="center">
 
 English | [简体中文](README_zh-CN.md)
 
 </div>
+
 ## Introduction
 MindSpore is a new generation of full-scenario AI computing framework launched by Huawei in August 2019 and released On March 28, 2020.
 
-This repository is the mindspore implementation of ArcFace and has achieved great performance. We implemented two versions based on ResNet and MobileNet to meet different needs.
-<div align="center"><img src="image/arcface.png" width="600" ></div>
+This repository will be continuously updated with a series of algorithms for face recognition, and it contains the mindspore implementation of ArcFace. We implemented two versions based on ResNet and MobileNet to meet different needs.
 
+![arcface](https://user-images.githubusercontent.com/39859528/213472422-844c80c5-fea9-4d92-920a-d8bcac39c37a.png)
+
+<div align="center">Training a DCNN for face recognition supervised by the ArcFace loss. </div>
 
 ## Updates!!
 + 【2022/12/20】 vit tiny/small/base/large backbone are supported.
@@ -61,10 +64,9 @@ pip install -r requirements.txt
 
 <summary>Prepare Data</summary>
 
-Step1. Prepare and Download the dataset 
+Step1. Prepare and download the dataset 
 - [CASIA](https://github.com/deepinsight/insightface/tree/master/recognition/_datasets_#casia-webface-10k-ids05m-images-1) (10K ids/0.5M images)
 - [MS1MV2](https://github.com/deepinsight/insightface/tree/master/recognition/_datasets_#ms1m-arcface-85k-ids58m-images-57) (87k IDs, 5.8M images)
-
 
 Step2. Convert the dataset from rec format to jpg format
 ```python
@@ -72,34 +74,35 @@ cd mindface/recognition
 python utils/rec2jpg_dataset.py --include the/path/to/rec --output output/path
 ```
 
+<summary>Train</summary>
 
-
-
-
-
-<summary>Train and Eval</summary>
-The example commands below show how to run distributed training.
-
-Step1. Train
-```shell
+```python
 # Distributed training example
-bash scripts/run_distribute_train.sh rank_size /path/dataset
+mpirun -n 4 --allow-run-as-root --output-filename log_output --merge-stderr-to-stdout \
+python train.py --config 'configs/train_config_casia_vit_t.yaml' --device_target 'GPU'
 ```
 
-Step2. Eval
-```shell
+<summary>Eval</summary>
+
+```python
 # Evaluation example
-bash scripts/run_eval.sh /path/evalset /path/ckpt
+python eval.py --ckpt_url 'pretrained/arcface_vit_t.ckpt' --device_target "GPU" --model "vit_t" --target lfw,cfp_fp,agedb_30,calfw,cplfw
 ```
 
+<summary>Infer</summary>
 
+```python
+# Use infer() to predict the image
+>>> img = input_img
+>>> out1 = infer(input_img, backbone="vit_t", pretrained="pretrained/arcface_vit_t.ckpt")
+```
 
 
 <summary>Tutorials</summary>
 
-- [Getting Started](../../tutorials/detection/get_started.md) 
+- [Getting Started](../../tutorials/recognition/get_started.md) 
   
-- [Learn about recognition configs](../../tutorials/detection/config.md) 
+- [Learn about recognition configs](../../tutorials/recognition/config.md) 
 - [Learn to reproduce the eval result and inference with a pretrained model](../../tutorials/recognition/inference.md) 
 - [Learn about how to create dataset](../../tutorials/recognition/dataset.md)
 - [Learn about how to train/finetune a model](../../tutorials/recognition/finetune.md)
