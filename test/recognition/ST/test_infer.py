@@ -23,10 +23,10 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 import pytest
 
 @pytest.mark.parametrize('model_name', ['iresnet50', 'iresnet100', 'mobilefacenet', 'vit_t', 'vit_s', 'vit_b', 'vit_l'])
-@pytest.mark.parametrize('num_classes', [10572, 85742])
-def infer_test(model_name, num_classes):
+def test_infer(model_name):
     batch_size = 128
     device_target = 'Ascend'
+    num_classes = 10572
     running_mode = 'GRAPH'
     seed = 2022
     num_features = 512
@@ -58,4 +58,5 @@ def infer_test(model_name, num_classes):
     x = ms.Tensor(np.ones([bs, 3, 112, 112]), ms.float32)
     output = model(x)
     assert output.shape[0] == bs, 'output shape not match'
-
+if __name__ == '__main__':
+    test_infer('mobilenet025', 1600)

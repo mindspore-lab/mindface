@@ -1,61 +1,70 @@
-"""
-Training face recognition models.
-"""
-import os
+# import packages
 import sys
 sys.path.append('.')
 
-from mindface.recognition.models import iresnet100, iresnet50, get_mbf, PartialFC, vit_t, vit_s, vit_b, vit_l
-from mindface.recognition.loss import ArcFace
-from mindface.recognition.runner import Network, lr_generator
-
-import mindspore as ms
-from mindspore import context
 import numpy as np
-from mindspore import FixedLossScaleManager, DynamicLossScaleManager
-from mindspore.train.model import Model, ParallelMode
-from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMonitor, TimeMonitor
-from mindspore.communication.management import init, get_rank
-from mindspore.parallel import _cost_model_context as cost_model_context
-from mindspore.parallel import set_algo_parameters
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
 import pytest
+import cv2
 
-@pytest.mark.parametrize('model_name', ['iresnet50', 'iresnet100', 'mobilefacenet', 'vit_t', 'vit_s', 'vit_b', 'vit_l'])
-@pytest.mark.parametrize('num_classes', [10572, 85742])
-def infer_test(model_name, num_classes):
-    batch_size = 128
-    device_target = 'Ascend'
-    running_mode = 'GRAPH'
-    seed = 2022
-    num_features = 512
-    ms.common.set_seed(seed)
-    if model_name == 'iresnet50':
-        model = iresnet50(num_features=num_features)
-        print("Finish loading iresnet50")
-    elif model_name == 'iresnet100':
-        model = iresnet100(num_features=num_features)
-        print("Finish loading iresnet100")
-    elif model_name == 'mobilefacenet':
-        model = get_mbf(num_features=num_features)
-        print("Finish loading mobilefacenet")
-    elif model_name == 'vit_t':
-        model = vit_t(num_features=num_features)
-        print("Finish loading vit_t")
-    elif model_name == 'vit_s':
-        model = vit_s(num_features=num_features)
-        print("Finish loading vit_s")
-    elif model_name == 'vit_b':
-        model = vit_b(num_features=num_features)
-        print("Finish loading vit_b")
-    elif model_name == 'vit_l':
-        model = vit_l(num_features=num_features)
-        print("Finish loading vit_l")
-    else:
-        raise NotImplementedError
-    bs = 256
-    x = ms.Tensor(np.ones([bs, 3, 112, 112]), ms.float32)
-    output = model(x)
-    assert output.shape[0] == bs, 'output shape not match'
+from mindspore import Tensor, context
+from mindface.detection.models import RetinaFace, mobilenet025, resnet50
+from mindface.detection.runner import DetectionEngine
+from mindface.detection.utils import prior_box
 
+@pytest.mark.parametrize('backbone_name', ['mobilenet025', 'resnet50'])
+@pytest.mark.parametrize('target_size', [1200, 1600])
+def test_detect(backbone_name, target_size):
+    """The test api of eval and infer."""
+    context.set_context(mode=context.PYNATIVE_MODE, device_target='CPU')
+    if backbone_name == 'resnet50':
+        backbone = resnet50(1001)
+        network = RetinaFace(phase='predict', backbone = backbone, in_channel=256, out_channel=256)     
+    elif backbone_name == 'mobilenet025':
+        backbone = mobilenet025(1000)
+        network = RetinaFace(phase='predict', backbone = backbone, in_channel=32, out_channel=64)
+
+    backbone.set_train(False)
+    network.set_train(False)
+
+    detector = DetectionEngine()
+    target_size = target_size
+    max_size = int(target_size*1.2)
+    priors = prior_box(image_sizes=(max_size, max_size),
+                        min_sizes=[[16, 32], [64, 128], [256, 512]],
+                        steps=[8, 16, 32],
+                        clip=False)
+    image_path = 'test/detection/imgs/0000.jpg'
+    img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+
+    img = np.float32(img)
+
+    im_size_min = np.min(img.shape[0:2])
+    im_size_max = np.max(img.shape[0:2])
+    resize = float(target_size) / float(im_size_min)
+    if np.round(resize * im_size_max) > max_size:
+        resize = float(max_size) / float(im_size_max)
+    img = cv2.resize(img, None, None, fx=resize, fy=resize, interpolation=cv2.INTER_LINEAR)
+
+    image_t = np.empty((max_size, max_size, 3), dtype=img.dtype)
+    image_t[:, :] = (104.0, 117.0, 123.0)
+    image_t[0:img.shape[0], 0:img.shape[1]] = img
+    img = image_t
+
+    scale = np.array([img.shape[1], img.shape[0], img.shape[1], img.shape[0]], dtype=img.dtype)
+    img -= (104, 117, 123)
+    img = img.transpose(2, 0, 1)
+    img = np.expand_dims(img, 0)
+    img = Tensor(img)
+
+    if resize is not list:
+        resize = [resize]
+    boxes, confs, _ = network(img)
+    boxes_infer = detector.infer(boxes, confs, resize, scale, priors)
+    assert len(boxes_infer) >0, 'Can not detect the faces'
+    assert len(boxes_infer[0])==5, 'Not a BBox'
+    detector.eval(boxes, confs, resize, scale, image_path, priors)
+    results = detector.write_result()
+    assert results is not None, 'Saved Nothing!'
+
+if __name__ == '__main__':
+    test_detect('mobilenet025', 1600)
