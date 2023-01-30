@@ -83,7 +83,7 @@ python setup.py install
 
 ## 快速入门
 
-为了快速入门MindFace，请点击[检测教程](tutorials/detection/get_started.md)和[识别教程](tutorials/recognition/get_started.md)，仔细阅读文档，其中将会对Mindface中的每个关键组件和训练、验证、预测进行快速介绍。
+为了快速入门MindFace，请点击[检测教程](tutorials/detection/get_started_CN.md)和[识别教程](tutorials/recognition/get_started.md)，仔细阅读文档，其中将会对Mindface中的每个关键组件和训练、验证、预测进行快速介绍。
 
 
 ## 教程
