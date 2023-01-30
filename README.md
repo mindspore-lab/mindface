@@ -1,4 +1,4 @@
-# MindFace: 
+# MindFace
 <div align="center">
 
 English | [简体中文](README_CN.md)
@@ -29,7 +29,7 @@ MindFace mainly has the following features.
 
 ### Benchmark Results
 #### Recognition
-The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
+The MindSpore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
 
 | Datasets       | Backbone            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
@@ -72,7 +72,7 @@ MindSpore can be easily installed by following the official [instruction](https:
 ### Install from source
 To install MindFace from source, please run
 ```shell
-# Clone the mindface repository.
+# Clone the MindFace repository.
 git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
@@ -146,7 +146,7 @@ The dynamic version is still under development, if you find any issues or have a
 
 MindFace is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
 
-If you find *MindFace* useful in your research, please consider to cite the following related papers:
+If you find *MindFace* useful in your research, please consider citing the following related papers:
 
 ```
 @misc{MindFace 2022,
