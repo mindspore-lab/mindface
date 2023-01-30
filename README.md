@@ -19,7 +19,7 @@ MindFace mainly has the following features.
 
 - Unified Application Programming Interface
 
-    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the mindface APIs, which greatly improves the ease of building algorithms for users
+    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the MindFace APIs, which greatly improves the ease of building algorithms for users
 
 - Strong Extensibility
 
