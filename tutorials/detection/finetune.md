@@ -2,7 +2,7 @@
 在本教程中，您将学会如何使用MindFace套件搭建RetinaFace模型并进行微调。本文档将分成四个模块（数据准备、模型创建、训练微调、模型评估）详细介绍。
 
 ## 准备数据
----
+
 
 1. 安装mindface
 
@@ -46,7 +46,7 @@
 [RetinaFace-MobileNet025](https://download.mindspore.cn/toolkits/mindface/retinaface/RetinaFace_MobileNet025.ckpt)
     
 ## 构建模型
----
+
 ### 加载功能包，调用所需函数
 
 在这一部分，我们集中import所需要的功能包，调用之后需要用到的一些函数。
@@ -123,7 +123,7 @@ retinaface_mobilenet025.set_train(True)
 这一部分代码如果模型构建没有出问题的话，会直接显示RetinaFace的模型结构。
 
 ## 训练微调
----
+
 ### 加载预训练模型
 当我们有了一个预训练权重的时候，可以通过`load_checkpoint`函数从本地加载预训练模型文件，并通过`load_param_into_net`函数将backbone和预训练模型加载进训练网络。此处的权重路径读者可以修改`pretrain_model_path`为自己下载的权重的具体位置，注意使用`RetinaFace_mobilenet025.yaml`的配置文件一定要加载名为`RetinaFace_MobileNet025.ckpt`的权重，使用resnet版本亦然。
 
