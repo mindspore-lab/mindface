@@ -1,5 +1,5 @@
 
-# MindFace: 
+# MindFace
 Face recognition and detection occupy an important position in the face field. MindFace is an open source toolkit based on MindSpore, containing the most advanced face recognition and detection models, such as ArcFace, RetinaFace and other models, mainly for face recognition and detection and other common application scenarios.
 
 For all main contributors, please check [contributing](#contributing).
@@ -10,7 +10,7 @@ For all main contributors, please check [contributing](#contributing).
 MindFace mainly has the following features.
 - Unified Application Programming Interface
 
-    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the mindface APIs, which greatly improves the ease of building algorithms for users
+    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the MindFace APIs, which greatly improves the ease of building algorithms for users
 
 - Strong extensibility
 
@@ -49,7 +49,7 @@ pip install mindface
 ### Install from source
 To install MindFace from source, please run,
 ```shell
-# Clone the mindface repository.
+# Clone the MindFace repository.
 git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
@@ -74,16 +74,16 @@ We provide [tutorials](tutorials) for the recognition and detection task.
 ### Detection
 - [Learn about detection configs](tutorials/detection/config.md)  
 - [Inference with a pretrained detection model](tutorials/detection/infer.md) 
-- [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.ipynb)
+- [Finetune a pretrained detection model on WiderFace](tutorials/detection/finetune.md)
 
 ---
 
 
-### Supported Projects
+### Supported Models
 
 #### Recognition
 ---
-The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet, MobileNet and vit to meet different needs. Detailed results are shown in the table below.
+The mindspore implementation of ArcFace has achieved great performance. We implemented three versions based on ResNet, MobileNet and vit to meet different needs. Detailed results are shown in the table below.
 
 | Datasets       | Backbone            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
@@ -124,13 +124,13 @@ The dynamic version is still under development, if you find any issue or have an
 
 MindSpore is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
 
-If you find *MindFace* useful in your research, please consider to cite the following related papers:
+If you find *MindFace* useful in your research, please consider citing the following related papers:
 
 ```
 @misc{MindFace 2022,
     title={{mindface}:mindface for face recognition and detection},
     author={mindface},
-    howpublished = {\url{https://github.com/mindlab-ai/mindface/}},
+    howpublished = {\url{https://github.com/mindspore-lab/mindface/}},
     year={2022}
 }
 
