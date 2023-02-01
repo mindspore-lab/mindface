@@ -5,7 +5,7 @@ English | [简体中文](README_CN.md)
 
 </div>
 
-| [Introduction](#introduction) | [Installation](#installation) | [Get Started](#get-started) | [Tutorials](#tutorials) | [Model List](#model-list) | [Notes](#notes) | [License](#license) | [Feedbacks and Contact](#feedbacks-and-contact) | [Acknowledgement](#acknowledgement) | [Contributing](#contributing) |
+| [Introduction](#introduction) | [Installation](#installation) | [Get Started](#get-started) | [Tutorials](#tutorials) | [Model List](#model-list) | [Notes](#notes) |
 
 ## Introduction
 
@@ -43,10 +43,10 @@ The MindSpore implementation of ArcFace and has achieved great performance. We i
 #### Detection
 For face detection, we choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
 
-| Backbone | Easy | Middle | Hard |
-|:-|:-:|:-:|:-:|
-| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
-| ResNet50 | 95.81% | 94.89% | 90.10% |
+| Dataset | Backbone | Easy | Middle | Hard |
+|:-|:-|:-:|:-:|:-:|
+| WiderFace | mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| WiderFace | ResNet50 | 95.81% | 94.89% | 90.10% |
 
 
 ## Installation
