@@ -43,10 +43,10 @@ MindFace主要具有以下优点:
 #### 检测任务
 对于检测任务，我们选取了Resnet50和Mobilenet0.25作为主干网络，Retinaface作为模型架构，以实现良好的人脸检测性能。详细结果如下表所示。
 
-| 主干网络 | 简单 | 中等 | 困难 |
-|:-|:-:|:-:|:-:|
-| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
-| ResNet50 | 95.81% | 94.89% | 90.10% |
+| 数据集 | 主干网络 | 简单 | 中等 | 困难 |
+|:-|:-|:-:|:-:|:-:|
+| WiderFace | mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| WiderFace | ResNet50 | 95.81% | 94.89% | 90.10% |
 
 
 ## 安装
@@ -177,5 +177,5 @@ CMIC实验室的研究主题包括多媒体计算、多模态信息感知、认�
 - Hao Chang, ``changhaoustc[at]mail.ustc.edu.cn``
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
-- Keda Lu, ``wujiekd666[at]gmail.com``
+- Keda Lu, ``lukeda@mail.ustc.edu.cn``
 - Pengwei Li, ``lipw@mail.ustc.edu.cn``
