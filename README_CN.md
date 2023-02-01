@@ -177,5 +177,5 @@ CMIC实验室的研究主题包括多媒体计算、多模态信息感知、认�
 - Hao Chang, ``changhaoustc[at]mail.ustc.edu.cn``
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
-- Keda Lu, ``wujiekd666[at]gmail.com``
+- Keda Lu, ``lukeda@mail.ustc.edu.cn``
 - Pengwei Li, ``lipw@mail.ustc.edu.cn``
