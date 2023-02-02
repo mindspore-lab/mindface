@@ -29,7 +29,7 @@ MindFace主要具有以下优点:
 
 ### 基准结果
 #### 识别任务
-基于MindSpore实现的ArcFace系列模型取得了良好性能。我们基于ResNet和MobileNet实现了三个版本，以满足不同的需求。详细结果如下表所示。
+基于MindSpore实现的ArcFace系列模型取得了良好性能。我们基于ResNet、MobileNet和vit实现了三个版本，以满足不同的需求。详细结果如下表所示。
 
 | 数据集       | 主干网络            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 ### 利用源进行安装
 利用源安装MindFace，请运行：
 ```shell
-# Clone the mindface repository.
+# Clone the MindFace repository.
 git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
@@ -112,7 +112,7 @@ python setup.py install
 
 
 ## 模型列表
-目前，Mindface支持以下模型。更多带有预训练权重的模型正在开发中，将于近期发布。
+目前，MindFace支持以下模型。更多带有预训练权重的模型正在开发中，将于近期发布。
 
 <details>
 <summary>支持模型</summary>
