@@ -63,7 +63,7 @@ def _choose_candidate(max_trial, image_w, image_h, boxes):
                 continue
             candidates.append((dx, dy, nw, nh))
         else:
-            raise Exception("!!! annotation box is less than 1")
+            raise RuntimeError("!!! annotation box is less than 1")
 
         if len(candidates) >= 3:
             break
@@ -150,7 +150,7 @@ def _correct_bbox_by_candidates(candidates, input_w, input_h, flip,\
 
             return targets_t, candidate
 
-    raise Exception('all candidates can not satisfied re-correct bbox')
+    raise RuntimeError('all candidates can not satisfied re-correct bbox')
 
 def get_interp_method(interp, sizes=()):
     """Get the interpolation method for resize functions.
