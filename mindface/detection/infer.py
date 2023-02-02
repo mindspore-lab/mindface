@@ -48,32 +48,9 @@ def infer(cfg):
     # testing image
 
     conf_test = cfg['conf']
-    test_origin_size = False
     image_path = cfg['image_path']
 
-    if test_origin_size:
-        h_max, w_max = 0, 0
 
-        img_each = cv2.imread(image_path, cv2.IMREAD_COLOR)
-        if img_each.shape[0] > h_max:
-            h_max = img_each.shape[0]
-        if img_each.shape[1] > w_max:
-            w_max = img_each.shape[1]
-
-        h_max = (int(h_max / 32) + 1) * 32
-        w_max = (int(w_max / 32) + 1) * 32
-
-        priors = prior_box(image_sizes=(h_max, w_max),
-                           min_sizes=[[16, 32], [64, 128], [256, 512]],
-                           steps=[8, 16, 32],
-                           clip=False)
-    else:
-        target_size = 1600
-        max_size = 2176
-        priors = prior_box(image_sizes=(max_size, max_size),
-                            min_sizes=[[16, 32], [64, 128], [256, 512]],
-                            steps=[8, 16, 32],
-                            clip=False)
     detection = DetectionEngine(nms_thresh = cfg['val_nms_threshold'], conf_thresh = cfg['val_confidence_threshold'],
                                     iou_thresh = cfg['val_iou_threshold'], var = cfg['variance'])
 
@@ -83,30 +60,27 @@ def infer(cfg):
     img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
     img = np.float32(img_raw)
 
-    #testing scale
-    if test_origin_size:
-        resize = 1
-        assert img.shape[0] <= h_max and img.shape[1] <= w_max
-        image_t = np.empty((h_max, w_max, 3), dtype=img.dtype)
-        image_t[:, :] = (104.0, 117.0, 123.0)
-        image_t[0:img.shape[0], 0:img.shape[1]] = img
-        img = image_t
-    else:
-        im_size_min = np.min(img.shape[0:2])
-        im_size_max = np.max(img.shape[0:2])
-        resize = float(target_size) / float(im_size_min)
-        # prevent bigger axis from being more than max_size:
-        if np.round(resize * im_size_max) > max_size:
-            resize = float(max_size) / float(im_size_max)
+    target_size = 1600
+    max_size = 2176
+    priors = prior_box(image_sizes=(max_size, max_size),
+                        min_sizes=[[16, 32], [64, 128], [256, 512]],
+                        steps=[8, 16, 32],
+                        clip=False)
 
-        img = cv2.resize(img, None, None, fx=resize, fy=resize, interpolation=cv2.INTER_LINEAR)
+    im_size_min = np.min(img.shape[0:2])
+    im_size_max = np.max(img.shape[0:2])
+    resize = float(target_size) / float(im_size_min)
+    # prevent bigger axis from being more than max_size:
+    if np.round(resize * im_size_max) > max_size:
+        resize = float(max_size) / float(im_size_max)
 
-        assert img.shape[0] <= max_size and img.shape[1] <= max_size
-        image_t = np.empty((max_size, max_size, 3), dtype=img.dtype)
-        image_t[:, :] = (104.0, 117.0, 123.0)
-        image_t[0:img.shape[0], 0:img.shape[1]] = img
-        img = image_t
+    img = cv2.resize(img, None, None, fx=resize, fy=resize, interpolation=cv2.INTER_LINEAR)
 
+    assert img.shape[0] <= max_size and img.shape[1] <= max_size
+    image_t = np.empty((max_size, max_size, 3), dtype=img.dtype)
+    image_t[:, :] = (104.0, 117.0, 123.0)
+    image_t[0:img.shape[0], 0:img.shape[1]] = img
+    img = image_t
 
     scale = np.array([img.shape[1], img.shape[0], img.shape[1], img.shape[0]], dtype=img.dtype)
     img -= (104, 117, 123)
