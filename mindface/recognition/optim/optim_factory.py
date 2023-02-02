@@ -75,7 +75,7 @@ def create_optimizer(
     if weight_decay and filter_bias_and_bn:
         params = init_group_params(params, weight_decay)
 
-    opt_args = dict(**kwargs)
+    opt_args = {**kwargs}
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)
 
