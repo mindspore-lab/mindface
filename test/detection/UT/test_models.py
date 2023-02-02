@@ -11,10 +11,10 @@ from mindface.recognition.models import iresnet50, iresnet100, get_mbf, vit_t, v
 def test_model(model_name):
     num_features = 512
     if model_name == 'iresnet50':
-        model = iresnet50(num_features=num_features)
+        model = iresnet50()
         print("Finish loading iresnet50")
     elif model_name == 'iresnet100':
-        model = iresnet100(num_features=num_features)
+        model = iresnet100()
         print("Finish loading iresnet100")
     elif model_name == 'mobilefacenet':
         model = get_mbf(num_features=num_features)
