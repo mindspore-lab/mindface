@@ -1,11 +1,11 @@
-# MindFace: 
+# MindFace
 <div align="center">
 
 English | [简体中文](README_CN.md)
 
 </div>
 
-| [Introduction](#introduction) | [Installation](#installation) | [Get Started](#get-started) | [Tutorials](#tutorials) | [Model List](#model-list) | [Notes](#notes) | [License](#license) | [Feedbacks and Contact](#feedbacks-and-contact) | [Acknowledgement](#acknowledgement) | [Contributing](#contributing) |
+| [Introduction](#introduction) | [Installation](#installation) | [Get Started](#get-started) | [Tutorials](#tutorials) | [Model List](#model-list) | [Notes](#notes) |
 
 ## Introduction
 
@@ -19,7 +19,7 @@ MindFace mainly has the following features.
 
 - Unified Application Programming Interface
 
-    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the mindface APIs, which greatly improves the ease of building algorithms for users
+    MindFace provides a unified application programming interface for face recognition and detection by decoupling the models, so that the model can be called directly using the MindFace APIs, which greatly improves the ease of building algorithms for users
 
 - Strong Extensibility
 
@@ -29,7 +29,7 @@ MindFace mainly has the following features.
 
 ### Benchmark Results
 #### Recognition
-The mindspore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
+The MindSpore implementation of ArcFace and has achieved great performance. We implemented three versions based on ResNet and MobileNet to meet different needs. Detailed results are shown in the table below.
 
 | Datasets       | Backbone            | lfw         | cfp_fp      | agedb_30    | calfw | cplfw |
 |:---------------|:--------------------|:------------|:------------|:------------|:------------|:------------|
@@ -43,10 +43,10 @@ The mindspore implementation of ArcFace and has achieved great performance. We i
 #### Detection
 For face detection, we choose resnet50 and mobilenet0.25 as the backbone, retinaface as the model architecture to achieve efficient performance of face detection. Detailed results are shown in the table below.
 
-| Backbone | Easy | Middle | Hard |
-|:-|:-:|:-:|:-:|
-| mobileNet0.25 | 91.60% | 89.50% | 82.39% |
-| ResNet50 | 95.81% | 94.89% | 90.10% |
+| Dataset | Backbone | Easy | Middle | Hard |
+|:-|:-|:-:|:-:|:-:|
+| WiderFace | mobileNet0.25 | 91.60% | 89.50% | 82.39% |
+| WiderFace | ResNet50 | 95.81% | 94.89% | 90.10% |
 
 
 ## Installation
@@ -72,7 +72,7 @@ MindSpore can be easily installed by following the official [instruction](https:
 ### Install from source
 To install MindFace from source, please run
 ```shell
-# Clone the mindface repository.
+# Clone the MindFace repository.
 git clone https://github.com/mindspore-lab/mindface.git
 cd mindface
 
@@ -146,7 +146,7 @@ The dynamic version is still under development, if you find any issues or have a
 
 MindFace is an open source project that welcome any contribution and feedback. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible as well as standardized toolkit to reimplement existing methods and develop their own new computer vision methods.
 
-If you find *MindFace* useful in your research, please consider to cite the following related papers:
+If you find *MindFace* useful in your research, please consider citing the following related papers:
 
 ```
 @misc{MindFace 2022,
@@ -182,5 +182,5 @@ CMIC has won 24 Grand Challenge Champion Awards from premier conferences, includ
 - Hao Chang, ``changhaoustc[at]mail.ustc.edu.cn``
 - Mohan Jing, ``jing_mohan@mail.ustc.edu.cn``
 - Haoxiang Shi, ``shihaoxiang@mail.ustc.edu.cn``
-- Keda Lu, ``wujiekd666[at]gmail.com``
-- Pengwei Li, ``3163398705[at]qq.com``
+- Keda Lu, ``lukeda@mail.ustc.edu.cn``
+- Pengwei Li, ``lipw@mail.ustc.edu.cn``
