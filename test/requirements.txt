@@ -1,4 +1,4 @@
-mindspore-dev
+mindspore
 numpy
 pylint
 pytest
